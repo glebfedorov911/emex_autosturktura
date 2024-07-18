@@ -131,4 +131,3 @@ if __name__ == '__main__':
 
     print(time.perf_counter()-t) 
     os.system("taskkill /im chromium.exe /f")
-print('penis')

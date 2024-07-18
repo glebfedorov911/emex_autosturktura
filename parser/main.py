@@ -8,8 +8,8 @@ from playwright.sync_api import sync_playwright
 from playwright.async_api import async_playwright
 from urllib.parse import quote
 
-os.system("taskkill /im chromium.exe /f")
 
+os.system("taskkill /im chromium.exe /f")
 
 def split_file_for_thr(num: int, url: list) -> list[list]:
     '''
@@ -107,9 +107,10 @@ async def main(url: str, http, us, ps) -> None:
                     url.append(url[0])
                     url.pop(0)
                     atms += 1
-                    print(e)
+                    # print(e)
                     continue
                 atms = 0
+                print("all atms")
 
             if browser: await browser.close()
 

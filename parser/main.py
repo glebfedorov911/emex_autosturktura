@@ -28,6 +28,7 @@ def split_file_for_thr(num: int, url: list) -> list[list]:
     return new_url
 
 async def main(url: str, http, us, ps) -> None:
+    atms = 0
     while url != []:
         if url == []:
             break
@@ -102,8 +103,12 @@ async def main(url: str, http, us, ps) -> None:
                 with open('parser/new3.txt', 'a', encoding="UTF-8") as file:
                     file.write(f"{url[0]} | ОШИБКА")
                     file.write('\n')
-                url.append(url[0])
-                url.pop(0)
+                if atms < 5:
+                    url.append(url[0])
+                    url.pop(0)
+                    atms = 0
+                    continue
+                atms += 1
                 print(e)
                 continue
 

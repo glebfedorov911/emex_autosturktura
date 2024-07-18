@@ -132,7 +132,7 @@ if __name__ == '__main__':
         "https://emex.ru/products/4244501/Sampa/38760",
         "https://emex.ru/products/4310401/Sampa/38760",
         "https://emex.ru/products/04C905616D/MOTEC/38760",
-    ] * 4
+    ] * 8
 
     proxy = [
         ["http://194.35.113.239:1050", "2Q3n1o", "FjvCaesiwS"],

@@ -43,10 +43,10 @@ async def main(url: str, http, us, ps) -> None:
                 await page.goto(url[0])
                 
                 try:
-                    await page.wait_for_selector('.sc-7bab7953-1.fQUPMo.e-titleH2.e-titleH2--themeDefault', timeout=5000)
+                    await page.wait_for_selector('.sc-7bab7953-1.fQUPMo.e-titleH2.e-titleH2--themeDefault', timeout=3000)
                 except:
                     await page.reload()
-                    await page.wait_for_selector('.sc-7bab7953-1.fQUPMo.e-titleH2.e-titleH2--themeDefault', timeout=5000)
+                    await page.wait_for_selector('.sc-7bab7953-1.fQUPMo.e-titleH2.e-titleH2--themeDefault', timeout=3000)
 
                 if await page.query_selector_all('div[class="sc-f77e292d-0 jxaiPV"]') != []: 
                     await page.click('.sc-f77e292d-0.jxaiPV') #more
@@ -103,14 +103,13 @@ async def main(url: str, http, us, ps) -> None:
                 with open('parser/new3.txt', 'a', encoding="UTF-8") as file:
                     file.write(f"{url[0]} | ОШИБКА")
                     file.write('\n')
-                if atms < 5:
+                if atms < 3:
                     url.append(url[0])
                     url.pop(0)
-                    atms = 0
+                    atms += 1
+                    print(e)
                     continue
-                atms += 1
-                print(e)
-                continue
+                atms = 0
 
             if browser: await browser.close()
 
@@ -144,7 +143,7 @@ if __name__ == '__main__':
         ["http://188.130.210.107:1050", "2Q3n1o", "FjvCaesiwS"],
         ["http://109.248.139.54:1050", "2Q3n1o", "FjvCaesiwS"],
         ["http://185.181.245.74:1050", "2Q3n1o", "FjvCaesiwS"],
-    ] * 12
+    ] * ceil(128/4) 
 
     THS = 8
     url = split_file_for_thr(THS, url)

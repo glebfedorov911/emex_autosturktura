@@ -50,7 +50,7 @@ async def main(url: str, http, us, ps) -> None:
                 if await page.query_selector_all('div[class="sc-f77e292d-0 jxaiPV"]') != []: 
                     await page.click('.sc-f77e292d-0.jxaiPV') #more
                 if await page.query_selector_all("h2[class='sc-4613b6b1-2 dSXovO e-titleH2 e-titleH2--themeDefault']") != []:
-                    with open('new3.txt', 'a', encoding="UTF-8") as file:
+                    with open('parser/new3.txt', 'a', encoding="UTF-8") as file:
                         file.write(f'{url[0]} | ТОВАРА НЕТ В НАЛИЧИИ')
                         file.write('\n')
                     url.pop(0)
@@ -92,14 +92,14 @@ async def main(url: str, http, us, ps) -> None:
 
                 brand = await (await page.query_selector('div[class="sc-4599f03e-2 feGyYA"]')).text_content()
 
-                with open('new3.txt', 'a', encoding="UTF-8") as file:
+                with open('parser/new3.txt', 'a', encoding="UTF-8") as file:
                     file.write(f'{url[0]} | price: {"".join(price.split()[:-1])} | date: {date.split()[0]} | brand: {brand.split()[1][:4]}')
                     file.write('\n')
                 url.pop(0)
         
             
             except Exception as e:
-                with open('new3.txt', 'a', encoding="UTF-8") as file:
+                with open('parser/new3.txt', 'a', encoding="UTF-8") as file:
                     file.write(f"{url[0]} | ОШИБКА")
                     file.write('\n')
                 url.append(url[0])

@@ -107,7 +107,8 @@ async def main(url: str, http, us, ps) -> None:
                     url.append(url[0])
                     url.pop(0)
                     atms += 1
-                    # print(e)
+                    print(e)
+                    print(atms)
                     continue
                 atms = 0
                 print("all atms")

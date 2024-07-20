@@ -62,7 +62,6 @@ async def main(brands, nums, proxies):
             browser = await p.chromium.launch(proxy={'server': proxy[0], 'username': proxy[1], 'password': proxy[2]}, headless=False)
             page = await browser.new_page()
             try:
-                print('1)')
                 await page.goto(url, timeout=2222)
             except:
                 await page.reload()
@@ -84,7 +83,6 @@ async def main(brands, nums, proxies):
                         try:
                             await page.goto(f'https://emex.ru/api/search/rating?offerKey={offer_key_for_logo}', timeout=2222)
                         except:
-                            print('2)')
                             await page.reload()
 
                         await page.wait_for_selector('pre', timeout=2222)

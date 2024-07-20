@@ -63,7 +63,7 @@ async def main(brands, nums, proxies):
             page = await browser.new_page()
             try:
                 await page.goto(url, timeout=2222)
-            except:
+            except playwright_TimeoutError:
                 await page.reload()
             await page.mouse.wheel(0, 15000)
 
@@ -82,7 +82,7 @@ async def main(brands, nums, proxies):
                         offer_key_for_logo = data["data"]["offerKey"]
                         try:
                             await page.goto(f'https://emex.ru/api/search/rating?offerKey={offer_key_for_logo}', timeout=2222)
-                        except:
+                        except playwright_TimeoutError:
                             await page.reload()
 
                         await page.wait_for_selector('pre', timeout=2222)

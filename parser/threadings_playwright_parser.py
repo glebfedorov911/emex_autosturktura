@@ -27,6 +27,11 @@ def split_file_for_thr(num: int, url: list) -> list[list]:
     return new_url
 
 def quick_sort(arr, index):
+    '''
+    Алгоритм быстрой сортировки
+    arr - массив с массивами, которые будут сортироваться
+    index - номер элемента (с 0) по которому мы с сортируем нашима массивы
+    '''
     if len(arr) <= 1:
         return arr
     else:
@@ -37,6 +42,14 @@ def quick_sort(arr, index):
         return quick_sort(left, index) + middle + quick_sort(right, index)
 
 async def main(brands, nums, proxies):
+    '''
+    Парсер
+    brands - бренды, которые указываются в url make=
+    num - артикулы, который указываются в url detailNum=
+    proxies - список с прокси, который выбираются случайно
+    
+    Берем первые 30 товаров, сортируем их по дате доставки и записываем минимальную цену из 10 отсортированных цен по дате
+    '''
     k = 0
     for brand, num in zip(brands, nums):
         unsort_list_for_goods = []
@@ -51,13 +64,10 @@ async def main(brands, nums, proxies):
             await page.mouse.wheel(0, 15000)
 
             try:
-                await page.wait_for_selector('pre', timeout=5000)
+                await page.wait_for_selector('pre', timeout=2222)
                 pre = await (await page.query_selector("pre")).text_content()
                 response_data = dict(json.loads(pre))
                 
-                # print("\/" * 10)
-                # print(url)
-
                 for i in range(30):
                     try:
                         data = response_data["searchResult"]["originals"][0]["offers"][i]
@@ -67,28 +77,28 @@ async def main(brands, nums, proxies):
 
                         offer_key_for_logo = data["data"]["offerKey"]
                         await page.goto(f'https://emex.ru/api/search/rating?offerKey={offer_key_for_logo}')
-                        await page.wait_for_selector('pre', timeout=5000)
+                        await page.wait_for_selector('pre', timeout=2222)
                         pre_logo = await (await page.query_selector("pre")).text_content()
                         logo_data = dict(json.loads(pre_logo))
 
                         logo = logo_data["priceLogo"]
 
-                        # print("-=" * 10)
-                        # print(f"{i+1}. Количество товара: {quantity} Дата: {date} Цена: {price} Лого: {logo} | {threading.current_thread().name}")
                         unsort_list_for_goods.append([quantity, date, price, logo])
                     except IndexError:
                         break
                     except playwright_TimeoutError:
-                        print("error", url)
+                        print(i, "error1", url)
+                        continue
                     except:
                         continue
                 k += 1
             except playwright_TimeoutError:
-                print("error", url)
+                print("error2", url)
 
-            min_price_and_data = min(quick_sort(unsort_list_for_goods, 1), key=lambda x: x[2]) 
-            with open('parser/data.txt', 'a', encoding="UTF-8") as file:
-                file.write(f"{brand} {num} | Количество товара: {min_price_and_data[0]} Дата: {min_price_and_data[1]} Цена: {min_price_and_data[2]} Лого: {min_price_and_data[3]}\n")
+            if unsort_list_for_goods != []:
+                min_price_and_data = min(quick_sort(unsort_list_for_goods[:10], 1), key=lambda x: x[2]) 
+                with open('parser/data.txt', 'a', encoding="UTF-8") as file:
+                    file.write(f"{brand} {num} | Количество товара: {min_price_and_data[0]} Дата: {min_price_and_data[1]} Цена: {min_price_and_data[2]} Лого: {min_price_and_data[3]}\n")
 
             await browser.close()
     print("_____", k)
@@ -123,4 +133,3 @@ if __name__ == "__main__":
         thread.join()
 
     print(time.perf_counter() - start)
-

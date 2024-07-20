@@ -50,6 +50,7 @@ async def main(brands, nums, proxies):
     
     Берем первые 30 товаров, сортируем их по дате доставки и записываем минимальную цену из 10 отсортированных цен по дате
     '''
+    global ag_brand, ag_num
     k = 0
     for brand, num in zip(brands, nums):
         unsort_list_for_goods = []
@@ -58,9 +59,13 @@ async def main(brands, nums, proxies):
 
         url = f"https://emex.ru/api/search/search?make={brand}&detailNum={num}&locationId=38760&showAll=true&longitude=37.8613&latitude=55.7434"
         async with async_playwright() as p:
-            browser = await p.chromium.launch(proxy={'server': proxy[0], 'username': proxy[1], 'password': proxy[2]}, headless=True)
+            browser = await p.chromium.launch(proxy={'server': proxy[0], 'username': proxy[1], 'password': proxy[2]}, headless=False)
             page = await browser.new_page()
-            await page.goto(url)
+            try:
+                print('1)')
+                await page.goto(url, timeout=2222)
+            except:
+                await page.reload()
             await page.mouse.wheel(0, 15000)
 
             try:
@@ -76,7 +81,12 @@ async def main(brands, nums, proxies):
                         price = data["displayPrice"]["value"]
 
                         offer_key_for_logo = data["data"]["offerKey"]
-                        await page.goto(f'https://emex.ru/api/search/rating?offerKey={offer_key_for_logo}')
+                        try:
+                            await page.goto(f'https://emex.ru/api/search/rating?offerKey={offer_key_for_logo}', timeout=2222)
+                        except:
+                            print('2)')
+                            await page.reload()
+
                         await page.wait_for_selector('pre', timeout=2222)
                         pre_logo = await (await page.query_selector("pre")).text_content()
                         logo_data = dict(json.loads(pre_logo))
@@ -88,12 +98,14 @@ async def main(brands, nums, proxies):
                         break
                     except playwright_TimeoutError:
                         print(i, "error1", url)
-                        continue
+                        ag_brand.append(brand)
+                        ag_num.append(num)
                     except:
                         continue
                 k += 1
             except playwright_TimeoutError:
                 print("error2", url)
+                again.append((brands, num))
 
             if unsort_list_for_goods != []:
                 min_price_and_data = min(quick_sort(unsort_list_for_goods[:10], 1), key=lambda x: x[2]) 
@@ -109,17 +121,23 @@ def run(brands, nums, proxies):
 if __name__ == "__main__":
     start = time.perf_counter()
 
+    ag_brand = []
+    ag_num = []
+
     proxies = [
         ["http://194.35.113.239:1050", "2Q3n1o", "FjvCaesiwS"],
         ["http://188.130.210.107:1050", "2Q3n1o", "FjvCaesiwS"],
         ["http://109.248.139.54:1050", "2Q3n1o", "FjvCaesiwS"],
         ["http://185.181.245.74:1050", "2Q3n1o", "FjvCaesiwS"],
+
+        ["http://109.248.167.161:1050", "2Q3n1o", "FjvCaesiwS"],
+        ["http://188.130.219.173:1050", "2Q3n1o", "FjvCaesiwS"],
+        # ["http://45.81.136.39:1050", "2Q3n1o", "FjvCaesiwS"],
+        ["http://95.182.124.119:1050", "2Q3n1o", "FjvCaesiwS"],
     ]
 
-
-    brands = ["Peugeot+%2F+Citroen", "Mahle---Knecht", "Peugeot+%2F+Citroen", "Peugeot+%2F+Citroen", "Peugeot+%2F+Citroen", "Peugeot+%2F+Citroen", "%D0%93%D0%90%D0%97", "VAG", "Autocomponent"] * 10
-    nums = ["82026", "02943N0", "362312", "00004254A2", "00006426YN", "00008120T7", "6270000290", "016409399B", "01М21С9"] * 10
-    
+    brands = ["Peugeot+%2F+Citroen", "Mahle---Knecht", "Peugeot+%2F+Citroen", "Peugeot+%2F+Citroen", "Peugeot+%2F+Citroen", "Peugeot+%2F+Citroen", "%D0%93%D0%90%D0%97", "VAG", "Autocomponent"] * 15
+    nums = ["82026", "02943N0", "362312", "00004254A2", "00006426YN", "00008120T7", "6270000290", "016409399B", "01М21С9"] * 15
     brands_split = split_file_for_thr(4, brands)
     nums_split = split_file_for_thr(4, nums)
 
@@ -131,5 +149,7 @@ if __name__ == "__main__":
 
     for thread in threadings:
         thread.join()
+
+    asyncio.run(main(ag_brand, ag_num, proxies))
 
     print(time.perf_counter() - start)

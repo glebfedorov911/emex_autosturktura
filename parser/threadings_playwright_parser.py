@@ -123,6 +123,7 @@ async def main(brands, nums, proxies):
 def run(brands, nums, proxies):
     asyncio.run(main(brands, nums, proxies))
 
+
 if __name__ == "__main__":
     start = time.perf_counter()
 

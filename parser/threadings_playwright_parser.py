@@ -58,67 +58,66 @@ async def main(brands, nums, proxies):
         proxy = random.choice(proxies)
 
         url = f"https://emex.ru/api/search/search?make={brand}&detailNum={num}&locationId=38760&showAll=true&longitude=37.8613&latitude=55.7434"
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(proxy={'server': proxy[0], 'username': proxy[1], 'password': proxy[2]}, headless=True)
-            page = await browser.new_page()
-            try:
-                await page.goto(url, timeout=2222)
-            except playwright_TimeoutError:
-                await page.reload()
-            except:
-                for j in range(len(ag_brand[k:])):
-                    ag_brand.append(ag_brand[j])
-                    ag_num.append(ag_num[j])
-            await page.mouse.wheel(0, 15000)
+        try:
+            async with async_playwright() as p:
+                browser = await p.chromium.launch(proxy={'server': proxy[0], 'username': proxy[1], 'password': proxy[2]}, headless=True)
+                page = await browser.new_page()
+                try:
+                    await page.goto(url, timeout=2222)
+                except playwright_TimeoutError:
+                    await page.reload()
 
-            try:
-                await page.wait_for_selector('pre', timeout=2222)
-                pre = await (await page.query_selector("pre")).text_content()
-                response_data = dict(json.loads(pre))
-                
-                for i in range(30):
-                    try:
-                        data = response_data["searchResult"]["originals"][0]["offers"][i]
-                        quantity = data["data"]["maxQuantity"]["value"]
-                        date = data["delivery"]["value"]
-                        price = data["displayPrice"]["value"]
+                await page.mouse.wheel(0, 15000)
 
-                        offer_key_for_logo = data["data"]["offerKey"]
+                try:
+                    await page.wait_for_selector('pre', timeout=2222)
+                    pre = await (await page.query_selector("pre")).text_content()
+                    response_data = dict(json.loads(pre))
+                    
+                    for i in range(30):
                         try:
-                            await page.goto(f'https://emex.ru/api/search/rating?offerKey={offer_key_for_logo}', timeout=2222)
+                            data = response_data["searchResult"]["originals"][0]["offers"][i]
+                            quantity = data["data"]["maxQuantity"]["value"]
+                            date = data["delivery"]["value"]
+                            price = data["displayPrice"]["value"]
+
+                            offer_key_for_logo = data["data"]["offerKey"]
+                            try:
+                                await page.goto(f'https://emex.ru/api/search/rating?offerKey={offer_key_for_logo}', timeout=2222)
+                            except playwright_TimeoutError:
+                                await page.reload()
+
+                            await page.wait_for_selector('pre', timeout=2222)
+                            pre_logo = await (await page.query_selector("pre")).text_content()
+                            logo_data = dict(json.loads(pre_logo))
+
+                            logo = logo_data["priceLogo"]
+
+                            unsort_list_for_goods.append([quantity, date, price, logo])
+                        except IndexError:
+                            break
                         except playwright_TimeoutError:
-                            await page.reload()
+                            print(i, "error1", url)
+                            ag_brand.append(brand)
+                            ag_num.append(num)
                         except:
-                            for j in range(len(ag_brand[k:])):
-                                ag_brand.append(ag_brand[j])
-                                ag_num.append(ag_num[j])
+                            continue
+                    k += 1
+                except playwright_TimeoutError:
+                    print("error2", url)
+                    again.append((brands, num))
 
-                        await page.wait_for_selector('pre', timeout=2222)
-                        pre_logo = await (await page.query_selector("pre")).text_content()
-                        logo_data = dict(json.loads(pre_logo))
+                if unsort_list_for_goods != []:
+                    min_price_and_data = min(quick_sort(unsort_list_for_goods[:10], 1), key=lambda x: x[2]) 
+                    with open('parser/data.txt', 'a', encoding="UTF-8") as file:
+                        file.write(f"{brand} {num} | Количество товара: {min_price_and_data[0]} Дата: {min_price_and_data[1]} Цена: {min_price_and_data[2]} Лого: {min_price_and_data[3]}\n")
 
-                        logo = logo_data["priceLogo"]
+                await browser.close()
+        except:
+            print('this)')
+            ag_brand.append(brand)
+            ag_num.append(num)
 
-                        unsort_list_for_goods.append([quantity, date, price, logo])
-                    except IndexError:
-                        break
-                    except playwright_TimeoutError:
-                        print(i, "error1", url)
-                        ag_brand.append(brand)
-                        ag_num.append(num)
-                    except:
-                        continue
-                k += 1
-            except playwright_TimeoutError:
-                print("error2", url)
-                again.append((brands, num))
-
-            if unsort_list_for_goods != []:
-                min_price_and_data = min(quick_sort(unsort_list_for_goods[:10], 1), key=lambda x: x[2]) 
-                with open('parser/data.txt', 'a', encoding="UTF-8") as file:
-                    file.write(f"{brand} {num} | Количество товара: {min_price_and_data[0]} Дата: {min_price_and_data[1]} Цена: {min_price_and_data[2]} Лого: {min_price_and_data[3]}\n")
-
-            await browser.close()
     print("_____", k)
 
 def run(brands, nums, proxies):
@@ -142,8 +141,8 @@ if __name__ == "__main__":
         ["http://95.182.124.119:1050", "2Q3n1o", "FjvCaesiwS"],
     ]
 
-    brands = ["Peugeot+%2F+Citroen", "Mahle---Knecht", "Peugeot+%2F+Citroen", "Peugeot+%2F+Citroen", "Peugeot+%2F+Citroen", "Peugeot+%2F+Citroen", "%D0%93%D0%90%D0%97", "VAG", "Autocomponent"] * 15
-    nums = ["82026", "02943N0", "362312", "00004254A2", "00006426YN", "00008120T7", "6270000290", "016409399B", "01М21С9"] * 15
+    brands = ["Peugeot+%2F+Citroen", "Mahle---Knecht", "Peugeot+%2F+Citroen", "Peugeot+%2F+Citroen", "Peugeot+%2F+Citroen", "Peugeot+%2F+Citroen", "%D0%93%D0%90%D0%97", "VAG", "Autocomponent"] * 20
+    nums = ["82026", "02943N0", "362312", "00004254A2", "00006426YN", "00008120T7", "6270000290", "016409399B", "01М21С9"] * 20
     brands_split = split_file_for_thr(4, brands)
     nums_split = split_file_for_thr(4, nums)
 

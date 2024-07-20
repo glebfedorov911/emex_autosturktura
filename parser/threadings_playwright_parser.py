@@ -59,7 +59,7 @@ async def main(brands, nums, proxies):
 
         url = f"https://emex.ru/api/search/search?make={brand}&detailNum={num}&locationId=38760&showAll=true&longitude=37.8613&latitude=55.7434"
         async with async_playwright() as p:
-            browser = await p.chromium.launch(proxy={'server': proxy[0], 'username': proxy[1], 'password': proxy[2]}, headless=False)
+            browser = await p.chromium.launch(proxy={'server': proxy[0], 'username': proxy[1], 'password': proxy[2]}, headless=True)
             page = await browser.new_page()
             try:
                 await page.goto(url, timeout=2222)

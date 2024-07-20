@@ -108,7 +108,7 @@ async def main(brands, nums, proxies):
                     again.append((brands, num))
 
                 if unsort_list_for_goods != []:
-                    min_price_and_data = min(quick_sort(unsort_list_for_goods[:10], 1), key=lambda x: x[2]) 
+                    min_price_and_data = min(quick_sort(unsort_list_for_goods, 1)[:10], key=lambda x: x[2]) 
                     with open('parser/data.txt', 'a', encoding="UTF-8") as file:
                         file.write(f"{brand} {num} | Количество товара: {min_price_and_data[0]} Дата: {min_price_and_data[1]} Цена: {min_price_and_data[2]} Лого: {min_price_and_data[3]}\n")
 

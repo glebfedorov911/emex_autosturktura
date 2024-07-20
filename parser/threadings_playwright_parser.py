@@ -65,6 +65,10 @@ async def main(brands, nums, proxies):
                 await page.goto(url, timeout=2222)
             except playwright_TimeoutError:
                 await page.reload()
+            except:
+                for j in range(len(ag_brand[k:])):
+                    ag_brand.append(ag_brand[j])
+                    ag_num.append(ag_num[j])
             await page.mouse.wheel(0, 15000)
 
             try:
@@ -84,6 +88,10 @@ async def main(brands, nums, proxies):
                             await page.goto(f'https://emex.ru/api/search/rating?offerKey={offer_key_for_logo}', timeout=2222)
                         except playwright_TimeoutError:
                             await page.reload()
+                        except:
+                            for j in range(len(ag_brand[k:])):
+                                ag_brand.append(ag_brand[j])
+                                ag_num.append(ag_num[j])
 
                         await page.wait_for_selector('pre', timeout=2222)
                         pre_logo = await (await page.query_selector("pre")).text_content()

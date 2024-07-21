@@ -105,7 +105,8 @@ async def main(brands, nums, proxies):
                     k += 1
                 except playwright_TimeoutError:
                     print("error2", url)
-                    again.append((brands, num))
+                    ag_brand.append(brand)
+                    ag_num.append(num)
 
                 if unsort_list_for_goods != []:
                     min_price_and_data = min(quick_sort(unsort_list_for_goods, 1)[:10], key=lambda x: x[2]) 

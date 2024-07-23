@@ -1,59 +1,14 @@
 from playwright.async_api import async_playwright, TimeoutError as playwright_TimeoutError
 
-from math import ceil
+from custom_exception import *
+from for_parser import *
 
 import asyncio
 import json
 import time 
 import random
 import threading
-import requests
-import urllib.parse as up
 
-
-class NoneException(Exception):
-    def __init__(self):
-        self.msg = "Данный продукт не в наличии"
-
-    def __str__(self):
-        return self.msg
-
-def split_file_for_thr(num: int, url: list) -> list[list]:
-    '''
-    num - число потоков # например 4
-    url - список с url => [...] # 16 штук
-    list[list] - список со списками url => [[...]] # 4 по 4 
-    '''
-    new_url = []
-    step = ceil(len(url)/num)
-    for i in range(0, len(url), step):
-        if i+step > len(url)-1:
-            new_url.append(url[i:])
-        else:
-            new_url.append(url[i:i+step])
-
-    return new_url
-
-def quick_sort(arr: list, index: int):
-    '''
-    Алгоритм быстрой сортировки
-    arr - массив с массивами, которые будут сортироваться
-    index - номер элемента (с 0) по которому мы с сортируем нашима массивы
-    '''
-    if len(arr) <= 1:
-        return arr
-    else:
-        pivot = arr[len(arr) // 2][index]
-        left = [x for x in arr if x[index] < pivot]
-        middle = [x for x in arr if x[index] == pivot]
-        right = [x for x in arr if x[index] > pivot]
-        return quick_sort(left, index) + middle + quick_sort(right, index)
-
-def create_params_for_url(param: str):
-    if "---" in param:
-        param = param.replace("---", "+%2F+")
-        return param
-    return up.quote(param)
 
 async def main(brands: list, nums: list, proxies: list):
     '''
@@ -167,8 +122,7 @@ async def main(brands: list, nums: list, proxies: list):
 def run(brands, nums, proxies):
     asyncio.run(main(brands, nums, proxies))
 
-
-if __name__ == "__main__":
+def start():
     start = time.perf_counter()
 
     ag_brand = []
@@ -179,6 +133,7 @@ if __name__ == "__main__":
         ["http://188.130.210.107:1050", "2Q3n1o", "FjvCaesiwS"],
         ["http://213.226.101.138:1050", "2Q3n1o", "FjvCaesiwS"],
         ["http://92.119.193.160:1050", "2Q3n1o", "FjvCaesiwS"],
+
         # ["http://194.35.113.239:1050", "2Q3n1o", "FjvCaesiwS"],
         # ["http://188.130.210.107:1050", "2Q3n1o", "FjvCaesiwS"],
         # ["http://109.248.139.54:1050", "2Q3n1o", "FjvCaesiwS"],
@@ -209,3 +164,7 @@ if __name__ == "__main__":
     run(ag_brand, ag_num, proxies)
 
     print(time.perf_counter() - start)
+
+
+if __name__ == "__main__":
+    start()

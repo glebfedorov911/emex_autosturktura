@@ -8,7 +8,15 @@ import time
 import random
 import threading
 import requests
+import urllib.parse as up
 
+
+class NoneException(Exception):
+    def __init__(self):
+        self.msg = "Данный продукт не в наличии"
+
+    def __str__(self):
+        return self.msg
 
 def split_file_for_thr(num: int, url: list) -> list[list]:
     '''
@@ -26,7 +34,7 @@ def split_file_for_thr(num: int, url: list) -> list[list]:
 
     return new_url
 
-def quick_sort(arr, index):
+def quick_sort(arr: list, index: int):
     '''
     Алгоритм быстрой сортировки
     arr - массив с массивами, которые будут сортироваться
@@ -41,7 +49,13 @@ def quick_sort(arr, index):
         right = [x for x in arr if x[index] > pivot]
         return quick_sort(left, index) + middle + quick_sort(right, index)
 
-async def main(brands, nums, proxies):
+def create_params_for_url(param: str):
+    if "---" in param:
+        param = param.replace("---", "+%2F+")
+        return param
+    return up.quote(param)
+
+async def main(brands: list, nums: list, proxies: list):
     '''
     Парсер
     brands - бренды, которые указываются в url make=
@@ -52,72 +66,101 @@ async def main(brands, nums, proxies):
     '''
     global ag_brand, ag_num
     k = 0
+    atms_proxy = {}
     for brand, num in zip(brands, nums):
         unsort_list_for_goods = []
-        
-        proxy = random.choice(proxies)
+        proxy_ban = []
 
-        url = f"https://emex.ru/api/search/search?make={brand}&detailNum={num}&locationId=38760&showAll=true&longitude=37.8613&latitude=55.7434"
-        try:
-            async with async_playwright() as p:
-                browser = await p.chromium.launch(proxy={'server': proxy[0], 'username': proxy[1], 'password': proxy[2]}, headless=True)
-                page = await browser.new_page()
-                try:
-                    await page.goto(url, timeout=2222)
-                except playwright_TimeoutError:
-                    await page.reload()
+        if proxies == []:
+            raise IndexError("У вас закончились прокси!")
+        else:
 
-                await page.mouse.wheel(0, 15000)
+            proxy = random.choice(proxies)
+            if ''.join(proxy) not in atms_proxy:
+                atms_proxy[''.join(proxy)] = 0
 
-                try:
-                    await page.wait_for_selector('pre', timeout=2222)
-                    pre = await (await page.query_selector("pre")).text_content()
-                    response_data = dict(json.loads(pre))
-                    
-                    for i in range(30):
-                        try:
-                            data = response_data["searchResult"]["originals"][0]["offers"][i]
-                            quantity = data["data"]["maxQuantity"]["value"]
-                            date = data["delivery"]["value"]
-                            price = data["displayPrice"]["value"]
+            url = f"https://emex.ru/api/search/search?make={create_params_for_url(brand)}&detailNum={num}&locationId=38760&showAll=true&longitude=37.8613&latitude=55.7434"
+            try:
+                async with async_playwright() as p:
+                    browser = await p.chromium.launch(proxy={'server': proxy[0], 'username': proxy[1], 'password': proxy[2]}, headless=True)
+                    page = await browser.new_page()
+                    try:
+                        await page.goto(url, timeout=3333)
+                    except playwright_TimeoutError:
+                        await page.reload()
 
-                            offer_key_for_logo = data["data"]["offerKey"]
+                    await page.mouse.wheel(0, 15000)
+                    try:
+                        await page.wait_for_selector('pre', timeout=3333)
+                        pre = await (await page.query_selector("pre")).text_content()
+                        response_data = dict(json.loads(pre))
+                        if "originals" not in response_data["searchResult"]:
+                            raise NoneException                            
+
+                        for i in range(30):
                             try:
-                                await page.goto(f'https://emex.ru/api/search/rating?offerKey={offer_key_for_logo}', timeout=2222)
+
+                                data = response_data["searchResult"]["originals"][0]["offers"][i]
+                                quantity = data["data"]["maxQuantity"]["value"]
+                                date = data["delivery"]["value"]
+                                price = data["displayPrice"]["value"]
+
+                                offer_key_for_logo = data["data"]["offerKey"]
+                                try:
+                                    await page.goto(f'https://emex.ru/api/search/rating?offerKey={offer_key_for_logo}', timeout=3333)
+                                except playwright_TimeoutError:
+                                    await page.reload()
+
+                                await page.wait_for_selector('pre', timeout=3333)
+                                pre_logo = await (await page.query_selector("pre")).text_content()
+                                logo_data = dict(json.loads(pre_logo))
+
+                                logo = logo_data["priceLogo"]
+
+                                unsort_list_for_goods.append([quantity, date, price, logo])
+                            except IndexError:
+                                break
                             except playwright_TimeoutError:
-                                await page.reload()
+                                print(i, "error1", url)
+                                brands.append(brand)
+                                nums.append(num)
+                                atms_proxy[''.join(proxy)] += 1
+                            # except Exception as e:
+                            #     print("thiiiis", e)
+                        k += 1
+                    except playwright_TimeoutError:
+                        print("error2", url)
+                        brands.append(brand)
+                        nums.append(num)
+                        atms_proxy[''.join(proxy)] += 1
 
-                            await page.wait_for_selector('pre', timeout=2222)
-                            pre_logo = await (await page.query_selector("pre")).text_content()
-                            logo_data = dict(json.loads(pre_logo))
+                    if unsort_list_for_goods != []:
+                        min_price_and_data = min(quick_sort(unsort_list_for_goods, 1)[:10], key=lambda x: x[2]) 
+                        with open('parser/data.txt', 'a', encoding="UTF-8") as file:
+                            file.write(f"{brand} {num} | Количество товара: {min_price_and_data[0]} Дата: {min_price_and_data[1]} Цена: {min_price_and_data[2]} Лого: {min_price_and_data[3]}\n")
+                    else: 
+                        k -= 1
+                        print('this) 1', brand)
+                        brands.append(brand)
+                        nums.append(num)
+                    await browser.close()
 
-                            logo = logo_data["priceLogo"]
-
-                            unsort_list_for_goods.append([quantity, date, price, logo])
-                        except IndexError:
-                            break
-                        except playwright_TimeoutError:
-                            print(i, "error1", url)
-                            ag_brand.append(brand)
-                            ag_num.append(num)
-                        except:
-                            continue
-                    k += 1
-                except playwright_TimeoutError:
-                    print("error2", url)
-                    ag_brand.append(brand)
-                    ag_num.append(num)
-
-                if unsort_list_for_goods != []:
-                    min_price_and_data = min(quick_sort(unsort_list_for_goods, 1)[:10], key=lambda x: x[2]) 
-                    with open('parser/data.txt', 'a', encoding="UTF-8") as file:
-                        file.write(f"{brand} {num} | Количество товара: {min_price_and_data[0]} Дата: {min_price_and_data[1]} Цена: {min_price_and_data[2]} Лого: {min_price_and_data[3]}\n")
-
-                await browser.close()
-        except:
-            print('this)')
-            ag_brand.append(brand)
-            ag_num.append(num)
+                    if atms_proxy[''.join(proxy)] >= 5:
+                        if proxy in proxies:
+                            proxies.remove(proxy)
+                        proxy_ban.append(proxy)
+            except NoneException as e:
+                print(e)
+                continue
+            except:
+                print('this) 2', brand)
+                brands.append(brand)
+                nums.append(num)
+                atms_proxy[''.join(proxy)] += 1
+                if atms_proxy[''.join(proxy)] >= 5:
+                    if proxy in proxies:
+                        proxies.remove(proxy)
+                    proxy_ban.append(proxy)
 
     print("_____", k)
 
@@ -132,19 +175,25 @@ if __name__ == "__main__":
     ag_num = []
 
     proxies = [
-        ["http://194.35.113.239:1050", "2Q3n1o", "FjvCaesiwS"],
-        ["http://188.130.210.107:1050", "2Q3n1o", "FjvCaesiwS"],
         ["http://109.248.139.54:1050", "2Q3n1o", "FjvCaesiwS"],
-        ["http://185.181.245.74:1050", "2Q3n1o", "FjvCaesiwS"],
+        ["http://188.130.210.107:1050", "2Q3n1o", "FjvCaesiwS"],
+        ["http://213.226.101.138:1050", "2Q3n1o", "FjvCaesiwS"],
+        ["http://92.119.193.160:1050", "2Q3n1o", "FjvCaesiwS"],
+        # ["http://194.35.113.239:1050", "2Q3n1o", "FjvCaesiwS"],
+        # ["http://188.130.210.107:1050", "2Q3n1o", "FjvCaesiwS"],
+        # ["http://109.248.139.54:1050", "2Q3n1o", "FjvCaesiwS"],
+        # ["http://185.181.245.74:1050", "2Q3n1o", "FjvCaesiwS"],
 
-        ["http://109.248.167.161:1050", "2Q3n1o", "FjvCaesiwS"],
-        ["http://188.130.219.173:1050", "2Q3n1o", "FjvCaesiwS"],
+        # ["http://109.248.167.161:1050", "2Q3n1o", "FjvCaesiwS"],
+        # ["http://188.130.219.173:1050", "2Q3n1o", "FjvCaesiwS"],
         # ["http://45.81.136.39:1050", "2Q3n1o", "FjvCaesiwS"],
-        ["http://95.182.124.119:1050", "2Q3n1o", "FjvCaesiwS"],
+        # ["http://95.182.124.119:1050", "2Q3n1o", "FjvCaesiwS"],
     ]
 
-    brands = ["Peugeot+%2F+Citroen", "Mahle---Knecht", "Peugeot+%2F+Citroen", "Peugeot+%2F+Citroen", "Peugeot+%2F+Citroen", "Peugeot+%2F+Citroen", "%D0%93%D0%90%D0%97", "VAG", "Autocomponent"] * 20
+    brands = ["Peugeot---Citroen", "Mahle---Knecht", "Peugeot---Citroen", "Peugeot---Citroen", "Peugeot---Citroen", "Peugeot---Citroen", "ГАЗ", "VAG", "Autocomponent"] * 20
+    # brands = ["Autocomponent"]
     nums = ["82026", "02943N0", "362312", "00004254A2", "00006426YN", "00008120T7", "6270000290", "016409399B", "01М21С9"] * 20
+    # nums = ["01М21С9"]
     brands_split = split_file_for_thr(4, brands)
     nums_split = split_file_for_thr(4, nums)
 
@@ -157,6 +206,6 @@ if __name__ == "__main__":
     for thread in threadings:
         thread.join()
 
-    asyncio.run(main(ag_brand, ag_num, proxies))
+    run(ag_brand, ag_num, proxies)
 
     print(time.perf_counter() - start)

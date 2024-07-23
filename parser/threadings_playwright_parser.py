@@ -52,6 +52,7 @@ async def main(brands: list, nums: list, proxies: list):
                         if "originals" not in response_data["searchResult"]:
                             raise NoneException                            
 
+                        k += 1
                         for i in range(30):
                             try:
 
@@ -81,8 +82,9 @@ async def main(brands: list, nums: list, proxies: list):
                                 nums.append(num)
                                 atms_proxy[''.join(proxy)] += 1
                             # except Exception as e:
-                            #     print("thiiiis", e)
-                        k += 1
+                                # print("thiiiiis", e)
+                                # brands.append(brand)
+                                # nums.append(num)
                     except playwright_TimeoutError:
                         print("error2", url)
                         brands.append(brand)
@@ -94,7 +96,6 @@ async def main(brands: list, nums: list, proxies: list):
                         with open('parser/data.txt', 'a', encoding="UTF-8") as file:
                             file.write(f"{brand} {num} | Количество товара: {min_price_and_data[0]} Дата: {min_price_and_data[1]} Цена: {min_price_and_data[2]} Лого: {min_price_and_data[3]}\n")
                     else: 
-                        k -= 1
                         print('this) 1', brand)
                         brands.append(brand)
                         nums.append(num)
@@ -145,9 +146,9 @@ def start():
         # ["http://95.182.124.119:1050", "2Q3n1o", "FjvCaesiwS"],
     ]
 
-    brands = ["Peugeot---Citroen", "Mahle---Knecht", "Peugeot---Citroen", "Peugeot---Citroen", "Peugeot---Citroen", "Peugeot---Citroen", "ГАЗ", "VAG", "Autocomponent"] * 20
+    brands = ["Peugeot---Citroen", "Mahle---Knecht", "Peugeot---Citroen", "Peugeot---Citroen", "Peugeot---Citroen", "Peugeot---Citroen", "ГАЗ", "VAG", "Autocomponent"] * 5
     # brands = ["Autocomponent"]
-    nums = ["82026", "02943N0", "362312", "00004254A2", "00006426YN", "00008120T7", "6270000290", "016409399B", "01М21С9"] * 20
+    nums = ["82026", "02943N0", "362312", "00004254A2", "00006426YN", "00008120T7", "6270000290", "016409399B", "01М21С9"] * 5
     # nums = ["01М21С9"]
     brands_split = split_file_for_thr(4, brands)
     nums_split = split_file_for_thr(4, nums)

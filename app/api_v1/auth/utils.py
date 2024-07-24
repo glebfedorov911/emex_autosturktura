@@ -8,7 +8,7 @@ from datetime import timedelta, datetime
 
 def encode_jwt(
     payload: dict,
-    private_key: str = settings.auth.private_key,
+    private_key: str = settings.auth.private_key.read_text(),
     algorithm: str = settings.auth.algorithm,
     expire_minutes: int = settings.auth.access_token_expire_minutes,
     expire_time: timedelta | None = None
@@ -27,7 +27,7 @@ def encode_jwt(
 
     encoded = jwt.encode(
         payload=payload,
-        private_key=private_key,
+        key=private_key,
         algorithm=algorithm
     )
 
@@ -35,7 +35,7 @@ def encode_jwt(
 
 def decode_jwt(
     token: str | bytes,
-    public_key: str = settings.auth.public_key,
+    public_key: str = settings.auth.public_key.read_text(),
     algorithm: str = settings.auth.algorithm
 ):
     decoded = jwt.decode(
@@ -50,7 +50,7 @@ def hash_password(
     password: str,
 ) -> bytes:
     salt = bcrypt.gensalt()
-    pwd_bytes: bytes = bcrypt.hashpw(password=password.encode("utf-8"), salt=salt)
+    pwd_bytes: bytes = bcrypt.hashpw(password=str(password).encode("utf-8"), salt=salt)
     return pwd_bytes
 
 def validate_password(
@@ -58,6 +58,6 @@ def validate_password(
     hash_password: bytes
 ) -> bool:
     return bcrypt.checkpw(
-        password=password,
+        password=password.encode("utf-8"),
         hashed_password=hash_password
     )

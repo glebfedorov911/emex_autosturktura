@@ -10,6 +10,17 @@ python = "^3.10"
 playwright = "^1.45.0"
 requests = "^2.32.3"
 aiohttp = "^3.9.5"
+fastapi = "^0.111.1"
+uvicorn = {extras = ["standard"], version = "^0.30.3"}
+pydantic = {extras = ["email"], version = "^2.8.2"}
+pydantic-settings = "^2.3.4"
+aiosqlite = "^0.20.0"
+email-validator = "^2.2.0"
+pyjwt = {extras = ["crypto"], version = "^2.8.0"}
+bcrypt = "^4.2.0"
+python-multipart = "^0.0.9"
+sqlalchemy = {extras = ["asyncio"], version = "^2.0.31"}
+alembic = "^1.13.2"
 
 
 [build-system]

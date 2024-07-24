@@ -101,23 +101,25 @@ async def main(brands: list, nums: list, proxies: list):
                         nums.append(num)
                     await browser.close()
 
-                    if atms_proxy[''.join(proxy)] >= 5:
+                    if atms_proxy[''.join(proxy)] >= 20:
                         if proxy in proxies:
                             proxies.remove(proxy)
                         proxy_ban.append(proxy)
             except NoneException as e:
                 print(e)
                 continue
-            except:
+            except Exception as e:
                 print('this) 2', brand)
                 brands.append(brand)
                 nums.append(num)
-                if atms_proxy[''.join(proxy)] >= 5:
+                atms_proxy[''.join(proxy)] += 1
+                if atms_proxy[''.join(proxy)] >= 20:
                     if proxy in proxies:
                         proxies.remove(proxy)
                     proxy_ban.append(proxy)
 
     print("_____", k)
+    print(proxy_ban)
 
 def run(brands, nums, proxies):
     asyncio.run(main(brands, nums, proxies))
@@ -132,7 +134,7 @@ def start():
         ["http://109.248.139.54:1050", "2Q3n1o", "FjvCaesiwS"],
         ["http://188.130.210.107:1050", "2Q3n1o", "FjvCaesiwS"],
         ["http://213.226.101.138:1050", "2Q3n1o", "FjvCaesiwS"],
-        # ["http://92.119.193.160:1050", "2Q3n1o", "FjvCaesiwS"],
+        ["http://92.119.193.160:1050", "2Q3n1o", "FjvCaesiwS"],
 
         ["http://194.35.113.239:1050", "2Q3n1o", "FjvCaesiwS"],
         ["http://188.130.210.107:1050", "2Q3n1o", "FjvCaesiwS"],
@@ -141,7 +143,7 @@ def start():
 
         ["http://109.248.167.161:1050", "2Q3n1o", "FjvCaesiwS"],
         ["http://188.130.219.173:1050", "2Q3n1o", "FjvCaesiwS"],
-        # ["http://45.81.136.39:1050", "2Q3n1o", "FjvCaesiwS"],
+        ["http://45.81.136.39:1050", "2Q3n1o", "FjvCaesiwS"],
         ["http://95.182.124.119:1050", "2Q3n1o", "FjvCaesiwS"],
     ]
 

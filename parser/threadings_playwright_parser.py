@@ -112,7 +112,6 @@ async def main(brands: list, nums: list, proxies: list):
                 print('this) 2', brand)
                 brands.append(brand)
                 nums.append(num)
-                atms_proxy[''.join(proxy)] += 1
                 if atms_proxy[''.join(proxy)] >= 5:
                     if proxy in proxies:
                         proxies.remove(proxy)
@@ -133,22 +132,22 @@ def start():
         ["http://109.248.139.54:1050", "2Q3n1o", "FjvCaesiwS"],
         ["http://188.130.210.107:1050", "2Q3n1o", "FjvCaesiwS"],
         ["http://213.226.101.138:1050", "2Q3n1o", "FjvCaesiwS"],
-        ["http://92.119.193.160:1050", "2Q3n1o", "FjvCaesiwS"],
+        # ["http://92.119.193.160:1050", "2Q3n1o", "FjvCaesiwS"],
 
-        # ["http://194.35.113.239:1050", "2Q3n1o", "FjvCaesiwS"],
-        # ["http://188.130.210.107:1050", "2Q3n1o", "FjvCaesiwS"],
-        # ["http://109.248.139.54:1050", "2Q3n1o", "FjvCaesiwS"],
-        # ["http://185.181.245.74:1050", "2Q3n1o", "FjvCaesiwS"],
+        ["http://194.35.113.239:1050", "2Q3n1o", "FjvCaesiwS"],
+        ["http://188.130.210.107:1050", "2Q3n1o", "FjvCaesiwS"],
+        ["http://109.248.139.54:1050", "2Q3n1o", "FjvCaesiwS"],
+        ["http://185.181.245.74:1050", "2Q3n1o", "FjvCaesiwS"],
 
-        # ["http://109.248.167.161:1050", "2Q3n1o", "FjvCaesiwS"],
-        # ["http://188.130.219.173:1050", "2Q3n1o", "FjvCaesiwS"],
+        ["http://109.248.167.161:1050", "2Q3n1o", "FjvCaesiwS"],
+        ["http://188.130.219.173:1050", "2Q3n1o", "FjvCaesiwS"],
         # ["http://45.81.136.39:1050", "2Q3n1o", "FjvCaesiwS"],
-        # ["http://95.182.124.119:1050", "2Q3n1o", "FjvCaesiwS"],
+        ["http://95.182.124.119:1050", "2Q3n1o", "FjvCaesiwS"],
     ]
 
-    brands = ["Peugeot---Citroen", "Mahle---Knecht", "Peugeot---Citroen", "Peugeot---Citroen", "Peugeot---Citroen", "Peugeot---Citroen", "ГАЗ", "VAG", "Autocomponent"] * 5
+    brands = ["Peugeot---Citroen", "Mahle---Knecht", "Peugeot---Citroen", "Peugeot---Citroen", "Peugeot---Citroen", "Peugeot---Citroen", "ГАЗ", "VAG", "Autocomponent"] * 20
     # brands = ["Autocomponent"]
-    nums = ["82026", "02943N0", "362312", "00004254A2", "00006426YN", "00008120T7", "6270000290", "016409399B", "01М21С9"] * 5
+    nums = ["82026", "02943N0", "362312", "00004254A2", "00006426YN", "00008120T7", "6270000290", "016409399B", "01М21С9"] * 20
     # nums = ["01М21С9"]
     brands_split = split_file_for_thr(4, brands)
     nums_split = split_file_for_thr(4, nums)

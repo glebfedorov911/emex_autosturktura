@@ -18,6 +18,8 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(mock_stdout.getvalue().strip().split("\n")[0], "Данный продукт не в наличии")
         run(["Autocomponent"], ["01М21С9"], [["http://188.130.219.173:1050", "2Q3n1o", "FjvCaesiwS"]])
         self.assertEqual(mock_stdout.getvalue().strip().split("\n")[0], "Данный продукт не в наличии")
+        run(["Peugeot---Citroen"], ["01М21С9"], [["http://188.130.219.173:1050", "2Q3n1o", "FjvCaesiwS"]])
+        self.assertEqual(mock_stdout.getvalue().strip().split("\n")[0], "Данный продукт не в наличии")
 
 if __name__ == "__main__":
     unittest.main()

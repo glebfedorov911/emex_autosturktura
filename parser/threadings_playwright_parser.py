@@ -126,8 +126,8 @@ def run(brands, nums, proxies):
 def start():
     start = time.perf_counter()
 
-    ag_brand = []
-    ag_num = []
+    # ag_brand = []
+    # ag_num = []
 
     proxies = [
         ["http://109.248.139.54:1050", "2Q3n1o", "FjvCaesiwS"],
@@ -162,7 +162,7 @@ def start():
     for thread in threadings:
         thread.join()
 
-    run(ag_brand, ag_num, proxies)
+    # run(ag_brand, ag_num, proxies)
 
     print(time.perf_counter() - start)
 

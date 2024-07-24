@@ -77,14 +77,16 @@ async def edit_user(user_id: int, upd_user: UserUpdate, session: AsyncSession):
     unknown_user(user)
 
     update_user = upd_user.dict(exclude_unset=True)
-    update_user["password"] = hash_password(update_user["password"])
+    if update_user.get("password", None):
+        update_user["password"] = hash_password(update_user["password"])
 
     for key, value in update_user.items():
         setattr(user, key, value)
 
     session.add(user)
     await session.commit()
-
+    
+    del user.password
     return user
 
 async def about_one_user(user_id: int, session: AsyncSession):

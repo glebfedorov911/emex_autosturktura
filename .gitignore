@@ -2,3 +2,5 @@ venv
 new3.txt
 parser/new3.txt
 parser/data.txt
+app/certs/jwt-private.pem
+app/certs/jwt-public.pem

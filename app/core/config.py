@@ -12,7 +12,10 @@ class DBSettings(BaseModel):
     echo: bool = False
 
 class Auth(BaseModel):
+    private_key: Path = BASE_DIR / "certs" / "jwt-private.pem"
+    public_key: Path = BASE_DIR / "certs" / "jwt-public.pem"
     algorithm: str = "RS256"
+    access_token_expire_minutes: int = 60*24*30
 
 class Settings(BaseSettings):
     db: DBSettings = DBSettings()

@@ -13,6 +13,7 @@ class DBSettings(BaseModel):
 
 class Proxy(BaseModel):
     API_KEY: str = "fea1d0c98a179dfc855b7255d801b7f0"
+    URL: str = "https://api.dashboard.proxy.market"
 
 class Auth(BaseModel):
     private_key: Path = BASE_DIR / "certs" / "jwt-private.pem"

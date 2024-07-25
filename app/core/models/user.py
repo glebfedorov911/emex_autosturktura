@@ -1,7 +1,12 @@
-from sqlalchemy.orm import Mapped, mapped_column, declared_attr, DeclarativeBase
+from sqlalchemy.orm import Mapped, mapped_column, declared_attr, DeclarativeBase, relationship
 from sqlalchemy import String
 
 from .base import Base
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .proxy import Proxy
 
 
 class User(Base):
@@ -10,3 +15,4 @@ class User(Base):
     username: Mapped[str] = mapped_column(unique=True)
     password: Mapped[bytes]
     is_admin: Mapped[bool] = mapped_column(default=False)
+    proxies: Mapped[list["Proxy"]] = relationship(back_populates="user")

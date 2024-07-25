@@ -3,6 +3,7 @@ from fastapi import HTTPException, status
 from core.config import settings
 from core.models import Proxy
 from .depends import not_enough_money, check_correct_date
+from .schemas import ProxySchemas
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.engine import Result
@@ -54,14 +55,11 @@ async def add_proxy_to_database(user_id: int, count: int, session: AsyncSession)
     proxy_in_db = []
 
     for proxy in proxies:
-        id_proxy = proxy["id"]
-        login = proxy["login"]
-        password = proxy["password"]
         ip_with_port = proxy["ip"] + proxy["http_port"]
         expired_at = datetime.datetime.strptime(proxy["expired_at"].split(" ")[0], '%Y-%m-%d').date()
+        proxy_add = ProxySchemas(id_proxy=proxy["id"], login=proxy["login"], password=proxy["password"], ip_with_port=ip_with_port, expired_at=expired_at, user_id=user_id)
         
-        proxy_add = {"id_proxy": id_proxy, "login": login, "password": password, "ip_with_port": ip_with_port, "expired_at": expired_at, "user_id": user_id}
-        new_proxy = Proxy(**proxy_add)
+        new_proxy = Proxy(**proxy_add.model_dump())
         session.add(new_proxy)
         await session.commit()
 

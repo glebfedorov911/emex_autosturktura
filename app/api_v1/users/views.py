@@ -38,7 +38,8 @@ async def auth_user(user_log: UserLogin, response: Response, session: AsyncSessi
     }
 
     token = encode_jwt(payload=payload)
-    response.set_cookie(key="access_token", value=token, httponly=True, secure=True, samesite='Strict')
+    # response.set_cookie(key="access_token", value=token, httponly=True, secure=True, samesite='Strict')
+    response.set_cookie(key="access_token", value=token, httponly=True, samesite='Strict')
 
     return TokenInfo(
         access_token=token,

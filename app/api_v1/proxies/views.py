@@ -24,7 +24,7 @@ async def buy_proxy(payload = Depends(get_payload), count: int = 1, duration: in
     count - количество прокси
     duration - срок
     '''
-    # await crud.buy_proxy(count, duration)
+    await crud.buy_proxy(count, duration)
 
     return await crud.add_proxy_to_database(payload["sub"], count=count, session=session)
 

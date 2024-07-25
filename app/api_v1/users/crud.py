@@ -44,7 +44,7 @@ async def create_user(user_in: UserCreate, session: AsyncSession):
     except IntegrityError:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Данное имя уже используется | This surname already exists"
+            detail="Данное имя уже используется | This username already exists"
         )
 
 async def validate_user(user_log: UserLogin, session: AsyncSession):

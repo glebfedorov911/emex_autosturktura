@@ -5,13 +5,12 @@ from sqlalchemy.engine import Result
 from sqlalchemy import select
 from sqlalchemy.sql import func
 
-from core.models import Proxy
+from app.core.models import Proxy
 
 import datetime
 
 
 def not_enough_money(response):
-    print(response)
     if not response["success"]:
         raise HTTPException(
             status_code=status.HTTP_402_PAYMENT_REQUIRED,

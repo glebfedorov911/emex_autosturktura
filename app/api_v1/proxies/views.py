@@ -3,8 +3,8 @@ from fastapi import APIRouter, Cookie, HTTPException, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from . import crud
-from api_v1.users.crud import get_payload
-from core.models import db_helper
+from app.api_v1.users.crud import get_payload
+from app.core.models import db_helper
 
 
 router = APIRouter(prefix="/proxies", tags=["Proxies"])

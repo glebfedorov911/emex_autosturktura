@@ -9,10 +9,10 @@ from fastapi.security import HTTPBearer
 from jwt.exceptions import InvalidTokenError
 
 from .schemas import UserCreate, UserUpdate, UserLogin
-from core.models import User        
-from api_v1.auth.utils import hash_password, validate_password
+from app.core.models import User        
+from app.api_v1.auth.utils import hash_password, validate_password
 from .depends import unknown_user, get_user_by_id
-from api_v1.auth.utils import decode_jwt
+from app.api_v1.auth.utils import decode_jwt
 
 
 http_bearer = HTTPBearer()
@@ -39,6 +39,8 @@ async def create_user(user_in: UserCreate, session: AsyncSession):
         new_user.password = hashed_password
         session.add(new_user)
         await session.commit()
+
+        del new_user.password
 
         return new_user
     except IntegrityError:

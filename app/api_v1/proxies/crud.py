@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 
-from core.config import settings
-from core.models import Proxy
+from app.core.config import settings
+from app.core.models import Proxy
 from .depends import not_enough_money, check_correct_date, get_proxies, get_proxies_group
 from .schemas import ProxySchemas
 

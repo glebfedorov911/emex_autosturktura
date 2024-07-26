@@ -3,12 +3,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Cookie
 
 from .schemas import UserCreate, UserUpdate, UserLogin
-from core.models import db_helper
+from app.core.models import db_helper
 from . import crud
 from .crud import get_payload
 from .token_info import TokenInfo
-from api_v1.auth.utils import encode_jwt
-from core.models import User    
+from app.api_v1.auth.utils import encode_jwt
+from app.core.models import User    
 from .depends import exception_admin    
 
 

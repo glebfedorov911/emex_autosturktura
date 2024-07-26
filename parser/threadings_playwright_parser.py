@@ -140,16 +140,16 @@ def start():
 
  
     proxies = [
-        ["http://94.158.190.96:1050", "LorNNF", "fr4B7cGdyS"],
+        # ["http://94.158.190.96:1050", "LorNNF", "fr4B7cGdyS"],
         ["http://193.58.168.161:1050", "LorNNF", "fr4B7cGdyS"],
     ]
 
-    brands = ["Peugeot---Citroen", "Mahle---Knecht", "Peugeot---Citroen", "Peugeot---Citroen", "Peugeot---Citroen", "Peugeot---Citroen", "ГАЗ", "VAG", "Autocomponent"] * 10
+    brands = ["Peugeot---Citroen", "Mahle---Knecht", "Peugeot---Citroen", "Peugeot---Citroen", "Peugeot---Citroen", "Peugeot---Citroen", "ГАЗ", "VAG", "Autocomponent"] * 3
     # brands = ["Autocomponent"]
-    nums = ["82026", "02943N0", "362312", "00004254A2", "00006426YN", "00008120T7", "6270000290", "016409399B", "01М21С9"] * 10
+    nums = ["82026", "02943N0", "362312", "00004254A2", "00006426YN", "00008120T7", "6270000290", "016409399B", "01М21С9"] * 3
     # nums = ["01М21С9"]
-    brands_split = split_file_for_thr(4, brands)
-    nums_split = split_file_for_thr(4, nums)
+    brands_split = split_file_for_thr(1, brands)
+    nums_split = split_file_for_thr(1, nums)
 
     threadings = []
     for i in range(len(brands_split)):

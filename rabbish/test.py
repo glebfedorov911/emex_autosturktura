@@ -116,94 +116,94 @@
 
 # # print(time.perf_counter()-start)
 
-# from playwright.async_api import async_playwright, TimeoutError as playwright_TimeoutError
+from playwright.async_api import async_playwright, TimeoutError as playwright_TimeoutError
 
-# import asyncio
-# import json
-# import time 
-# import random
-# import threading
-
-
-# def create_params_for_url(param: str):
-#     if "---" in param:
-#         param = param.replace("---", "+%2F+")
-#         return param
-#     return up.quote(param)
-
-# async def main(brands: list, nums: list, proxies: list):
-#     url = f"https://emex.ru/api/search/search?make={create_params_for_url(brands[0])}&detailNum={nums[0]}&locationId=38760&showAll=true&longitude=37.8613&latitude=55.7434"
-#     async with async_playwright() as p:
-#         browser = await p.chromium.launch(proxy={'server': proxy[0], 'username': proxy[1], 'password': proxy[2]}, headless=False)
-#         page = await browser.new_page()
-
-#         print(proxy)
-#         try:
-#             await page.goto(url, timeout=8000)
-#             input()
-#         except:
-#             print('not working')
-#         await browser.close()
-
-# brands = ["Peugeot---Citroen"]
-# nums = ["82026"]
-
-# proxies = [
-#     ["http://94.158.190.96:1050", "LorNNF", "fr4B7cGdyS"],
-#     # ["http://193.58.168.161:1050", "LorNNF", "fr4B7cGdyS"],
-# ]
-
-# for proxy in proxies:
-#     asyncio.run(main(brands, nums, proxy))
-
-import requests
+import asyncio
 import json
+import time 
+import random
+import threading
 
 
-API_KEY = "fea1d0c98a179dfc855b7255d801b7f0"
-URL = "https://api.dashboard.proxy.market"
+def create_params_for_url(param: str):
+    if "---" in param:
+        param = param.replace("---", "+%2F+")
+        return param
+    return up.quote(param)
 
-def check_balance():
-    url = URL + f"/dev-api/balance/{API_KEY}"
-    return requests.get(url).text
+async def main(brands: list, nums: list, proxies: list):
+    url = f"https://emex.ru/api/search/search?make={create_params_for_url(brands[0])}&detailNum={nums[0]}&locationId=38760&showAll=true&longitude=37.8613&latitude=55.7434"
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(proxy={'server': proxy[0], 'username': proxy[1], 'password': proxy[2]}, headless=False)
+        page = await browser.new_page()
 
-def list_proxy():
-    url = URL + f"/dev-api/list/{API_KEY}"
-    data = {
-        "type": "ipv4",
-        "proxy_type": "server",
-        "page": 1,
-        "page_size": 100,
-        "sort": 1
-    }
+        print(proxy)
+        try:
+            await page.goto(url, timeout=8000)
+            input()
+        except:
+            print('not working')
+        await browser.close()
 
-    return requests.post(url, json=data).text
+brands = ["Peugeot---Citroen"]
+nums = ["82026"]
 
-def buy_proxy():
-    url = URL + f"/dev-api/buy-proxy/{API_KEY}"
-    data = {
-        "PurchaseBilling": {
-            "count": 1,
-            "duration": 30,
-            "type": 100,
-            "country": "ru"
-        }
-    }
+proxies = [
+    ["http://94.158.190.96:1050", "LorNNF", "fr4B7cGdyS"],
+    ["http://193.58.168.161:1050", "LorNNF", "fr4B7cGdyS"],
+]
 
-    return requests.post(url, json=data).text
+for proxy in proxies:
+    asyncio.run(main(brands, nums, proxy))
 
-def prolong_proxy():
-    url = URL + f"/dev-api/prolong/{API_KEY}"
-    data = {
-        "ProlongationForm": {
-            "duration": 30,
-            "proxies": "6460790"
-        }
-    }
+# import requests
+# import json
 
-    return requests.post(url, json=data).text
 
-print(check_balance()) 
-print(list_proxy()) 
-print(buy_proxy())
-print(prolong_proxy())
+# API_KEY = "fea1d0c98a179dfc855b7255d801b7f0"
+# URL = "https://api.dashboard.proxy.market"
+
+# def check_balance():
+#     url = URL + f"/dev-api/balance/{API_KEY}"
+#     return requests.get(url).text
+
+# def list_proxy():
+#     url = URL + f"/dev-api/list/{API_KEY}"
+#     data = {
+#         "type": "ipv4",
+#         "proxy_type": "server",
+#         "page": 1,
+#         "page_size": 100,
+#         "sort": 1
+#     }
+
+#     return requests.post(url, json=data).text
+
+# def buy_proxy():
+#     url = URL + f"/dev-api/buy-proxy/{API_KEY}"
+#     data = {
+#         "PurchaseBilling": {
+#             "count": 1,
+#             "duration": 30,
+#             "type": 100,
+#             "country": "ru"
+#         }
+#     }
+
+#     return requests.post(url, json=data).text
+
+# def prolong_proxy():
+#     url = URL + f"/dev-api/prolong/{API_KEY}"
+#     data = {
+#         "ProlongationForm": {
+#             "duration": 30,
+#             "proxies": "6460790"
+#         }
+#     }
+
+#     return requests.post(url, json=data).text
+
+# print(check_balance()) 
+# print(list_proxy()) 
+# print(buy_proxy())
+# print(prolong_proxy())

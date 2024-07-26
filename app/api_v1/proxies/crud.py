@@ -85,10 +85,9 @@ async def prolong_proxy(date: str, count: int, duration: int, user_id: int, sess
     url = settings.proxy.URL + f"/dev-api/prolong/{settings.proxy.API_KEY}"
 
     date = check_correct_date(date)
-    stmt = select(Proxy.id_proxy).where(Proxy.user_id==user_id).where(Proxy.expired_at==date)
-    result: Result = await session.execute(stmt)
-
-    id_list = [str(i) for i in result.scalars().all()]
+    proxies = await get_proxies(session=session, date=date, user_id=user_id)
+    
+    id_list = [str(i.id_proxy) for i in proxies]
     ids = ', '.join(id_list[:count])
 
     if ids == '':
@@ -107,6 +106,11 @@ async def prolong_proxy(date: str, count: int, duration: int, user_id: int, sess
     response = dict(json.loads(requests.post(url, json=data).text))
 
     not_enough_money(response=response)
+    proxies = await get_proxies(session=session, date=date, user_id=user_id)
+
+    for proxy in proxies:
+        proxy.expired_at += datetime.timedelta(days=duration)
+        await session.commit()
 
     return await get_proxies_group(user_id=user_id, session=session)
         

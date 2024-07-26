@@ -104,6 +104,4 @@ async def delete_user(user_id: int, session: AsyncSession):
     await session.delete(user)
     await session.commit()
 
-    return {
-        "message": "Пользователь удален | User is deleted"
-    }
+    return await show_all_users(session=session)

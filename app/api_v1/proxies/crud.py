@@ -2,7 +2,7 @@ from fastapi import HTTPException, status
 
 from core.config import settings
 from core.models import Proxy
-from .depends import not_enough_money, check_correct_date
+from .depends import not_enough_money, check_correct_date, get_proxies, get_proxies_group
 from .schemas import ProxySchemas
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -63,21 +63,15 @@ async def add_proxy_to_database(user_id: int, count: int, session: AsyncSession)
         session.add(new_proxy)
         await session.commit()
 
-        proxy_in_db.append(proxy_add)
+    return await get_proxies_group(user_id=user_id, session=session)
 
-    return proxy_in_db
 
 async def get_list_proxy_group_date(user_id, session: AsyncSession):
-    stmt = select(Proxy.expired_at, func.count(Proxy.id)).where(Proxy.user_id==user_id).group_by(Proxy.expired_at)
-    results: Result = await session.execute(stmt)
-         
-    return [{"expired_at": result[0], "count": result[1]} for result in results.all()]
+    return await get_proxies_group(session=session, user_id=user_id)
 
 async def get_proxy_by_date(date: str, user_id: int, session: AsyncSession):
     date = check_correct_date(date)
-    stmt = select(Proxy).where(Proxy.expired_at == date).where(Proxy.user_id == user_id)
-    results: Result = await session.execute(stmt)
-    proxies = results.scalars().all() 
+    proxies = await get_proxies(date=date, user_id=user_id, session=session)
 
     if proxies == []:
         raise HTTPException(
@@ -97,6 +91,12 @@ async def prolong_proxy(date: str, count: int, duration: int, user_id: int, sess
     id_list = [str(i) for i in result.scalars().all()]
     ids = ', '.join(id_list[:count])
 
+    if ids == '':
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Не найдены прокси | Not found proxies"
+        )
+
     data = {
         "ProlongationForm": {
             "duration": duration,
@@ -108,7 +108,5 @@ async def prolong_proxy(date: str, count: int, duration: int, user_id: int, sess
 
     not_enough_money(response=response)
 
-    return {
-        "message": "Вы успешно продлили прокси | Success prolong proxies"
-    }
+    return await get_proxies_group(user_id=user_id, session=session)
         

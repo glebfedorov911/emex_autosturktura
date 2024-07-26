@@ -107,10 +107,16 @@ async def prolong_proxy(date: str, count: int, duration: int, user_id: int, sess
 
     not_enough_money(response=response)
     proxies = await get_proxies(session=session, date=date, user_id=user_id)
+    k = 0
 
     for proxy in proxies:
-        proxy.expired_at += datetime.timedelta(days=duration)
-        await session.commit()
+        if str(proxy.id_proxy) in ids.split(', '): 
+            proxy.expired_at += datetime.timedelta(days=duration)
+            await session.commit()
+            k += 1
+        
+        if k == len(ids.split(", ")):
+            break
 
     return await get_proxies_group(user_id=user_id, session=session)
         

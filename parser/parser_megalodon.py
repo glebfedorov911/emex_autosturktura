@@ -66,7 +66,7 @@ async def main(brands, nums):
         total += 1
         url = f"https://emex.ru/api/search/search?make={create_params_for_url(brand)}&detailNum={num}&locationId=38760&showAll=true&longitude=37.8613&latitude=55.7434"
         async with async_playwright() as p:
-            browser = await p.chromium.launch(proxy={"server": proxy[0], "username": proxy[1], "password": proxy[2]}, headless=True)
+            browser = await p.chromium.launch(proxy={"server": proxy[0], "username": proxy[1], "password": proxy[2]}, headless=False)
             # browser = await p.chromium.launch(headless=False)
             page = await browser.new_page()
 
@@ -127,11 +127,11 @@ def run(brands, nums):
 
 start = time.perf_counter()
 
-brands = ["Peugeot---Citroen", "Mahle---Knecht", "Peugeot---Citroen", "Peugeot---Citroen", "Peugeot---Citroen", "Peugeot---Citroen", "ГАЗ", "VAG", "Autocomponent"] * 3
-nums = ["82026", "02943N0", "362312", "00004254A2", "00006426YN", "00008120T7", "6270000290", "016409399B", "01М21С9"] * 3
+brands = ["Peugeot---Citroen", "Mahle---Knecht", "Peugeot---Citroen", "Peugeot---Citroen", "Peugeot---Citroen", "Peugeot---Citroen", "ГАЗ", "VAG", "Autocomponent"] * 5
+nums = ["82026", "02943N0", "362312", "00004254A2", "00006426YN", "00008120T7", "6270000290", "016409399B", "01М21С9"] * 5
 
-brands_split = split_file_for_thr(4, brands)
-nums_split = split_file_for_thr(4, nums)
+brands_split = split_file_for_thr(8, brands)
+nums_split = split_file_for_thr(8, nums)
 
 threadings = []
 for i in range(len(brands_split)):

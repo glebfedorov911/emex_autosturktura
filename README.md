@@ -1,5 +1,5 @@
 # ДЛЯ ЗАПУСКА
-# uvicorn app.main:app --reload
+# uvicorn main:app --reload
 # или запустить из файла main.py
 
 

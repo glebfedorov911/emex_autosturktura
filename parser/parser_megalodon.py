@@ -20,6 +20,10 @@ proxies = [
     ["http://193.58.168.161:1050", "LorNNF", "fr4B7cGdyS"],
 ] * 3
 
+atms_proxy = {}
+ban_list = []
+total = 0
+
 def split_file_for_thr(num: int, url: list) -> list[list]:
     '''
     num - число потоков # например 4
@@ -58,32 +62,49 @@ def quick_sort(arr: list, index: int):
         return quick_sort(left, index) + middle + quick_sort(right, index)
 
 async def main(brands, nums):
-    global proxies
+    global proxies, atms_proxy, ban_list, total
     proxy = proxies.pop(0)
-    total = 0
+
+    if proxy[0] not in atms_proxy:
+        atms_proxy[proxy[0]] = 0
+
+    if atms_proxy[proxy[0]] > 15:
+        ban_list.append(proxy)
+        proxies.remove(proxy)
 
     for brand, num in zip(brands, nums):
-        total += 1
         url = f"https://emex.ru/api/search/search?make={create_params_for_url(brand)}&detailNum={num}&locationId=38760&showAll=true&longitude=37.8613&latitude=55.7434"
         async with async_playwright() as p:
-            browser = await p.chromium.launch(proxy={"server": proxy[0], "username": proxy[1], "password": proxy[2]}, headless=False)
+            browser = await p.chromium.launch(proxy={"server": proxy[0], "username": proxy[1], "password": proxy[2]}, headless=True)
             # browser = await p.chromium.launch(headless=False)
             page = await browser.new_page()
 
-            await page.goto(url, timeout=3000)
+            try:
+                await page.goto(url, timeout=3000)
+            except:
+                print("url1")
+                brands.append(brand)
+                nums.append(num)
+                
+                atms_proxy[proxy[0]] += 1
+
+                continue
 
             pre = await (await page.query_selector("pre")).text_content()
             response = dict(json.loads(pre))
 
             originals = response["searchResult"]["originals"]
-            analogs = response["searchResult"]["analogs"][:10]
+            analogs = response["searchResult"]["analogs"][:3]
 
-            goods = originals + analogs
+            goods = originals   
+            # goods = originals + analogs
             final_data_of_goods = []
+            k = 0
 
             for good in goods:
                 data_of_goods = []
                 for number_of_goods in range(12):
+                    k += 1
                     try:   
                         offer = good["offers"][number_of_goods]
                         
@@ -110,16 +131,19 @@ async def main(brands, nums):
                     except IndexError:
                         break
                     except playwright_TimeoutError:
-                        print("error")
+                        print("url2")
+                        atms_proxy[proxy[0]] += 1
                         brands.append(brand)
                         nums.append(num)
 
                 sort_data_of_goods = quick_sort(data_of_goods, 0)
                 final_data_of_goods.append(min(sort_data_of_goods[:10], key=lambda x: x[1]))
 
-            print(min(final_data_of_goods, key=lambda x: x[1]))
-
+            with open('parser/data.txt', 'a', encoding="utf-8") as file:
+                file.write(f"{k} | {brand} | {num} | {min(final_data_of_goods, key=lambda x: x[1])}\n")
+        total += k
         await browser.close() 
+
     proxies.append(proxy)
 
 def run(brands, nums):
@@ -127,8 +151,8 @@ def run(brands, nums):
 
 start = time.perf_counter()
 
-brands = ["Peugeot---Citroen", "Mahle---Knecht", "Peugeot---Citroen", "Peugeot---Citroen", "Peugeot---Citroen", "Peugeot---Citroen", "ГАЗ", "VAG", "Autocomponent"] * 5
-nums = ["82026", "02943N0", "362312", "00004254A2", "00006426YN", "00008120T7", "6270000290", "016409399B", "01М21С9"] * 5
+brands = ["Peugeot---Citroen", "Mahle---Knecht", "Peugeot---Citroen", "Peugeot---Citroen", "Peugeot---Citroen", "Peugeot---Citroen", "ГАЗ", "VAG", "Autocomponent"] * 10
+nums = ["82026", "02943N0", "362312", "00004254A2", "00006426YN", "00008120T7", "6270000290", "016409399B", "01М21С9"] * 10
 
 brands_split = split_file_for_thr(8, brands)
 nums_split = split_file_for_thr(8, nums)
@@ -141,5 +165,8 @@ for i in range(len(brands_split)):
 
 for thread in threadings:
     thread.join()
+
+with open('parser/data.txt', 'a', encoding="utf-8") as file:
+    file.write(f"ВСЕГО: {total} строк\nБан лист: {ban_list}\nПопытки: {atms_proxy}\nСкорость: {total/(time.perf_counter() - start)} строк/секунд\n{time.perf_counter() - start} секунд")
 
 print(time.perf_counter() - start)

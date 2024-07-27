@@ -2,7 +2,7 @@ import pytest
 from httpx import AsyncClient, Cookies
 
 from app.api_v1.users.views import router
-from app.main import app
+from main import app
 from app.core.config import settings
 
 

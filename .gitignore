@@ -4,3 +4,4 @@ parser/new3.txt
 parser/data.txt
 app/certs/jwt-private.pem
 app/certs/jwt-public.pem
+app/api_v1/parser/data.txt

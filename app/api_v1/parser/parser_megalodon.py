@@ -17,7 +17,7 @@ proxies = [
     ["http://109.248.166.189:1050", "LorNNF", "fr4B7cGdyS"],
     ["http://91.188.244.80:1050", "LorNNF", "fr4B7cGdyS"],
     ["http://193.58.168.161:1050", "LorNNF", "fr4B7cGdyS"],
-] *2
+] * 2
 
 atms_proxy = {}
 ban_list = []
@@ -72,6 +72,7 @@ async def main(brands, nums):
         proxies.remove(proxy)
 
     for brand, num in zip(brands, nums):
+        skip = False
         url = f"https://emex.ru/api/search/search?make={create_params_for_url(brand)}&detailNum={num}&locationId=38760&showAll=true&longitude=37.8613&latitude=55.7434"
         async with async_playwright() as p:
             browser = await p.chromium.launch(proxy={"server": proxy[0], "username": proxy[1], "password": proxy[2]}, headless=True)
@@ -93,10 +94,10 @@ async def main(brands, nums):
             response = dict(json.loads(pre))
 
             originals = response["searchResult"]["originals"]
-            analogs = response["searchResult"]["analogs"][:3]
+            analogs = response["searchResult"]["analogs"]
 
             goods = originals   
-            # goods = originals + analogs
+            goods = originals + analogs
             final_data_of_goods = []
             k = 0
 
@@ -134,12 +135,17 @@ async def main(brands, nums):
                         atms_proxy[proxy[0]] += 1
                         brands.append(brand)
                         nums.append(num)
+                        skip = True
+                        break
+                if skip:
+                    break
 
                 sort_data_of_goods = quick_sort(data_of_goods, 0)
                 final_data_of_goods.append(min(sort_data_of_goods[:10], key=lambda x: x[1]))
 
-            with open('parser/data.txt', 'a', encoding="utf-8") as file:
-                file.write(f"{k} | {brand} | {num} | {min(final_data_of_goods, key=lambda x: x[1])}\n")
+            if not skip:
+                with open('app/api_v1/parser/data.txt', 'a', encoding="utf-8") as file:
+                    file.write(f"{k} | {brand} | {num} | {min(final_data_of_goods, key=lambda x: x[1])}\n")
         total += k
         await browser.close() 
 
@@ -165,5 +171,7 @@ for i in range(len(brands_split)):
 for thread in threadings:
     thread.join()
 
-with open('parser/data.txt', 'a', encoding="utf-8") as file:
+with open('app/api_v1/parser/data.txt', 'a', encoding="utf-8") as file:
     file.write(f"ВСЕГО: {total} строк\nБан лист: {ban_list}\nПопытки: {atms_proxy}\nСкорость: {total/(time.perf_counter() - start)} строк/секунд\n{time.perf_counter() - start} секунд")
+
+print(time.perf_counter()-start)

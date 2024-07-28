@@ -18,7 +18,6 @@ from app.api_v1.auth.utils import decode_jwt
 http_bearer = HTTPBearer()
 
 async def get_payload(access_token: str | None = Cookie(default=None)):
-
     try:
         payload = decode_jwt(
             token=access_token

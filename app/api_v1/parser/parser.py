@@ -17,7 +17,7 @@ proxies = [
     ["http://109.248.166.189:1050", "LorNNF", "fr4B7cGdyS"],
     ["http://91.188.244.80:1050", "LorNNF", "fr4B7cGdyS"],
     ["http://193.58.168.161:1050", "LorNNF", "fr4B7cGdyS"],
-] * 2
+] * 4
 
 atms_proxy = {}
 ban_list = []
@@ -67,11 +67,11 @@ async def main(brands, nums):
     if proxy[0] not in atms_proxy:
         atms_proxy[proxy[0]] = 0
 
-    if atms_proxy[proxy[0]] > 15:
-        ban_list.append(proxy)
-        proxies.remove(proxy)
-
     for brand, num in zip(brands, nums):
+        if atms_proxy[proxy[0]] > 15:
+            ban_list.append(proxy)
+            if proxy in proxies:
+                proxies.remove(proxy)
         skip = False
         url = f"https://emex.ru/api/search/search?make={create_params_for_url(brand)}&detailNum={num}&locationId=38760&showAll=true&longitude=37.8613&latitude=55.7434"
         async with async_playwright() as p:
@@ -93,11 +93,16 @@ async def main(brands, nums):
             pre = await (await page.query_selector("pre")).text_content()
             response = dict(json.loads(pre))
 
+            if "originals" not in response:
+                atms_proxy[proxy[0]] += 1
+                continue
+
             originals = response["searchResult"]["originals"]
-            analogs = response["searchResult"]["analogs"]
+            if "analogs" in response:
+                analogs = response["searchResult"]["analogs"]
 
             goods = originals   
-            goods = originals + analogs
+            goods = originals + analogs[:3]
             final_data_of_goods = []
             k = 0
 

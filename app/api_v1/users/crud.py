@@ -8,7 +8,7 @@ from fastapi.security import HTTPBearer
 
 from jwt.exceptions import InvalidTokenError
 
-from .schemas import UserCreate, UserUpdate, UserLogin
+from .schemas import UserCreate, UserUpdate, UserLogin, UserOut
 from app.core.models import User        
 from app.api_v1.auth.utils import hash_password, validate_password
 from .depends import unknown_user, get_user_by_id
@@ -65,13 +65,11 @@ async def validate_user(user_log: UserLogin, session: AsyncSession):
     return user
 
 async def show_all_users(session: AsyncSession):
-    stmt = select(User)
+    stmt = select(User.id, User.username, User.fullname, User.description, User.is_admin)
     result: Result = await session.execute(stmt)
-    users = result.scalars().all()
-    for user in users:
-        del user.password
+    users = result.fetchall()
 
-    return users
+    return [UserOut(id=user[0], username=user[1], fullname=user[2], description=user[3], is_admin=user[4]) for user in users]
 
 async def edit_user(user_id: int, upd_user: UserUpdate, session: AsyncSession):
     user = await get_user_by_id(user_id=user_id, session=session)

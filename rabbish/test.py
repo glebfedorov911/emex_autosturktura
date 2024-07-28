@@ -149,9 +149,12 @@ brands = ["Peugeot---Citroen"]
 nums = ["82026"]
 
 proxies = [
-    ["http://94.158.190.96:1050", "LorNNF", "fr4B7cGdyS"],
+    ["http://194.156.97.212:1050 ", "LorNNF", "fr4B7cGdyS"],
+    ["http://194.156.123.115:1050", "LorNNF", "fr4B7cGdyS"],
+    ["http://109.248.166.189:1050", "LorNNF", "fr4B7cGdyS"],
+    ["http://91.188.244.80:1050", "LorNNF", "fr4B7cGdyS"],
     ["http://193.58.168.161:1050", "LorNNF", "fr4B7cGdyS"],
-]
+] 
 
 for proxy in proxies:
     asyncio.run(main(brands, nums, proxy))

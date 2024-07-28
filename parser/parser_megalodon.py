@@ -12,13 +12,12 @@ from math import ceil
 
 
 proxies = [
-    # ["http://45.87.253.120:1050", "LorNNF", "fr4B7cGdyS"],
-    # ["http://94.158.190.96:1050", "LorNNF", "fr4B7cGdyS"],
-
+    ["http://194.156.97.212:1050 ", "LorNNF", "fr4B7cGdyS"],
+    ["http://194.156.123.115:1050", "LorNNF", "fr4B7cGdyS"],
     ["http://109.248.166.189:1050", "LorNNF", "fr4B7cGdyS"],
     ["http://91.188.244.80:1050", "LorNNF", "fr4B7cGdyS"],
     ["http://193.58.168.161:1050", "LorNNF", "fr4B7cGdyS"],
-] * 3
+] *2
 
 atms_proxy = {}
 ban_list = []
@@ -151,8 +150,8 @@ def run(brands, nums):
 
 start = time.perf_counter()
 
-brands = ["Peugeot---Citroen", "Mahle---Knecht", "Peugeot---Citroen", "Peugeot---Citroen", "Peugeot---Citroen", "Peugeot---Citroen", "ГАЗ", "VAG", "Autocomponent"] * 10
-nums = ["82026", "02943N0", "362312", "00004254A2", "00006426YN", "00008120T7", "6270000290", "016409399B", "01М21С9"] * 10
+brands = ["Peugeot---Citroen", "Mahle---Knecht", "Peugeot---Citroen", "Peugeot---Citroen", "Peugeot---Citroen", "Peugeot---Citroen", "ГАЗ", "VAG", "Autocomponent"] * 20
+nums = ["82026", "02943N0", "362312", "00004254A2", "00006426YN", "00008120T7", "6270000290", "016409399B", "01М21С9"] * 20
 
 brands_split = split_file_for_thr(8, brands)
 nums_split = split_file_for_thr(8, nums)

@@ -7,6 +7,9 @@ class UserBase(BaseModel):
     username: str
     is_admin: bool
 
+class UserOut(UserBase):
+    id: int
+
 class UserCreate(UserBase):
     password: str
 

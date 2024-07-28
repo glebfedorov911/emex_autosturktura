@@ -167,5 +167,3 @@ for thread in threadings:
 
 with open('parser/data.txt', 'a', encoding="utf-8") as file:
     file.write(f"ВСЕГО: {total} строк\nБан лист: {ban_list}\nПопытки: {atms_proxy}\nСкорость: {total/(time.perf_counter() - start)} строк/секунд\n{time.perf_counter() - start} секунд")
-
-print(time.perf_counter() - start)

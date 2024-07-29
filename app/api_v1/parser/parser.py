@@ -10,18 +10,30 @@ import urllib.parse as up
 
 from math import ceil
 
-
 proxies = [
-    ["http://194.156.97.212:1050 ", "LorNNF", "fr4B7cGdyS"],
+    ["http://46.8.16.194:1050", "LorNNF", "fr4B7cGdyS"],
+    # ["http://95.182.124.119:1050", "2Q3n1o", "FjvCaesiwS"], #!!!!
     ["http://194.156.123.115:1050", "LorNNF", "fr4B7cGdyS"],
     ["http://109.248.166.189:1050", "LorNNF", "fr4B7cGdyS"],
     ["http://91.188.244.80:1050", "LorNNF", "fr4B7cGdyS"],
     ["http://193.58.168.161:1050", "LorNNF", "fr4B7cGdyS"],
-] * 4
+    ["http://46.8.22.63:1050", "LorNNF", "fr4B7cGdyS"],
+    # ["http://46.8.10.206:1050", "2Q3n1o", "FjvCaesiwS"], #!!!
+    ["http://109.248.14.248:1050", "LorNNF", "fr4B7cGdyS"],
+    ["http://2.59.50.242:1050", "LorNNF", "fr4B7cGdyS"],
+    ["http://94.158.190.152:1050", "LorNNF", "fr4B7cGdyS"],
+    # ["http://188.130.188.9:1050", "2Q3n1o", "FjvCaesiwS"], #!!!
+    ["http://188.130.129.128:1050", "LorNNF", "fr4B7cGdyS"],
+    ["http://31.40.203.252:1050", "LorNNF", "fr4B7cGdyS"],
+    ["http://45.15.73.112:1050", "LorNNF", "fr4B7cGdyS"],
+    ["http://46.8.157.208:1050", "LorNNF", "fr4B7cGdyS"],
+    ["http://188.130.128.166:1050", "LorNNF", "fr4B7cGdyS"],
+] 
 
 atms_proxy = {}
 ban_list = []
 total = 0
+proxies_count = len(proxies)
 
 def split_file_for_thr(num: int, url: list) -> list[list]:
     '''
@@ -61,17 +73,25 @@ def quick_sort(arr: list, index: int):
         return quick_sort(left, index) + middle + quick_sort(right, index)
 
 async def main(brands, nums):
-    global proxies, atms_proxy, ban_list, total
+    global proxies, atms_proxy, ban_list, total, proxies_count
     proxy = proxies.pop(0)
 
-    if proxy[0] not in atms_proxy:
-        atms_proxy[proxy[0]] = 0
-
     for brand, num in zip(brands, nums):
-        if atms_proxy[proxy[0]] > 15:
-            ban_list.append(proxy)
+        if proxy[0] not in atms_proxy:
+            atms_proxy[proxy[0]] = 0
+
+        if atms_proxy[proxy[0]] > 7:
+            if proxy not in ban_list:
+                ban_list.append(proxy)
             if proxy in proxies:
                 proxies.remove(proxy)
+            if len(ban_list) == proxies_count:
+                print('1', proxies_count, len(ban_list), ban_list)
+                print("У вас закончились прокси")
+                break
+            if proxies != []:
+                proxy = proxies.pop(0)
+
         skip = False
         url = f"https://emex.ru/api/search/search?make={create_params_for_url(brand)}&detailNum={num}&locationId=38760&showAll=true&longitude=37.8613&latitude=55.7434"
         async with async_playwright() as p:
@@ -82,23 +102,32 @@ async def main(brands, nums):
             try:
                 await page.goto(url, timeout=3000)
             except:
-                print("url1")
                 brands.append(brand)
                 nums.append(num)
                 
                 atms_proxy[proxy[0]] += 1
-
+                if atms_proxy[proxy[0]] > 7:
+                    if proxy not in ban_list:
+                        ban_list.append(proxy)
+                    if proxy in proxies:
+                        proxies.remove(proxy)
+                    if len(ban_list) == proxies_count:
+                        print('2', proxies_count, len(ban_list), ban_list)
+                        print("У вас закончились прокси")
+                        break
+                    if proxies != []:
+                        proxy = proxies.pop(0)
                 continue
 
             pre = await (await page.query_selector("pre")).text_content()
             response = dict(json.loads(pre))
 
-            if "originals" not in response:
+            if "originals" not in response["searchResult"]:
                 atms_proxy[proxy[0]] += 1
                 continue
 
             originals = response["searchResult"]["originals"]
-            if "analogs" in response:
+            if "analogs" in response["searchResult"]:
                 analogs = response["searchResult"]["analogs"]
 
             goods = originals   
@@ -136,11 +165,21 @@ async def main(brands, nums):
                     except IndexError:
                         break
                     except playwright_TimeoutError:
-                        print("url2")
                         atms_proxy[proxy[0]] += 1
                         brands.append(brand)
                         nums.append(num)
                         skip = True
+                        if atms_proxy[proxy[0]] > 7:
+                            if proxy not in ban_list:
+                                ban_list.append(proxy)
+                            if proxy in proxies:
+                                proxies.remove(proxy)
+                            if len(ban_list) == proxies_count:
+                                print('3', proxies_count, len(ban_list))
+                                print("У вас закончились прокси")
+                                break
+                            if proxies != []:
+                                proxy = proxies.pop(0)
                         break
                 if skip:
                     break
@@ -150,7 +189,7 @@ async def main(brands, nums):
 
             if not skip:
                 with open('app/api_v1/parser/data.txt', 'a', encoding="utf-8") as file:
-                    file.write(f"{k} | {brand} | {num} | {min(final_data_of_goods, key=lambda x: x[1])}\n")
+                    file.write(f"{k} | {threading.current_thread().name} | {brand} | {num} | {min(final_data_of_goods, key=lambda x: x[1])}\n")
         total += k
         await browser.close() 
 
@@ -178,5 +217,3 @@ for thread in threadings:
 
 with open('app/api_v1/parser/data.txt', 'a', encoding="utf-8") as file:
     file.write(f"ВСЕГО: {total} строк\nБан лист: {ban_list}\nПопытки: {atms_proxy}\nСкорость: {total/(time.perf_counter() - start)} строк/секунд\n{time.perf_counter() - start} секунд")
-
-print(time.perf_counter()-start)

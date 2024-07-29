@@ -2,6 +2,8 @@ from pydantic_settings import BaseSettings
 from pydantic import BaseModel
 from pathlib import Path
 
+import os
+
 
 BASE_DIR =  Path(__file__).parent.parent
 
@@ -21,10 +23,17 @@ class Auth(BaseModel):
     algorithm: str = "RS256"
     access_token_expire_minutes: int = 60*24*30
 
+class UploadFiles(BaseModel):
+    path_for_upload: Path = BASE_DIR / "upload_file"
+
 class Settings(BaseSettings):
     db: DBSettings = DBSettings()
     auth: Auth = Auth()
     api: str = "/api/v1"
     proxy: Proxy = Proxy()
+    upload: UploadFiles = UploadFiles()
 
 settings = Settings()
+
+if not os.path.exists(settings.upload.path_for_upload):
+    os.makedirs(settings.upload.path_for_upload)

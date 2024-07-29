@@ -1,10 +1,16 @@
-from fastapi import WebSocket, APIRouter, WebSocketDisconnect, Request
+from fastapi import WebSocket, APIRouter, WebSocketDisconnect, Request, UploadFile, File
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import FileResponse
+
+from app.core.config import settings
+
+import os
 
 
-router = APIRouter(prefix="/websocket", tags=["WebSocket"])
+router = APIRouter(prefix="/test", tags=["WebSocket"])
 
 templates = Jinja2Templates(directory="app/templates")
+files = ''
 
 class ConnectionManager:
     def __init__(self):
@@ -22,6 +28,16 @@ class ConnectionManager:
             await conn.send_text(data)
 
 manager = ConnectionManager()
+
+def get_unique_filename(directory, filename: str):
+    base, extension = os.path.splitext(filename)
+    counter = 1
+    unique_name = filename
+    while os.path.exists(os.path.join(directory, unique_name)):
+        unique_name = f"{base}_{counter}{extension}"
+        counter += 1
+
+    return unique_name
 
 @router.get("/")
 async def get(request: Request):
@@ -41,3 +57,29 @@ async def websocket_endpoint(id: int, websocket: WebSocket):
     except WebSocketDisconnect:
         manager.disconnect(websocket)
         await manager.show_message(f"{id} покинул чат")
+
+@router.get("/files/")
+async def get(request: Request):
+    return templates.TemplateResponse(
+        request=request, name="upload.html"
+    )
+
+@router.post("/files/uploadfile/")
+async def upload_file(file: UploadFile = File(...)):
+    global files
+    directory = settings.upload.path_for_upload
+    unique_name = files = get_unique_filename(directory, file.filename)
+    file_location = os.path.join(directory, unique_name)
+    with open(file_location, "wb") as buffer:
+        buffer.write(await file.read())
+
+    return {
+        "msg": f"{unique_name} сохранен в {file_location}"
+    }
+
+
+@router.post("/files/downloadfile/")
+async def download_file():
+    global files
+    file_location = os.path.join(settings.upload.path_for_upload, files)
+    return FileResponse(path=file_location, filename=files)

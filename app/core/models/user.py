@@ -16,3 +16,4 @@ class User(Base):
     password: Mapped[bytes]
     is_admin: Mapped[bool] = mapped_column(default=False)
     proxies: Mapped[list["Proxy"]] = relationship(back_populates="user")
+    filters: Mapped[list["Filter"]] = relationship(back_populates="user")

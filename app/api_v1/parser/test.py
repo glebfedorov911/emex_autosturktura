@@ -7,7 +7,7 @@ from app.core.config import settings
 import os
 
 
-router = APIRouter(prefix="/test", tags=["WebSocket"])
+router = APIRouter(prefix="/test", tags=["ТЕСТ НЕ ТРОГАТЬ!!"])
 
 templates = Jinja2Templates(directory="app/templates")
 files = ''

@@ -2,5 +2,5 @@ from pydantic import BaseModel
 
 
 class FilesCreate(BaseModel):
-    filename: str
+    before_parsing_filename: str
     user_id: int

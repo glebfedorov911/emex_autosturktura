@@ -11,7 +11,9 @@ if TYPE_CHECKING:
 
 
 class File(Base):
-    filename: Mapped[str]
+    before_parsing_filename: Mapped[str]
+    after_parsing_filename: Mapped[str] = mapped_column(nullable=True)
     date: Mapped[datetime] = mapped_column(default=datetime.now)
+    finish_date: Mapped[datetime] = mapped_column(nullable=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     user = relationship("User", back_populates="files")

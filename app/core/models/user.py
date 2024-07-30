@@ -7,6 +7,8 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .proxy import Proxy
+    from .filter import Filter
+    from .file import File
 
 
 class User(Base):
@@ -17,3 +19,4 @@ class User(Base):
     is_admin: Mapped[bool] = mapped_column(default=False)
     proxies: Mapped[list["Proxy"]] = relationship(back_populates="user")
     filters: Mapped[list["Filter"]] = relationship(back_populates="user")
+    files: Mapped[list["File"]] = relationship(back_populates="user")

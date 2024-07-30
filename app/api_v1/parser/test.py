@@ -5,9 +5,51 @@ from fastapi.responses import FileResponse
 from app.core.config import settings
 
 import os
+import time
+from threading import Thread, Event, current_thread
 
 
 router = APIRouter(prefix="/test", tags=["ТЕСТ НЕ ТРОГАТЬ!!"])
+
+stop_events = [Event(), Event(), Event()]
+counters = [0, 0, 0]
+
+def counter_thread(index):
+    while not stop_events[index].is_set():
+        counters[index] += 1
+        print(f"Counter {index+1}: {counters[index]}")
+        time.sleep(1)
+
+threads = [None, None, None]
+
+@router.get("/start")
+def start_counters():
+    messages = []
+    for index in range(3):
+        if threads[index] is None or not threads[index].is_alive():
+            stop_events[index].clear()
+            threads[index] = Thread(target=counter_thread, args=(index,))
+            threads[index].start()
+            messages.append(f"Counter {index+1} started")
+        else:
+            messages.append(f"Counter {index+1} is already running")
+    return {"messages": messages}
+
+@router.get("/stop")
+def stop_counters():
+    for index in range(3):
+        stop_events[index].set()
+    return {"message": "All counters stopped"}
+
+@router.get("/status")
+def get_status():
+    return {
+        "counters": [
+            {"id": 1, "value": counters[0], "running": not stop_events[0].is_set()},
+            {"id": 2, "value": counters[1], "running": not stop_events[1].is_set()},
+            {"id": 3, "value": counters[2], "running": not stop_events[2].is_set()}
+        ]
+    }
 
 templates = Jinja2Templates(directory="app/templates")
 files = ''
@@ -58,28 +100,29 @@ async def websocket_endpoint(id: int, websocket: WebSocket):
         manager.disconnect(websocket)
         await manager.show_message(f"{id} покинул чат")
 
-@router.get("/files/")
-async def get(request: Request):
-    return templates.TemplateResponse(
-        request=request, name="upload.html"
-    )
+#ГОТОВО
+# @router.get("/files/")
+# async def get(request: Request):
+#     return templates.TemplateResponse(
+#         request=request, name="upload.html"
+#     )
 
-@router.post("/files/uploadfile/")
-async def upload_file(file: UploadFile = File(...)):
-    global files
-    directory = settings.upload.path_for_upload
-    unique_name = files = get_unique_filename(directory, file.filename)
-    file_location = os.path.join(directory, unique_name)
-    with open(file_location, "wb") as buffer:
-        buffer.write(await file.read())
+# @router.post("/files/uploadfile/")
+# async def upload_file(file: UploadFile = File(...)):
+#     global files
+#     directory = settings.upload.path_for_upload
+#     unique_name = files = get_unique_filename(directory, file.filename)
+#     file_location = os.path.join(directory, unique_name)
+#     with open(file_location, "wb") as buffer:
+#         buffer.write(await file.read())
 
-    return {
-        "msg": f"{unique_name} сохранен в {file_location}"
-    }
+#     return {
+#         "msg": f"{unique_name} сохранен в {file_location}"
+#     }
 
 
-@router.post("/files/downloadfile/")
-async def download_file():
-    global files
-    file_location = os.path.join(settings.upload.path_for_upload, files)
-    return FileResponse(path=file_location, filename=files)
+# @router.post("/files/downloadfile/")
+# async def download_file():
+#     global files
+#     file_location = os.path.join(settings.upload.path_for_upload, files)
+#     return FileResponse(path=file_location, filename=files)

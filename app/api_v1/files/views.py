@@ -17,7 +17,7 @@ router = APIRouter(prefix="/files", tags=["Files"])
 @router.post("/upload_file/")
 async def upload_file(file: UploadFile = File(...), session: AsyncSession = Depends(db_helper.session_depends), payload = Depends(get_payload)):
     directory = settings.upload.path_for_upload
-    unique_filename = get_unique_filename(directory, f"{payload.get("username")}_дляпарсинг.{file.filename.split('.')[1]}")
+    unique_filename = get_unique_filename(directory, f"{payload.get("username")}_дляпарсинг.{file.filename.split('.')[-1]}")
     file_location = os.path.join(directory, unique_filename)
 
     with open(file_location, "wb") as buffer:
@@ -30,7 +30,7 @@ async def upload_file(file: UploadFile = File(...), session: AsyncSession = Depe
     }
 
 @router.post("/download_file/")
-async def download_file(session: AsyncSession = Depends(db_helper.session_depends), payload=Depends(get_payload)):
+async def download_last_file(session: AsyncSession = Depends(db_helper.session_depends), payload=Depends(get_payload)):
     last_file = await crud.get_last_file(session=session, user_id=payload.get("sub"))
     file_location = os.path.join(settings.upload.path_for_upload, last_file.before_parsing_filename)
     return FileResponse(path=file_location, filename=last_file.before_parsing_filename)

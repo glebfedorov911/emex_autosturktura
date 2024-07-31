@@ -23,6 +23,9 @@ class Auth(BaseModel):
     algorithm: str = "RS256"
     access_token_expire_minutes: int = 60*24*30
 
+class Templates(BaseModel):
+    templates_path: str = "app/templates"
+
 class UploadFiles(BaseModel):
     path_for_upload: Path = BASE_DIR / "upload_file"
 
@@ -32,6 +35,7 @@ class Settings(BaseSettings):
     api: str = "/api/v1"
     proxy: Proxy = Proxy()
     upload: UploadFiles = UploadFiles()
+    templates: Templates = Templates()
 
 settings = Settings()
 

@@ -16,5 +16,6 @@ class Proxy(Base):
     login: Mapped[str]
     password: Mapped[str]
     ip_with_port: Mapped[str]
+    is_banned: Mapped[str] = mapped_column(default=False, nullable=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     user = relationship("User", back_populates="proxies")

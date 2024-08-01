@@ -55,7 +55,7 @@ async def add_proxy_to_database(user_id: int, count: int, session: AsyncSession)
     proxy_in_db = []
 
     for proxy in proxies:
-        ip_with_port = proxy["ip"] + ":" + proxy["http_port"]
+        ip_with_port = "http://" + proxy["ip"] + ":" + proxy["http_port"]
         expired_at = datetime.datetime.strptime(proxy["expired_at"].split(" ")[0], '%Y-%m-%d').date()
         proxy_add = ProxySchemas(id_proxy=proxy["id"], login=proxy["login"], password=proxy["password"], ip_with_port=ip_with_port, expired_at=expired_at, user_id=user_id)
         

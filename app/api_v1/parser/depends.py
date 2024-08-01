@@ -1,42 +1,14 @@
 from playwright.async_api import async_playwright, TimeoutError as playwright_TimeoutError
-import pandas as pd
-
-import asyncio
-import json
-import time 
-import random
-import threading
-
-import urllib.parse as up
 
 from math import ceil
 
-start = time.perf_counter()
+import urllib.parse as up
+import pandas as pd
+import json
+import asyncio
 
-proxies = [
-    ["http://46.8.16.194:1050", "LorNNF", "fr4B7cGdyS"],
-    ["http://194.156.123.115:1050", "LorNNF", "fr4B7cGdyS"],
-    ["http://109.248.166.189:1050", "LorNNF", "fr4B7cGdyS"],
-    ["http://91.188.244.80:1050", "LorNNF", "fr4B7cGdyS"],
-    ["http://193.58.168.161:1050", "LorNNF", "fr4B7cGdyS"],
-    ["http://46.8.22.63:1050", "LorNNF", "fr4B7cGdyS"],
-    # ["http://46.8.10.206:1050", "2Q3n1o", "FjvCaesiwS"], #!!!
-    ["http://109.248.14.248:1050", "LorNNF", "fr4B7cGdyS"],
-    ["http://2.59.50.242:1050", "LorNNF", "fr4B7cGdyS"],
-    ["http://94.158.190.152:1050", "LorNNF", "fr4B7cGdyS"],
-    # ["http://188.130.188.9:1050", "2Q3n1o", "FjvCaesiwS"], #!!!
-    ["http://188.130.129.128:1050", "LorNNF", "fr4B7cGdyS"],
-    ["http://31.40.203.252:1050", "LorNNF", "fr4B7cGdyS"],
-    ["http://45.15.73.112:1050", "LorNNF", "fr4B7cGdyS"],
-    ["http://46.8.157.208:1050", "LorNNF", "fr4B7cGdyS"],
-    ["http://188.130.128.166:1050", "LorNNF", "fr4B7cGdyS"],
-] 
 
-atms_proxy = {} # в словарь
-ban_list = [] # в словарь
-total = 0 # в словарь
-proxies_count = len(proxies) # в словарь
-all_data = [] # в словарь
+user_data = {}
 
 def create(df_to_list):
     brands = []
@@ -87,29 +59,33 @@ def quick_sort(arr: list, index: int):
         right = [x for x in arr if x[index] > pivot]
         return quick_sort(left, index) + middle + quick_sort(right, index)
 
-async def main(brands, nums):
-    global proxies, atms_proxy, ban_list, total, proxies_count, all_data
-    proxy = proxies.pop(0) # в словарь
-
+async def main(brands, nums, user_id):
+    global user_data
+    if len(user_data[user_id]["proxies"]) > 0:
+        proxy = user_data[user_id]["proxies"].pop(0) # в словарь
+    else:
+        proxy = ["0.0.0.0", "user", "pass"]
     for brand, num in zip(brands, nums):
-        if proxy[0] not in atms_proxy: # в словарь
-            atms_proxy[proxy[0]] = 0 # в словарь
+        if all([event.is_set() for event in user_data[user_id]["events"]]):
+            break   
+        if proxy[0] not in user_data[user_id]["atms_proxy"]: # в словарь
+            user_data[user_id]["atms_proxy"][proxy[0]] = 0 # в словарь
 
-        if atms_proxy[proxy[0]] > 7: # в словарь
-            if proxy not in ban_list: # в словарь
-                ban_list.append(proxy) # в словарь
-            if proxy in proxies: # в словарь
-                proxies.remove(proxy) # в словарь
-            if len(ban_list) == proxies_count: # в словарь
+        if user_data[user_id]["atms_proxy"][proxy[0]] > 7: # в словарь
+            if proxy not in user_data[user_id]["ban_list"]: # в словарь
+                user_data[user_id]["ban_list"].append(proxy) # в словарь
+            if proxy in user_data[user_id]["proxies"]: # в словарь
+                user_data[user_id]["proxies"].remove(proxy) # в словарь
+            if len(user_data[user_id]["ban_list"]) == user_data[user_id]["proxies_count"]: # в словарь
                 print("У вас закончились прокси") 
                 break
-            if proxies != []:
-                proxy = proxies.pop(0)
+            if user_data[user_id]["proxies"] != []:
+                proxy = user_data[user_id]["proxies"].pop(0)
 
         skip = False
         url = f"https://emex.ru/api/search/search?make={create_params_for_url(brand[1])}&detailNum={num[1]}&locationId=38760&showAll=true&longitude=37.8613&latitude=55.7434"
         async with async_playwright() as p:
-            browser = await p.chromium.launch(proxy={"server": proxy[0], "username": proxy[1], "password": proxy[2]}, headless=True)
+            browser = await p.chromium.launch(proxy={"server": proxy[0], "username": proxy[1], "password": proxy[2]}, headless=False)
             # browser = await p.chromium.launch(headless=False)
             page = await browser.new_page()
 
@@ -119,25 +95,25 @@ async def main(brands, nums):
                 brands.append(brand)
                 nums.append(num)
                 
-                if proxy[0] in atms_proxy:
-                    atms_proxy[proxy[0]] += 1
-                if atms_proxy[proxy[0]] > 7:
-                    if proxy not in ban_list:
-                        ban_list.append(proxy)
-                    if proxy in proxies:
-                        proxies.remove(proxy)
-                    if len(ban_list) == proxies_count:
+                if proxy[0] in user_data[user_id]["atms_proxy"]:
+                    user_data[user_id]["atms_proxy"][proxy[0]] += 1
+                if user_data[user_id]["atms_proxy"][proxy[0]] > 7:
+                    if proxy not in user_data[user_id]["ban_list"]:
+                        user_data[user_id]["ban_list"].append(proxy)
+                    if proxy in user_data[user_id]["proxies"]:
+                        user_data[user_id]["proxies"].remove(proxy)
+                    if len(user_data[user_id]["ban_list"]) == user_data[user_id]["proxies_count"]:
                         print("У вас закончились прокси")
                         break
-                    if proxies != []:
-                        proxy = proxies.pop(0)
+                    if user_data[user_id]["proxies"] != []:
+                        proxy = user_data[user_id]["proxies"].pop(0)
                 continue
 
             pre = await (await page.query_selector("pre")).text_content()
             response = dict(json.loads(pre))
 
             if "originals" not in response["searchResult"]:
-                all_data.append([brand[1], num[1], 'ТОВАР', "НЕ", "ДОСТУПЕН"])
+                user_data[user_id]["all_data"].append([brand[1], num[1], 'ТОВАР', "НЕ", "ДОСТУПЕН"])
                 #  if proxy[0] in atms_proxy:
                 #     atms_proxy[proxy[0]] += 1
                 continue
@@ -154,6 +130,10 @@ async def main(brands, nums):
             for good in goods:
                 data_of_goods = []
                 for number_of_goods in range(12):
+                    if all([event.is_set() for event in user_data[user_id]["events"]]):
+                        skip = True
+                        await browser.close()
+                        break   
                     k += 1
                     try:   
                         offer = good["offers"][number_of_goods]
@@ -181,21 +161,21 @@ async def main(brands, nums):
                     except IndexError:
                         break
                     except playwright_TimeoutError:
-                        if proxy[0] in atms_proxy:
-                            atms_proxy[proxy[0]] += 1
+                        if proxy[0] in user_data[user_id]["atms_proxy"]:
+                            user_data[user_id]["atms_proxy"][proxy[0]] += 1
                         brands.append(brand)
                         nums.append(num)
                         skip = True
-                        if atms_proxy[proxy[0]] > 7:
-                            if proxy not in ban_list:
-                                ban_list.append(proxy)
-                            if proxy in proxies:
-                                proxies.remove(proxy)
-                            if len(ban_list) == proxies_count:
+                        if user_data[user_id]["atms_proxy"][proxy[0]] > 7:
+                            if proxy not in user_data[user_id]["ban_list"]:
+                                user_data[user_id]["ban_list"].append(proxy)
+                            if proxy in user_data[user_id]["proxies"]:
+                                user_data[user_id]["proxies"].remove(proxy)
+                            if len(user_data[user_id]["ban_list"]) == user_data[user_id]["proxies_count"]:
                                 print("У вас закончились прокси")
                                 break
-                            if proxies != []:
-                                proxy = proxies.pop(0)
+                            if user_data[user_id]["proxies"] != []:
+                                proxy = user_data[user_id]["proxies"].pop(0)
                         break
                 if skip:
                     break
@@ -208,39 +188,12 @@ async def main(brands, nums):
                 #     file.write(f"{k} | {threading.current_thread().name} | {brand} | {num} | {min(final_data_of_goods, key=lambda x: x[1])}\n")
                 min_goods = min(final_data_of_goods, key=lambda x: x[1])
 
-                all_data.append([brand[1], num[1], min_goods[3], min_goods[0], min_goods[1]])
+                user_data[user_id]["all_data"].append([brand[1], num[1], min_goods[3], min_goods[0], min_goods[1]])
 
-        total += k
+        user_data[user_id]["total"] += k
         await browser.close() 
 
-    proxies.append(proxy)
+    user_data[user_id]["proxies"].append(proxy)
 
-def run(brands, nums):
-    asyncio.run(main(brands, nums))
-
-# brands = ["Peugeot---Citroen", "Mahle---Knecht", "Peugeot---Citroen", "Peugeot---Citroen", "Peugeot---Citroen", "Peugeot---Citroen", "ГАЗ", "VAG", "Autocomponent"] * 20
-# nums = ["82026", "02943N0", "362312", "00004254A2", "00006426YN", "00008120T7", "6270000290", "016409399B", "01М21С9"] * 20
-
-df = pd.read_excel("file.xlsx")
-
-df = df.apply(lambda col: col.astype(object))
-df_to_list = df.values.tolist()
-brands, nums = create(df_to_list)
-
-brands_split = split_file_for_thr(8, brands)
-nums_split = split_file_for_thr(8, nums)
-
-threadings = []
-for i in range(len(brands_split)):
-    thread = threading.Thread(target=run, args=(brands_split[i], nums_split[i]), name=f"thr-{i}")
-    thread.start()
-    threadings.append(thread)
-
-for thread in threadings:
-    thread.join()
-
-df = pd.DataFrame(all_data, columns=["Артикул", "Номер товара", "Лого", "Доставка", "Лучшая цена"])
-df.to_excel("file(2).xlsx", index=False)
-
-with open('data.txt', 'a', encoding="utf-8") as file:
-    file.write(f"ВСЕГО: {total} строк\nБан лист: {ban_list}\nПопытки: {atms_proxy}\nСкорость: {total/(time.perf_counter() - start)} строк/секунд\nСтраница время: {(time.perf_counter() - start)/len(all_data)}\n{time.perf_counter() - start} секунд\n\n")
+def run(brands, nums, user_id):
+    asyncio.run(main(brands, nums, user_id))

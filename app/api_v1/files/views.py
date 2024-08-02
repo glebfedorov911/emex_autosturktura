@@ -35,17 +35,34 @@ async def download_last_file(session: AsyncSession = Depends(db_helper.session_d
     file_location = os.path.join(settings.upload.path_for_upload, last_file.before_parsing_filename)
     return FileResponse(path=file_location, filename=last_file.before_parsing_filename)
 
-@router.post("/download_file/{file_id}")
+@router.post("/download_file/before_parsing/{file_id}")
 async def download_file(file_id: int, session: AsyncSession = Depends(db_helper.session_depends), payload=Depends(get_payload)):
     filename = await crud.get_files_by_id(session=session, user_id=payload.get("sub"), file_id=file_id)
-    file_location = os.path.join(settings.upload.path_for_upload, filename)
+    file_location = os.path.join(settings.upload.path_for_upload, filename.before_parsing_filename)
     if not os.path.exists(file_location):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Нет такого файла"
         )
-    return FileResponse(path=file_location, filename=filename)
+    return FileResponse(path=file_location, filename=filename.before_parsing_filename)
+
+@router.post("/download_file/after_parsing/{file_id}")
+async def download_file(file_id: int, session: AsyncSession = Depends(db_helper.session_depends), payload=Depends(get_payload)):
+    filename = await crud.get_files_by_id(session=session, user_id=payload.get("sub"), file_id=file_id)
+    file_location = os.path.join(settings.upload.path_for_upload, filename.after_parsing_filename)
+    if not os.path.exists(file_location):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Нет такого файла"
+        )
+    return FileResponse(path=file_location, filename=filename.after_parsing_filename)
 
 @router.get("/all_files/")
 async def get_files(session: AsyncSession = Depends(db_helper.session_depends), payload=Depends(get_payload)):
     return await crud.get_files_by_user_id(session=session, user_id=payload.get("sub"))
+
+@router.get("/get_shablon/")
+async def get_shablon():
+    filename = "shablon.xlsx"
+    shablon_location = os.path.join(settings.upload.path_for_upload, filename)
+    return FileResponse(path=shablon_location, filename=filename)

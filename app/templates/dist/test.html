@@ -6,10 +6,11 @@
     <body>
         <h1>Тест</h1>
         <div id="data"></div>
+        <div id="status"></div>
         <div id="messages"></div>
         <button id="start">Старт</button>
         <button id="stop">Стоп</button>
-        <button id="status">Статус</button>
+        <button id="__status">Статус</button>
         <script>
             let ws = new WebSocket("ws://" + window.location.host + window.location.pathname + "ws/")
             ws.onmessage = function(event){
@@ -18,9 +19,16 @@
                 data.innerText = txt.data
             }
 
+            let ws2 = new WebSocket("ws://" + window.location.host + window.location.pathname + "ws/status/")
+            ws2.onmessage = function(event){
+                let data = document.getElementById("status")
+                let txt = document.createTextNode(event.data)
+                data.innerText = txt.data
+            }
+
             document.getElementById("start").addEventListener("click", start)
             document.getElementById("stop").addEventListener("click", stop)
-            document.getElementById("status").addEventListener("click", status)
+            document.getElementById("__status").addEventListener("click", status)
             function start() {
                 fetch(window.location + "start/")
                     .then(response => response.json())

@@ -32,4 +32,4 @@ async def get_files_by_id(session: AsyncSession, user_id: int, file_id: int):
     files = result.scalars().all()
     zero_files(files)
 
-    return files[0].before_parsing_filename
+    return files[0]

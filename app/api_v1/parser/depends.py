@@ -1,6 +1,14 @@
+from fastapi import HTTPException, status
+
 from playwright.async_api import async_playwright, TimeoutError as playwright_TimeoutError
 
 from math import ceil
+
+from app.core.models import Proxy, File
+
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.engine import Result
+from sqlalchemy import select
 
 import urllib.parse as up
 import pandas as pd
@@ -10,12 +18,33 @@ import asyncio
 
 user_data = {}
 
+async def get_files(user_id: int, session: AsyncSession):
+    stmt = select(File).where(File.user_id==user_id).order_by(File.date)
+    result: Result = await session.execute(stmt)
+    files = result.scalars().all()
+
+    return files
+
+def not_files(files):
+    if files == []:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Файл не загружен"
+        )
+
+def not_in_user_data(payload):
+    if payload.get("sub") not in user_data:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Невозможно посмотреть статус"
+        )
+
 def create(df_to_list):
     brands = []
     nums = []
-    for i in df_to_list:
-        brands.append((df_to_list.index(i), i[2]))
-        nums.append((df_to_list.index(i), i[3]))
+    for df in df_to_list:
+        brands.append((df_to_list.index(df), df[2]))
+        nums.append((df_to_list.index(df), df[3]))
     
     return brands, nums
 

@@ -7,6 +7,7 @@ from .base import Base
 
 if TYPE_CHECKING:
     from .user import User
+    from .file import File
 
 
 class Filter(Base):
@@ -18,3 +19,4 @@ class Filter(Base):
     date: Mapped[int]
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     user = relationship("User", back_populates="filters")
+    files = relationship("File", back_populates="filters")

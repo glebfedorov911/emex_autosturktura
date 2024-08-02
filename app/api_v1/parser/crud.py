@@ -26,7 +26,6 @@ async def get_last_upload_files(user_id: int, session: AsyncSession):
     not_files(files)
 
     return files[-1].before_parsing_filename
-        
 
 async def add_after_parsing_file(user_id: int, session: AsyncSession, new_data: dict):
     files = await get_files(user_id=user_id, session=session)

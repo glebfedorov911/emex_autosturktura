@@ -41,7 +41,7 @@ async def start_threadings(session: AsyncSession = Depends(db_helper.session_dep
         raise HTTPException(
             status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
             detail="Вы не загрузили не одного файла"
-        )
+        ) #нет ни одного файла у юзера
 
     df = pd.read_excel(str(settings.upload.path_for_upload) + '/' + await crud.get_last_upload_files(session=session, user_id=payload.get("sub"))) # ИЗ БД
 
@@ -49,14 +49,14 @@ async def start_threadings(session: AsyncSession = Depends(db_helper.session_dep
     df_to_list = df.values.tolist()
     brands, nums = create(df_to_list)
     if len(brands) < count_of_thread:
-        count_of_thread = len(brands)
+        count_of_thread = len(brands) #меняем количество потоков, если маленький файл
 
     user_data[payload.get("sub")] = {"proxies": proxies.copy(), "atms_proxy": {}, "ban_list": [], "total": 0, "proxies_count": len(proxies), "all_data": [],
-    "threads": [None] * count_of_thread, "events": [Event() for _ in range(count_of_thread)], "len_brands": len(brands), "status": "Парсер запущен", "filter_id": 0}
+    "threads": [None] * count_of_thread, "events": [Event() for _ in range(count_of_thread)], "len_brands": len(brands), "status": "Парсер запущен", "filter_id": 0} #переменные для одного юзера
 
     brands_split = split_file_for_thr(count_of_thread, brands)
     nums_split = split_file_for_thr(count_of_thread, nums)
-    messages = []
+    messages = [] #разбиение на части
 
     # await main(brands_split[0], nums_split[0], payload.get("sub"))
 
@@ -65,7 +65,7 @@ async def start_threadings(session: AsyncSession = Depends(db_helper.session_dep
             user_data[payload.get("sub")]["events"][index].clear()
             user_data[payload.get("sub")]["threads"][index] = Thread(target=run, args=(brands_split[index], nums_split[index], payload.get("sub")))
             user_data[payload.get("sub")]["threads"][index].start()
-            messages.append("старт")
+            messages.append("старт") #потоки
         else:
             messages.append("уже началось")
 
@@ -77,7 +77,7 @@ async def stop_threadings(payload=Depends(get_payload)):
     not_in_user_data(payload)
 
     for index in range(count_of_thread):
-        user_data[payload.get("sub")]["events"][index].set()
+        user_data[payload.get("sub")]["events"][index].set() #стоп
 
     user_data[payload.get("sub")]["all_data"] = []
     user_data[payload.get("sub")]["status"] = "Вы остановили парсер"
@@ -101,35 +101,36 @@ async def websocket_endpoint(websocket: WebSocket, payload=Depends(get_payload),
             len_ban = len(user_data[payload.get("sub")]["ban_list"])
             proxies = user_data[payload.get("sub")]["proxies_count"]
             len_all_data = len(user_data[payload.get("sub")]["all_data"])
-            len_brands = user_data[payload.get("sub")]["len_brands"]
-        
+            len_brands = user_data[payload.get("sub")]["len_brands"] #длины для расчета остатка
+         
             await websocket.send_json({
                 "ban_proxies": round(len_ban/proxies, 2)*100,
                 "full": round(len_all_data/len_brands, 2)*100
             })
 
             if round(len_all_data/len_brands, 2)*100 == 100.0:
-                user_data[payload.get("sub")]["status"] = "Парсер закончил работу"
+                user_data[payload.get("sub")]["status"] = "Парсер закончил работу | Идет запись в файл (это займет время)"
                 
                 df = pd.DataFrame(user_data[payload.get("sub")]["all_data"], columns=["Артикул", "Номер товара", "Лого", "Доставка", "Лучшая цена"])
                 last_file = await crud.get_last_upload_files(session=session, user_id=payload.get("sub"))
                 filename = f'{payload.get("username")}_послепарсинга_{last_file.split("_")[-1]}'
                 if not os.path.exists(str(settings.upload.path_for_upload) + '/' + filename):
                     df.to_excel(str(settings.upload.path_for_upload) + '/' + filename, index=False)  
-                    await crud.add_after_parsing_file(user_id=payload.get("sub"), session=session, new_data={"after_parsing_filename": filename, "finish_date": datetime.now(), "filter_id": 
-                        user_data[payload.get("sub")]["filter_id"]})
-                        
-                    for data in user_data[payload.get("sub")]["all_data"]:
-                        await crud.add_parser_data(parser_in=ParserCreate(article=str(data[0]), number_of_goods=str(data[1]), logo=str(data[2]), delivery=str(data[3]), best_price=str(data[4]), user_id=payload.get("sub")), session=session)
+                    await crud.add_after_parsing_file(user_id=payload.get("sub"), session=session, new_data={"after_parsing_filename": filename, "finish_date": datetime.now(), 
+                    "filter_id": user_data[payload.get("sub")]["filter_id"]}) #запись всего в файл
 
+                    for data in user_data[payload.get("sub")]["all_data"]:
+                        await crud.add_parser_data(parser_in=ParserCreate(article=str(data[0]), number_of_goods=str(data[1]), logo=str(data[2]), delivery=str(data[3]), 
+                        best_price=str(data[4]), user_id=payload.get("sub")), session=session)
+                        # запись в бд
                     for proxy in user_data[payload.get("sub")]["ban_list"]:
                         await crud.edit_proxy_ban(session=session, proxy_server=proxy)
-
+                        #запись забаненных прокси
                     for index in range(count_of_thread):
                         user_data[payload.get("sub")]["events"][index].set()   
-
+                        #остановка потоков
             if  round(len_all_data/len_brands, 2)*100 == 0.0 and not user_data[payload.get("sub")]["threads"][0].is_alive():
-                user_data[payload.get("sub")]["status"] = "Парсер не запущен"
+                user_data[payload.get("sub")]["status"] = "Парсер не запущен" #если нет потоков и нет процентов, то парсер не работает
 
             await asyncio.sleep(2)
         else:

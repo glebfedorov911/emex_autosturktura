@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from .proxy import Proxy
     from .filter import Filter
     from .file import File
+    from .parser import Parser
 
 
 class User(Base):
@@ -21,3 +22,4 @@ class User(Base):
     proxies: Mapped[list["Proxy"]] = relationship(back_populates="user")
     filters: Mapped[list["Filter"]] = relationship(back_populates="user")
     files: Mapped[list["File"]] = relationship(back_populates="user")
+    parsers: Mapped[list["Parser"]] = relationship(back_populates="user")

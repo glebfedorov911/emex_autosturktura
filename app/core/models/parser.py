@@ -10,12 +10,12 @@ if TYPE_CHECKING:
     from .user import User
 
 
-class Proxy(Base):
-    expired_at: Mapped[datetime]
-    id_proxy: Mapped[str]
-    login: Mapped[str]
-    password: Mapped[str]
-    ip_with_port: Mapped[str]
-    _is_banned: Mapped[bool] = mapped_column(default=False, nullable=True)
+class Parser(Base):
+    article: Mapped[str]
+    number_of_goods: Mapped[str]
+    logo: Mapped[str]
+    delivery: Mapped[str]
+    best_price: Mapped[str]
+    date: Mapped[datetime] = mapped_column(default=datetime.now)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
-    user = relationship("User", back_populates="proxies")
+    user = relationship("User", back_populates="parsers")

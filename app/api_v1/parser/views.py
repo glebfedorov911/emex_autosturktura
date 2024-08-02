@@ -11,6 +11,7 @@ from app.core.config import settings
 from app.core.models import db_helper
 from app.api_v1.users.crud import get_payload
 from .depends import run, user_data, create, split_file_for_thr, not_in_user_data
+from .schemas import ParserCreate
 from . import crud
 
 import asyncio
@@ -34,7 +35,7 @@ async def get(request: Request):
 async def start_threadings(session: AsyncSession = Depends(db_helper.session_depends), payload = Depends(get_payload)):
     proxies = await crud.get_proxies(payload.get("sub"), session=session)
 
-    global user_data
+    global user_data, count_of_thread
     
     if not os.path.exists(str(settings.upload.path_for_upload) + '/' + await crud.get_last_upload_files(session=session, user_id=payload.get("sub"))):
         raise HTTPException(
@@ -47,6 +48,8 @@ async def start_threadings(session: AsyncSession = Depends(db_helper.session_dep
     df = df.apply(lambda col: col.astype(object))
     df_to_list = df.values.tolist()
     brands, nums = create(df_to_list)
+    if len(brands) < count_of_thread:
+        count_of_thread = len(brands)
 
     user_data[payload.get("sub")] = {"proxies": proxies.copy(), "atms_proxy": {}, "ban_list": [], "total": 0, "proxies_count": len(proxies), "all_data": [],
     "threads": [None] * count_of_thread, "events": [Event() for _ in range(count_of_thread)], "len_brands": len(brands), "status": "Парсер запущен", "filter_id": 0}
@@ -99,7 +102,7 @@ async def websocket_endpoint(websocket: WebSocket, payload=Depends(get_payload),
             proxies = user_data[payload.get("sub")]["proxies_count"]
             len_all_data = len(user_data[payload.get("sub")]["all_data"])
             len_brands = user_data[payload.get("sub")]["len_brands"]
-
+        
             await websocket.send_json({
                 "ban_proxies": round(len_ban/proxies, 2)*100,
                 "full": round(len_all_data/len_brands, 2)*100
@@ -115,6 +118,12 @@ async def websocket_endpoint(websocket: WebSocket, payload=Depends(get_payload),
                     df.to_excel(str(settings.upload.path_for_upload) + '/' + filename, index=False)  
                     await crud.add_after_parsing_file(user_id=payload.get("sub"), session=session, new_data={"after_parsing_filename": filename, "finish_date": datetime.now(), "filter_id": 
                         user_data[payload.get("sub")]["filter_id"]})
+                for data in user_data[payload.get("sub")]["all_data"]:
+                    await crud.add_parser_data(parser_in=ParserCreate(article=str(data[0]), number_of_goods=str(data[1]), logo=str(data[2]), delivery=str(data[3]), best_price=str(data[4]), user_id=payload.get("sub")), session=session)
+
+                for proxy in user_data[payload.get("sub")]["ban_list"]:
+                    await crud.edit_proxy_ban(session=session, proxy_server=proxy)
+
                 for index in range(count_of_thread):
                     user_data[payload.get("sub")]["events"][index].set()   
 

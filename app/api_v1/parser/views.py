@@ -118,14 +118,15 @@ async def websocket_endpoint(websocket: WebSocket, payload=Depends(get_payload),
                     df.to_excel(str(settings.upload.path_for_upload) + '/' + filename, index=False)  
                     await crud.add_after_parsing_file(user_id=payload.get("sub"), session=session, new_data={"after_parsing_filename": filename, "finish_date": datetime.now(), "filter_id": 
                         user_data[payload.get("sub")]["filter_id"]})
-                for data in user_data[payload.get("sub")]["all_data"]:
-                    await crud.add_parser_data(parser_in=ParserCreate(article=str(data[0]), number_of_goods=str(data[1]), logo=str(data[2]), delivery=str(data[3]), best_price=str(data[4]), user_id=payload.get("sub")), session=session)
+                        
+                    for data in user_data[payload.get("sub")]["all_data"]:
+                        await crud.add_parser_data(parser_in=ParserCreate(article=str(data[0]), number_of_goods=str(data[1]), logo=str(data[2]), delivery=str(data[3]), best_price=str(data[4]), user_id=payload.get("sub")), session=session)
 
-                for proxy in user_data[payload.get("sub")]["ban_list"]:
-                    await crud.edit_proxy_ban(session=session, proxy_server=proxy)
+                    for proxy in user_data[payload.get("sub")]["ban_list"]:
+                        await crud.edit_proxy_ban(session=session, proxy_server=proxy)
 
-                for index in range(count_of_thread):
-                    user_data[payload.get("sub")]["events"][index].set()   
+                    for index in range(count_of_thread):
+                        user_data[payload.get("sub")]["events"][index].set()   
 
             if  round(len_all_data/len_brands, 2)*100 == 0.0 and not user_data[payload.get("sub")]["threads"][0].is_alive():
                 user_data[payload.get("sub")]["status"] = "Парсер не запущен"

@@ -142,7 +142,7 @@ async def websocket_endpoint(websocket: WebSocket, payload=Depends(get_payload),
             })
 
 @router.websocket("/ws/status/")
-async def websocket_endpoint(websocket: WebSocket, payload=Depends(get_payload)):
+async def websocket_endpoint_status(websocket: WebSocket, payload=Depends(get_payload)):
     global user_data
     await websocket.accept()
     while True:

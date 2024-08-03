@@ -210,7 +210,10 @@ async def main(brands, nums, user_id):
                     break
 
                 sort_data_of_goods = quick_sort(data_of_goods, 0)
-                final_data_of_goods.append(min(sort_data_of_goods[:10], key=lambda x: x[1]))
+                if sort_data_of_goods == []:
+                    skip = True
+                else:
+                    final_data_of_goods.append(min(sort_data_of_goods[:10], key=lambda x: x[1]))
 
             if not skip:
                 # with open('app/api_v1/parser/data.txt', 'a', encoding="utf-8") as file:

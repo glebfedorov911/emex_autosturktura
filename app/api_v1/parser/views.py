@@ -109,7 +109,8 @@ async def websocket_endpoint(websocket: WebSocket, payload=Depends(get_payload),
             })
 
             if round(len_all_data/len_brands, 2)*100 == 100.0:
-                user_data[payload.get("sub")]["status"] = "Парсер закончил работу | Идет запись в файл (это займет время)"
+                if user_data[payload.get("sub")]["status"] != "Все сохранено":
+                    user_data[payload.get("sub")]["status"] = "Парсер закончил работу | Идет запись в файл (это займет время)"
                 
                 df = pd.DataFrame(user_data[payload.get("sub")]["all_data"], columns=["Артикул", "Номер товара", "Лого", "Доставка", "Лучшая цена"])
                 last_file = await crud.get_last_upload_files(session=session, user_id=payload.get("sub"))
@@ -129,6 +130,8 @@ async def websocket_endpoint(websocket: WebSocket, payload=Depends(get_payload),
                     for index in range(count_of_thread):
                         user_data[payload.get("sub")]["events"][index].set()   
                         #остановка потоков
+                user_data[payload.get("sub")]["status"] = "Все сохранено"
+                    
             if  round(len_all_data/len_brands, 2)*100 == 0.0 and not user_data[payload.get("sub")]["threads"][0].is_alive():
                 user_data[payload.get("sub")]["status"] = "Парсер не запущен" #если нет потоков и нет процентов, то парсер не работает
 
@@ -148,3 +151,11 @@ async def websocket_endpoint(websocket: WebSocket, payload=Depends(get_payload))
         else:
             await websocket.send_json({"status": "Парсер не запущен"})
     
+# СТАТУСЫ: 
+# 1) Открыли страницу: Парсер не запущен 
+# 2) Нажали старт: Парсер запущен
+# 3) Нажали стоп: Вы остановили парсер
+# 4) После парсинга: Парсер закончил работу | Идет запись в файл (это займет время)
+# 5) После сохранения в бд: Все сохранено
+#
+# если надо, то смотреть app/templates/test.html

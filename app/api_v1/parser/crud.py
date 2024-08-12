@@ -10,7 +10,7 @@ from sqlalchemy import select
 
 
 async def get_proxies(user_id: int, session: AsyncSession):
-    stmt = select(Proxy).where(Proxy.user_id == user_id).where(Proxy._is_banned==False)
+    stmt = select(Proxy).where(Proxy.user_id == user_id).where(Proxy._is_banned==0)
     result: Result = await session.execute(stmt)
     proxies = result.scalars().all()
     

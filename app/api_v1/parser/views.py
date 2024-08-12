@@ -51,7 +51,7 @@ async def start_threadings(session: AsyncSession = Depends(db_helper.session_dep
     if len(brands) < count_of_thread:
         count_of_thread = len(brands) #меняем количество потоков, если маленький файл
 
-    user_data[payload.get("sub")] = {"proxies": proxies.copy(), "atms_proxy": {}, "ban_list": [], "total": 0, "proxies_count": len(proxies), "all_data": [],
+    user_data[payload.get("sub")] = {"proxies": proxies.copy(), "atms_proxy": {}, "ban_list": [], "total": 0, "proxies_count": len(proxies)+1, "all_data": [], #+1 тк есть еще прокси ["0.0.0.0", "user", "pass"], для запуска потоков ожидания
     "threads": [None] * count_of_thread, "events": [Event() for _ in range(count_of_thread)], "len_brands": len(brands), "status": "Парсер запущен", "filter_id": 0} #переменные для одного юзера
 
     brands_split = split_file_for_thr(count_of_thread, brands)
@@ -115,6 +115,9 @@ async def websocket_endpoint(websocket: WebSocket, payload=Depends(get_payload),
                 df = pd.DataFrame(user_data[payload.get("sub")]["all_data"], columns=["Артикул", "Номер товара", "Лого", "Доставка", "Лучшая цена"])
                 last_file = await crud.get_last_upload_files(session=session, user_id=payload.get("sub"))
                 filename = f'{payload.get("username")}_послепарсинга_{last_file.split("_")[-1]}'
+                for index in range(count_of_thread):
+                    user_data[payload.get("sub")]["events"][index].set()   
+                    #остановка потоков
                 if not os.path.exists(str(settings.upload.path_for_upload) + '/' + filename):
                     df.to_excel(str(settings.upload.path_for_upload) + '/' + filename, index=False)  
                     await crud.add_after_parsing_file(user_id=payload.get("sub"), session=session, new_data={"after_parsing_filename": filename, "finish_date": datetime.now(), 
@@ -125,13 +128,11 @@ async def websocket_endpoint(websocket: WebSocket, payload=Depends(get_payload),
                         best_price=str(data[4]), user_id=payload.get("sub")), session=session)
                         # запись в бд
                     for proxy in user_data[payload.get("sub")]["ban_list"]:
+                        if proxy == ['0.0.0.0', 'user', 'pass']: continue
                         await crud.edit_proxy_ban(session=session, proxy_server=proxy)
                         #запись забаненных прокси
-                    for index in range(count_of_thread):
-                        user_data[payload.get("sub")]["events"][index].set()   
-                        #остановка потоков
                 user_data[payload.get("sub")]["status"] = "Все сохранено"
-                    
+
             if round(len_all_data/len_brands, 2)*100 == 0.0 and not user_data[payload.get("sub")]["threads"][0].is_alive():
                 if user_data[payload.get("sub")]["status"] != "Все сохранено":
                     user_data[payload.get("sub")]["status"] = "Парсер не запущен" #если нет потоков и нет процентов, то парсер не работает

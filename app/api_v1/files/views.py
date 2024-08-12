@@ -7,7 +7,7 @@ from app.core.models import db_helper
 from app.core.config import settings
 from app.api_v1.users.crud import get_payload
 from . import crud
-from .depends import get_unique_filename
+from .depends import get_unique_filename, check_same
 
 import os
 
@@ -18,10 +18,18 @@ router = APIRouter(prefix="/files", tags=["Files"])
 async def upload_file(file: UploadFile = File(...), session: AsyncSession = Depends(db_helper.session_depends), payload = Depends(get_payload)):
     directory = settings.upload.path_for_upload
     unique_filename = get_unique_filename(directory, f"{payload.get("username")}_дляпарсинг.{file.filename.split('.')[-1]}")
+    # unique_filename = get_unique_filename(directory, f"{payload.get("username")}_дляпарсинг.xlsx")
     file_location = os.path.join(directory, unique_filename)
 
     with open(file_location, "wb") as buffer:
         buffer.write(await file.read())
+
+    if not check_same(file_location):
+        os.remove(file_location)
+        raise HTTPException(
+            status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
+            detail="Файл не по шаблону"
+        )
 
     await crud.create_file_in_db(session=session, user_id=payload.get("sub"), filename=unique_filename)
 

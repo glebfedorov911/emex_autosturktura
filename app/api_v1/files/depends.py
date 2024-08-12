@@ -7,6 +7,7 @@ from sqlalchemy import select
 from app.core.models import File
 
 import os
+import pandas as pd
 
 
 def get_unique_filename(directory, filename):
@@ -32,3 +33,10 @@ def zero_files(files):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Файлов нет у данного пользователя"
         )
+
+def check_same(file):
+    RIGHT_DATA = list(pd.read_excel("app/upload_file/shablon.xlsx"))
+
+    df = pd.read_excel(file)
+
+    return list(df) == RIGHT_DATA 

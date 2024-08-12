@@ -42,9 +42,15 @@ def not_in_user_data(payload):
 def create(df_to_list):
     brands = []
     nums = []
-    for df in df_to_list:
-        brands.append((df_to_list.index(df), df[2]))
-        nums.append((df_to_list.index(df), df[3]))
+    try:
+        for df in df_to_list:
+            brands.append((df_to_list.index(df), df[2]))
+            nums.append((df_to_list.index(df), df[3]))
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Некорректный файл excel"
+        )
     
     return brands, nums
 

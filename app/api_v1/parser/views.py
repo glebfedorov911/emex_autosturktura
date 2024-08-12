@@ -40,7 +40,7 @@ async def start_threadings(session: AsyncSession = Depends(db_helper.session_dep
     if not os.path.exists(str(settings.upload.path_for_upload) + '/' + await crud.get_last_upload_files(session=session, user_id=payload.get("sub"))):
         raise HTTPException(
             status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-            detail="Вы не загрузили не одного файла"
+            detail="Вы не загрузили ни одного файла"
         ) #нет ни одного файла у юзера
 
     df = pd.read_excel(str(settings.upload.path_for_upload) + '/' + await crud.get_last_upload_files(session=session, user_id=payload.get("sub"))) # ИЗ БД
@@ -108,7 +108,7 @@ async def websocket_endpoint(websocket: WebSocket, payload=Depends(get_payload),
                 "full": round(len_all_data/len_brands, 2)*100
             })
 
-            if round(len_all_data/len_brands, 2)*100 == 100.0:
+            if round(len_all_data/len_brands, 2)*100 == 100.0 or round(len_ban/proxies, 2)*100 == 100.0:
                 if user_data[payload.get("sub")]["status"] != "Все сохранено":
                     user_data[payload.get("sub")]["status"] = "Парсер закончил работу | Идет запись в файл (это займет время)"
                 
@@ -132,8 +132,9 @@ async def websocket_endpoint(websocket: WebSocket, payload=Depends(get_payload),
                         #остановка потоков
                 user_data[payload.get("sub")]["status"] = "Все сохранено"
                     
-            if  round(len_all_data/len_brands, 2)*100 == 0.0 and not user_data[payload.get("sub")]["threads"][0].is_alive():
-                user_data[payload.get("sub")]["status"] = "Парсер не запущен" #если нет потоков и нет процентов, то парсер не работает
+            if round(len_all_data/len_brands, 2)*100 == 0.0 and not user_data[payload.get("sub")]["threads"][0].is_alive():
+                if user_data[payload.get("sub")]["status"] != "Все сохранено":
+                    user_data[payload.get("sub")]["status"] = "Парсер не запущен" #если нет потоков и нет процентов, то парсер не работает
 
             await asyncio.sleep(2)
         else:

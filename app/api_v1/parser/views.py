@@ -21,7 +21,7 @@ import os
 
 router = APIRouter(prefix="/parser", tags=["Parser"])
 
-count_of_thread = 4
+count_of_thread = 8
 
 templates = Jinja2Templates(directory=settings.templates.templates_path)
 

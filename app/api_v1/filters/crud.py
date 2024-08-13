@@ -6,7 +6,7 @@ from sqlalchemy import select
 
 from app.core.models import Filter
 from app.api_v1.filters.schemas import *
-from .schemas import FilterCreate   
+from .schemas import FilterCreate, FilterUpdate
 from .depends import filter_by_id, unknown_filter, all_filters
 
 

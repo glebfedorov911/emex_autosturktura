@@ -3,7 +3,10 @@ from pydantic import BaseModel
 from pathlib import Path
 
 import os
+from dotenv import load_dotenv
 
+
+load_dotenv()
 
 BASE_DIR =  Path(__file__).parent.parent
 
@@ -11,7 +14,7 @@ DB_PATH = BASE_DIR / "db.sqlite3"
 
 class DBSettings(BaseModel):
     # url: str = f"sqlite+aiosqlite:///{DB_PATH}"
-    url: str = f"postgresql+asyncpg://postgres:MYZ854VWYZ8678@localhost:5432/emex_base"
+    url: str = f"{os.getenv("DATABASE_URL")}"
     echo: bool = False
 
 class Proxy(BaseModel):

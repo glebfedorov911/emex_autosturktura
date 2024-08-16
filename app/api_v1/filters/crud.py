@@ -4,14 +4,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.engine import Result
 from sqlalchemy import select
 
-from app.core.models import Filter
+from app.core.models import Filter, NewFilter
 from app.api_v1.filters.schemas import *
 from .schemas import FilterCreate, FilterUpdate
 from .depends import filter_by_id, unknown_filter, all_filters
 
 
 async def create_filter(session: AsyncSession, filter_in: FilterCreate, user_id: int):
-    filter = Filter(**filter_in.model_dump())
+    filter = NewFilter(**filter_in.model_dump())
     filter.user_id = user_id
     session.add(filter)
     await session.commit()

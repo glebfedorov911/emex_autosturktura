@@ -6,7 +6,8 @@ __all__ = {
     "Proxy",
     "Filter",
     "File",
-    "Parser"
+    "Parser",
+    "NewFilter",
 }
 
 from .base import Base
@@ -16,3 +17,4 @@ from .proxy import Proxy
 from .filter import Filter
 from .file import File
 from .parser import Parser
+from .new_filter import NewFilter

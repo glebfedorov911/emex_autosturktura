@@ -9,6 +9,7 @@ from .base import Base
 if TYPE_CHECKING:
     from .user import User
     from .filter import Filter
+    from .new_filter import NewFilter
 
 
 class File(Base):
@@ -20,3 +21,5 @@ class File(Base):
     user = relationship("User", back_populates="files")
     filter_id: Mapped[list[int]] = mapped_column(ForeignKey("filters.id"), nullable=True)
     filters = relationship("Filter", back_populates="files")
+    new_filter_id: Mapped[list[int]] = mapped_column(ForeignKey("newfilters.id"), nullable=True)
+    newfilters = relationship("NewFilter", back_populates="files")

@@ -4,11 +4,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.engine import Result
 from sqlalchemy import select
 
-from app.core.models import Filter
+from app.core.models import Filter, NewFilter
 
 
 async def filter_by_id(user_id: int, filter_id: int, session: AsyncSession):
-    stmt = select(Filter).where(Filter.user_id == user_id).where(Filter.id == filter_id)
+    stmt = select(NewFilter).where(NewFilter.user_id == user_id).where(NewFilter.id == filter_id)
     result: Result = await session.execute(stmt)
     _filter = result.scalar()
 
@@ -22,7 +22,7 @@ def unknown_filter(_filter):
         )
 
 async def all_filters(user_id: int, session: AsyncSession):
-    stmt = select(Filter).where(Filter.user_id == user_id)
+    stmt = select(NewFilter).where(NewFilter.user_id == user_id)
     result: Result = await session.execute(stmt)
     filters = result.scalars().all()
 

@@ -2,17 +2,18 @@ from pydantic import BaseModel
 
 
 class FilterCreate(BaseModel):
-    is_has_logo: bool
-    logo: str
-    is_has_brand: bool
-    brand: str
-    is_bigger_then_date: bool
-    date: int
+    deep_filter: int | None = 10
+    deep_analog: int | None = 10
+    analog: bool
+    is_bigger: bool | None = None
+    date: int | None = None
+    logo: str | None = None
+
 
 class FilterUpdate(BaseModel):
-    is_has_logo: bool | None = None
-    logo: str | None = None
-    is_has_brand: bool | None = None
-    brand: str | None = None
-    is_bigger_then_date: bool | None = None
+    deep_filter: int | None = None
+    deep_analog: int | None = None
+    analog: bool | None = None
+    is_bigger: bool | None = None
     date: int | None = None
+    logo: str | None = None

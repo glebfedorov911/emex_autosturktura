@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .proxy import Proxy
     from .filter import Filter
+    from .new_filter import NewFilter
     from .file import File
     from .parser import Parser
 
@@ -21,5 +22,6 @@ class User(Base):
     is_parsing: Mapped[bool] = mapped_column(default=False, nullable=True)
     proxies: Mapped[list["Proxy"]] = relationship(back_populates="user")
     filters: Mapped[list["Filter"]] = relationship(back_populates="user")
+    newfilters: Mapped[list["NewFilter"]] = relationship(back_populates="user")
     files: Mapped[list["File"]] = relationship(back_populates="user")
     parsers: Mapped[list["Parser"]] = relationship(back_populates="user")

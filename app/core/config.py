@@ -10,7 +10,8 @@ BASE_DIR =  Path(__file__).parent.parent
 DB_PATH = BASE_DIR / "db.sqlite3"
 
 class DBSettings(BaseModel):
-    url: str = f"sqlite+aiosqlite:///{DB_PATH}"
+    # url: str = f"sqlite+aiosqlite:///{DB_PATH}"
+    url: str = f"postgresql+asyncpg://postgres:MYZ854VWYZ8678@localhost:5432/emex_base"
     echo: bool = False
 
 class Proxy(BaseModel):

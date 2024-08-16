@@ -19,7 +19,5 @@ class File(Base):
     finish_date: Mapped[datetime] = mapped_column(nullable=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     user = relationship("User", back_populates="files")
-    filter_id: Mapped[list[int]] = mapped_column(ForeignKey("filters.id"), nullable=True)
-    filters = relationship("Filter", back_populates="files")
     new_filter_id: Mapped[list[int]] = mapped_column(ForeignKey("newfilters.id"), nullable=True)
     newfilters = relationship("NewFilter", back_populates="files")

@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.engine import Result
 from sqlalchemy import select
 
-from app.core.models import Filter, NewFilter
+from app.core.models import NewFilter
 
 
 async def filter_by_id(user_id: int, filter_id: int, session: AsyncSession):

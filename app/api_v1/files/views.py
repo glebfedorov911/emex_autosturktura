@@ -17,7 +17,7 @@ router = APIRouter(prefix="/files", tags=["Files"])
 @router.post("/upload_file/")
 async def upload_file(file: UploadFile = File(...), session: AsyncSession = Depends(db_helper.session_depends), payload = Depends(get_payload)):
     directory = settings.upload.path_for_upload
-    unique_filename = get_unique_filename(directory, f"{payload.get("username")}_дляпарсинг.{file.filename.split('.')[-1]}")
+    unique_filename = get_unique_filename(directory, f"{payload.get('username')}_дляпарсинг.{file.filename.split('.')[-1]}")
     # unique_filename = get_unique_filename(directory, f"{payload.get("username")}_дляпарсинг.xlsx")
     file_location = os.path.join(directory, unique_filename)
 

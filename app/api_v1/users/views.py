@@ -41,10 +41,13 @@ async def auth_user(user_log: UserLogin, response: Response, session: AsyncSessi
     # response.set_cookie(key="access_token", value=token, httponly=True, secure=True, samesite='Strict')
     response.set_cookie(key="access_token", value=token, httponly=False, samesite='None', secure=True)
 
-    return TokenInfo(
-        access_token=token,
-        token_type="Bearer"
-    )
+    # return TokenInfo(
+    #     access_token=token,
+    #     token_type="Bearer"
+    # )
+    return {
+        "username": user.username
+    }
 
 @router.get("/me/")
 async def get_me(payload = Depends(get_payload)):

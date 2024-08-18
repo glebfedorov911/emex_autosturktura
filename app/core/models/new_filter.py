@@ -13,6 +13,7 @@ class NewFilter(Base):
     deep_filter: Mapped[int] = mapped_column(default=10, nullable=True)
     deep_analog: Mapped[int] = mapped_column(default=10, nullable=True)
     analog: Mapped[bool] = mapped_column(default=False)
+    title: Mapped[str] = mapped_column(nullable=True)
     is_bigger: Mapped[bool | None] = mapped_column(default=None, nullable=True)
     date: Mapped[int | None] = mapped_column(default=None, nullable=True)
     logo: Mapped[str | None] = mapped_column(default=None, nullable=True)

@@ -20,7 +20,7 @@ async def create_user(user_in: UserCreate, session: AsyncSession = Depends(db_he
 
     return await crud.create_user(user_in=user_in, session=session)
 
-@router.post("/login/", response_model=TokenInfo)
+@router.post("/login/")#, response_model=TokenInfo)
 async def auth_user(user_log: UserLogin, response: Response, session: AsyncSession = Depends(db_helper.session_depends), access_token: str | None = Cookie(default=None)):
     if access_token:
         raise HTTPException(

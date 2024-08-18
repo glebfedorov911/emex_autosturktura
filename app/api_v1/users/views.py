@@ -45,12 +45,6 @@ async def auth_user(user_log: UserLogin, response: Response, session: AsyncSessi
     #     access_token=token,
     #     token_type="Bearer"
     # )
-    return {
-        "username": user.username
-    }
-
-@router.get("/me/")
-async def get_me(payload = Depends(get_payload)):
     return payload
 
 @router.get("/logout/")

@@ -14,6 +14,11 @@ from .depends import exception_admin
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
+@router.post("/test_sign_without_admin")
+async def create_user(user_in: UserCreate, session: AsyncSession = Depends(db_helper.session_depends)):
+
+    return await crud.create_user(user_in=user_in, session=session)
+
 @router.post("/sign_up")
 async def create_user(user_in: UserCreate, session: AsyncSession = Depends(db_helper.session_depends), payload = Depends(get_payload)):
     exception_admin(payload)

@@ -47,6 +47,10 @@ async def auth_user(user_log: UserLogin, response: Response, session: AsyncSessi
     # )
     return payload
 
+@router.get("/me/")
+async def get(payload=Depends(get_payload)):
+    return payload
+
 @router.get("/logout/")
 async def logout(response: Response, access_token: str | None = Cookie(default=None)):
     if not access_token:

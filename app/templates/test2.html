@@ -9,9 +9,9 @@
         <div class="messages"></div>
         <button class="start">Старт</button>
         <button class="stop">Стоп</button>
-        <button class="status">Статус</button>
         <script>
-            let ws = new WebSocket("ws://" + window.location.host + window.location.pathname + "ws2") 
+            let filter_id = 1
+            let ws = new WebSocket("ws://" + window.location.host + window.location.pathname + "ws2/" + filter_id) 
             ws.onmessage = function(event) {
                 let data = document.querySelector(".data")
                 let content = document.createTextNode(event.data)
@@ -31,14 +31,6 @@
             }
             function stop() {
                 fetch(window.location.href + "stop/")
-                    .then(response => response.json())
-                    .then(data => {
-                        document.querySelector(".messages").textContent = JSON.stringify(data, null, 2)
-                    })
-                    .catch(error => console.error(error))
-            }
-            function status() {
-                fetch(window.location.href + "status/")
                     .then(response => response.json())
                     .then(data => {
                         document.querySelector(".messages").textContent = JSON.stringify(data, null, 2)

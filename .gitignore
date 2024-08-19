@@ -1,1 +1,3 @@
 venv
+alembic.ini
+app/core/.env

@@ -8,7 +8,8 @@ from . import crud
 from .crud import get_payload
 from .token_info import TokenInfo
 from app.api_v1.auth.utils import encode_jwt
-from app.core.models import User    
+from app.core.models import User   
+from app.core.config import settings 
 from .depends import exception_admin    
 
 
@@ -44,7 +45,7 @@ async def auth_user(user_log: UserLogin, response: Response, session: AsyncSessi
 
     token = encode_jwt(payload=payload)
     # response.set_cookie(key="access_token", value=token, httponly=True, secure=True, samesite='Strict')
-    response.set_cookie(key="access_token", value=token, httponly=False, samesite='None', secure=True)
+    response.set_cookie(key="access_token", value=token, httponly=False, samesite='None', secure=True, max_age=settings.auth.access_token_expire_minutes)
 
     # return TokenInfo(
     #     access_token=token,

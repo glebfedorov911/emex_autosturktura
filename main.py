@@ -21,7 +21,7 @@ origins = [
     "https://localhost:8000",
     "https://127.0.0.1:8000",
     "https://127.0.0.1:5173",
-    "https://127.0.0.1",
+    "https://127.0.0.1","http://localhost:5173",
     "https://forprojectstests.ru",
     # "https://api.forprojectstests.ru",
 ]
@@ -35,8 +35,8 @@ app.add_middleware(
 )   
 
 if __name__ == "__main__":
-    # uvicorn.run("main:app", reload=False, host="0.0.0.0", port=8000) 
-    uvicorn.run("main:app", reload=False, host="0.0.0.0", port=8000, ssl_keyfile="private.key", ssl_certfile="my_certificate.crt") 
+    uvicorn.run("main:app", reload=False, host="0.0.0.0", port=8000) 
+    #uvicorn.run("main:app", reload=False,  port=8000, ssl_keyfile="key.pem", ssl_certfile="cert.pem") 
     # uvicorn.run("main:app", reload=False) 
  
 '''uvicorn main:app --reload'''

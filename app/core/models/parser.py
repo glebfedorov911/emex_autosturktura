@@ -16,6 +16,7 @@ class Parser(Base):
     logo: Mapped[str]
     delivery: Mapped[str]
     best_price: Mapped[str]
-    date: Mapped[datetime] = mapped_column(default=datetime.now)
+    quantity_goods: Mapped[str]
+    price_with_logo: Mapped[str] = mapped_column(nullable=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     user = relationship("User", back_populates="parsers")

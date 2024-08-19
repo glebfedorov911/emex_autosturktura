@@ -37,6 +37,9 @@ async def main(brands, nums, user_id):
     else:
         proxy = ["http://test:8888", "user1", "pass1"]
     for brand, num in zip(brands, nums):
+        if all([ev.is_set() for ev in user_data[user_id]["events"]]):
+            break
+
         if user_data[user_id]["count_proxies"] == len(user_data[user_id]["ban_list"]):
             raise HTTPException(
                 status_code=status.HTTP_405_METHOD_NOT_ALLOWED,

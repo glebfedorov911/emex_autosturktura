@@ -98,5 +98,5 @@ async def stop(payload=Depends(get_payload)):
     user_id = payload.get("sub")
     for index in range(count_of_threadings):
         user_data[user_id]["events"][index].set()
-    ud["status"] = "Парсер остановлен"
-    return JSONResponse(content="Потоки остановлены")
+
+    return JSONResponse(content="Парсер останавливается")

@@ -33,7 +33,8 @@ app.add_middleware(
 )   
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", reload=False, host="0.0.0.0", port=8000, ssl_keyfile="private_key.pem", ssl_certfile="my_certificate.crt") 
+    uvicorn.run("main:app", reload=False, host="0.0.0.0", port=8000) 
+    # uvicorn.run("main:app", reload=False, host="0.0.0.0", port=8000, ssl_keyfile="private_key.pem", ssl_certfile="my_certificate.crt") 
     # uvicorn.run("main:app", reload=False) 
  
 '''uvicorn main:app --reload'''

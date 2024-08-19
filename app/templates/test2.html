@@ -1,0 +1,50 @@
+<!DOCTYPE>
+<html>
+    <head>
+        <title>Тест для парсера</title>
+    </head>
+    <body>
+        <h1>Тест</h1>
+        <div class="data"></div>
+        <div class="messages"></div>
+        <button class="start">Старт</button>
+        <button class="stop">Стоп</button>
+        <button class="status">Статус</button>
+        <script>
+            let ws = new WebSocket("ws://" + window.location.host + window.location.pathname + "ws2/") 
+            ws.onmessage = function(event) {
+                let data = document.querySelector(".data")
+                let content = document.createTextNode(event.data)
+                data.innerText = content.data
+            }
+            
+            document.querySelector(".start").addEventListener("click", start)
+            document.querySelector(".stop").addEventListener("click", stop)
+            document.querySelector(".status").addEventListener("click", status)
+            function start() {
+                fetch(window.location.href + "start/")
+                    .then(response => response.json())
+                    .then(data => {
+                        document.querySelector(".messages").textContent = JSON.stringify(data, null, 2)
+                    })
+                    .catch(error => console.error(error))
+            }
+            function stop() {
+                fetch(window.location.href + "stop/")
+                    .then(response => response.json())
+                    .then(data => {
+                        document.querySelector(".messages").textContent = JSON.stringify(data, null, 2)
+                    })
+                    .catch(error => console.error(error))
+            }
+            function status() {
+                fetch(window.location.href + "status/")
+                    .then(response => response.json())
+                    .then(data => {
+                        document.querySelector(".messages").textContent = JSON.stringify(data, null, 2)
+                    })
+                    .catch(error => console.error(error))
+            }
+        </script>
+    </body>
+</html>

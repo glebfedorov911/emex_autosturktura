@@ -36,7 +36,7 @@ class UploadFiles(BaseModel):
 class Settings(BaseSettings):
     db: DBSettings = DBSettings()
     auth: Auth = Auth()
-    api: str = "/api/v1"
+    api: str = "/v1"
     proxy: Proxy = Proxy()
     upload: UploadFiles = UploadFiles()
     templates: Templates = Templates()

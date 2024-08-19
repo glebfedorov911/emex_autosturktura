@@ -14,7 +14,7 @@ DB_PATH = BASE_DIR / "db.sqlite3"
 
 class DBSettings(BaseModel):
     # url: str = f"sqlite+aiosqlite:///{DB_PATH}"
-    url: str = f"{os.getenv("DATABASE_URL")}"
+    url: str = os.getenv("DATABASE_URL")
     echo: bool = False
 
 class Proxy(BaseModel):

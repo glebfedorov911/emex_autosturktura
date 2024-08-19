@@ -4,6 +4,7 @@ from app.api_v1.filters.views import router as filter_router
 from app.api_v1.files.views import router as file_router
 from app.api_v1.parser.views import router as parser_router
 from app.api_v1.showing.views import router as show_data_router
+from app.api_v1.parser_2.views import router as parser2_rounter
 from app.core.config import settings
 
 from fastapi import APIRouter
@@ -16,3 +17,4 @@ router.include_router(filter_router)
 router.include_router(file_router)
 router.include_router(parser_router)
 router.include_router(show_data_router)
+router.include_router(parser2_rounter)

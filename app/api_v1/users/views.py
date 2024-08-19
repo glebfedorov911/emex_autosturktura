@@ -64,7 +64,7 @@ async def logout(response: Response, access_token: str | None = Cookie(default=N
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Вы не авторизованы | You are not auth"
         )
-    response.delete_cookie(key="access_token")
+    response.delete_cookie(key="access_token", domain=".forprojectstests.ru")
     return {
         "msg": "Вы успешно вышли | Success logout"
     }

@@ -20,7 +20,7 @@ import os
 
 
 router = APIRouter(prefix="/parser", tags=["Parser"])
-
+#ИСПРАВИТЬ ОШИБКУ С PAYLOAD
 count_of_thread = 8
 
 templates = Jinja2Templates(directory=settings.templates.templates_path)

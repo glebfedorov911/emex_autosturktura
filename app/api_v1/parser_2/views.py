@@ -32,7 +32,7 @@ async def get(request: Request):
         request=request, name="test2.html"
     )
 
-@router.websocket("/ws2/")
+@router.websocket("/ws2")
 async def websocket_endpoint(websocket: WebSocket, payload = Depends(get_payload)):
     global user_data
 

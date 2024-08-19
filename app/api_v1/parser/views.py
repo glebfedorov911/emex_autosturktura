@@ -31,7 +31,7 @@ async def get(request: Request):
         request=request, name="test.html"
     )
 
-@router.get("/start/")
+@router.get("/start")
 async def start_threadings(session: AsyncSession = Depends(db_helper.session_depends), payload = Depends(get_payload)):
     proxies = await crud.get_proxies(payload.get("sub"), session=session)
 
@@ -71,7 +71,7 @@ async def start_threadings(session: AsyncSession = Depends(db_helper.session_dep
 
     return JSONResponse(content=messages)
 
-@router.get("/stop/")
+@router.get("/stop")
 async def stop_threadings(payload=Depends(get_payload)):
     global user_data
     not_in_user_data(payload)
@@ -84,14 +84,14 @@ async def stop_threadings(payload=Depends(get_payload)):
     
     return JSONResponse(content={"message": "все потоки прекращены"})
 
-@router.get("/status_check/")
+@router.get("/status_check")
 async def status_threadings(payload = Depends(get_payload)):
     global user_data
     not_in_user_data(payload)
 
     return JSONResponse(content={"user_data": user_data[payload.get("sub")]["all_data"], "ban": user_data[payload.get("sub")]["ban_list"]})
 
-@router.websocket("/ws/")
+@router.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket, payload=Depends(get_payload), session: AsyncSession = Depends(db_helper.session_depends)):
     global user_data
     await websocket.accept()
@@ -143,7 +143,7 @@ async def websocket_endpoint(websocket: WebSocket, payload=Depends(get_payload),
                 "message": "запустите парсер"
             })
 
-@router.websocket("/ws/status/")
+@router.websocket("/ws/status")
 async def websocket_endpoint_status(websocket: WebSocket, payload=Depends(get_payload)):
     global user_data
     await websocket.accept()

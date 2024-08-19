@@ -10,11 +10,11 @@ from app.api_v1.filters import crud
 
 router = APIRouter(prefix="/filters", tags=["Filters"])
 
-@router.post("/create_filter/")
+@router.post("/create_filter")
 async def create_filter(filter_in: FilterCreate, session: AsyncSession = Depends(db_helper.session_depends), payload=Depends(get_payload)):
     return await crud.create_filter(session=session, filter_in=filter_in, user_id=payload.get("sub"))
 
-@router.get("/get_filters/")
+@router.get("/get_filters")
 async def get_filter(session: AsyncSession = Depends(db_helper.session_depends), payload=Depends(get_payload)):
     return await crud.get_filter(session=session, user_id=payload.get("sub"))
 

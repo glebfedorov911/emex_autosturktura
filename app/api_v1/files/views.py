@@ -14,7 +14,7 @@ import os
 
 router = APIRouter(prefix="/files", tags=["Files"])
 
-@router.post("/upload_file/")
+@router.post("/upload_file")
 async def upload_file(file: UploadFile = File(...), session: AsyncSession = Depends(db_helper.session_depends), payload = Depends(get_payload)):
     directory = settings.upload.path_for_upload
     unique_filename = get_unique_filename(directory, f"{payload.get('username')}_дляпарсинг.{file.filename.split('.')[-1]}")
@@ -37,7 +37,7 @@ async def upload_file(file: UploadFile = File(...), session: AsyncSession = Depe
         "message": f"Файл {unique_filename} сохранен по пути {file_location}"
     }
 
-@router.post("/download_file/")
+@router.post("/download_file")
 async def download_last_file(session: AsyncSession = Depends(db_helper.session_depends), payload=Depends(get_payload)):
     last_file = await crud.get_last_file(session=session, user_id=payload.get("sub"))
     file_location = os.path.join(settings.upload.path_for_upload, last_file.before_parsing_filename)
@@ -65,11 +65,11 @@ async def download_file(file_id: int, session: AsyncSession = Depends(db_helper.
         )
     return FileResponse(path=file_location, filename=filename.after_parsing_filename)
 
-@router.get("/all_files/")
+@router.get("/all_files")
 async def get_files(session: AsyncSession = Depends(db_helper.session_depends), payload=Depends(get_payload)):
     return await crud.get_files_by_user_id(session=session, user_id=payload.get("sub"))
 
-@router.get("/get_shablon/")
+@router.get("/get_shablon")
 async def get_shablon():
     filename = "shablon.xlsx"
     shablon_location = os.path.join(settings.upload.path_for_upload, filename)

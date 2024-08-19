@@ -44,3 +44,41 @@ async def websocket_endpoint(websocket: WebSocket, payload = Depends(get_payload
             await asyncio.sleep(1)
     except WebSocketDisconnect:
         await websocket.close()
+
+@router.get("/start")
+async def start(payload=Depends(get_payload)):
+    global user_data
+
+    messages = []
+    user_id = payload.get("sub")
+    for index in range(count_of_threadings):
+        if user_data[user_id]["threads"][index] is None or not user_data[user_id]["threads"][index].is_alive():
+            user_data[user_id]["events"][index].clear()
+            user_data[user_id]["threads"][index] = Thread(target=counter_threadings, args=(index, user_id))
+            user_data[user_id]["threads"][index].start()
+            messages.append(f"поток {index+1} запущен")
+        else:
+            messages.append(f"поток {index+1} уже запущен")
+
+    return JSONResponse(messages)
+
+@router.get("/stop")        
+async def stop(payload=Depends(get_payload)):
+    global user_data
+    
+    user_id = payload.get("sub")
+    for index in range(count_of_threadings):
+        user_data[user_id]["events"][index].set()
+    return JSONResponse(content="Потоки остановлены")
+    
+
+@router.get("/status")
+async def status(payload=Depends(get_payload)):
+    global user_data
+    
+    user_id = payload.get("sub")
+    messages = {"counter": []}  
+    for index in range(count_of_threadings):
+        messages["counter"] = [{"index": index+1, "count": user_data[user_id]["counters"][index], "running": not user_data[user_id]["events"][index].is_set()} for index in range(count_of_threadings)]
+
+    return JSONResponse(content=messages)

@@ -14,13 +14,13 @@ from .depends import exception_admin
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
-@router.post("/sign_up/")
+@router.post("/sign_up")
 async def create_user(user_in: UserCreate, session: AsyncSession = Depends(db_helper.session_depends), payload = Depends(get_payload)):
     exception_admin(payload)
 
     return await crud.create_user(user_in=user_in, session=session)
 
-@router.post("/login/")#, response_model=TokenInfo)
+@router.post("/login")#, response_model=TokenInfo)
 async def auth_user(user_log: UserLogin, response: Response, session: AsyncSession = Depends(db_helper.session_depends), access_token: str | None = Cookie(default=None)):
     if access_token:
         raise HTTPException(
@@ -47,11 +47,11 @@ async def auth_user(user_log: UserLogin, response: Response, session: AsyncSessi
     # )
     return payload
 
-@router.get("/me/")
+@router.get("/me")
 async def get(payload=Depends(get_payload)):
     return payload
 
-@router.get("/logout/")
+@router.get("/logout")
 async def logout(response: Response, access_token: str | None = Cookie(default=None)):
     if not access_token:
         raise HTTPException(
@@ -63,13 +63,13 @@ async def logout(response: Response, access_token: str | None = Cookie(default=N
         "msg": "Вы успешно вышли | Success logout"
     }
 
-@router.get("/show_all/")
+@router.get("/show_all")
 async def show_all_users(session: AsyncSession = Depends(db_helper.session_depends), payload = Depends(get_payload)):
     exception_admin(payload=payload)
     
     return await crud.show_all_users(session=session)
 
-@router.get("/about_one/{user_id}/")
+@router.get("/about_one/{user_id}")
 async def about_one_user(user_id: int, session: AsyncSession = Depends(db_helper.session_depends), payload = Depends(get_payload)):
     exception_admin(payload=payload)
 

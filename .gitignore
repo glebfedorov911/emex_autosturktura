@@ -1,7 +1,3 @@
 venv
 alembic.ini
-<<<<<<< HEAD
 app\core\.env
-=======
-app/core/.env
->>>>>>> 1d6d60dc4e721b5170542eea28ce2c9a6348ee05

@@ -15,11 +15,13 @@ origins = [
     "http://127.0.0.1:8000",
     "http://127.0.0.1",
     "http://forprojectstests.ru",
+    "http://api.forprojectstests.ru",
     "https://localhost",
     "https://localhost:8000",
     "https://127.0.0.1:8000",
     "https://127.0.0.1",
     "https://forprojectstests.ru",
+    "https://api.forprojectstests.ru",
 ]
     
 app.add_middleware(

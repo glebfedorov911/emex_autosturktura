@@ -19,7 +19,7 @@ user_data = {}
 columns = ["Артикул", "Номер товара", "Лого", "Доставка", "Лучшая цена", "Количество товара"]
 
 async def main(brands, nums, user_id):   
-    global user_data
+    global user_data, columns
 
     DEEP_FILTER = user_data[user_id]["filter"].deep_filter
     DEEP_ANALOG = user_data[user_id]["filter"].deep_analog
@@ -152,7 +152,10 @@ async def main(brands, nums, user_id):
                     user_data[user_id]["ban_list"].add("@".join(proxy))
                 if user_data[user_id]["proxies"] != []:
                     proxy = user_data[user_id]["proxies"].pop(0)
-                    proxy = [proxy.ip_with_port, proxy.login, proxy.password]
+                    try:
+                        proxy = [proxy.ip_with_port, proxy.login, proxy.password]
+                    except:
+                        proxy = [proxy[0], proxy[1], proxy[2]]
                 else:
                     proxy = ["http://test:8888", "user1", "pass1"]
     user_data[user_id]["proxies"].append(proxy)

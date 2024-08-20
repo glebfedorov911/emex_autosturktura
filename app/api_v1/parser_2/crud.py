@@ -1,6 +1,9 @@
 from fastapi import HTTPException, status
 
-from app.core.models import Proxy, NewFilter, File
+from app.core.models import Proxy, NewFilter, File, Parser
+from .schemas import ParserCreate
+
+from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.engine import Result
@@ -44,8 +47,37 @@ async def get_last_upload_files(user_id: int, session: AsyncSession):
 
     if files[-1].after_parsing_filename != None:
         raise HTTPException(
-            status_code=status.HTTP_405_NOT_FOUND,
+            status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
             detail="Данный файл уже спаршен"
         )
     
-    return files[-1].before_parsing_filename
+    return files[-1]
+
+async def saving_to_table_data(user_id: int, session: AsyncSession, data: list):
+    for value in data:
+        if len(value) == 7:
+            parser_in = ParserCreate(article=str(value[0]), number_of_goods=str(value[1]), logo=str(value[2]), delivery=str(value[3]), best_price=str(value[4]), quantity_goods=str(value[5]), price_with_logo=str(value[6]), user_id=user_id)
+        else:
+            parser_in = ParserCreate(article=str(value[0]), number_of_goods=str(value[1]), logo=str(value[2]), delivery=str(value[3]), best_price=str(value[4]), quantity_goods=str(value[5]), price_with_logo="Цена не найдена", user_id=user_id)
+        parser = Parser(**parser_in.model_dump())
+        session.add(parser)
+        await session.commit()
+
+    return "все успешно сохранено"
+
+async def add_final_file_to_table(user_id: int, session: AsyncSession, result_name: str, filter_id_global: int):
+    file = await get_last_upload_files(user_id=user_id, session=session)
+    file.after_parsing_filename = result_name
+    file.finish_date = datetime.now()
+    file.new_filter_id = filter_id_global
+    await session.commit()
+
+async def set_banned_proxy(proxy_servers: list, session: AsyncSession):
+    for proxy in proxy_servers:
+        stmt = select(Proxy).where(Proxy.ip_with_port == proxy.split("@")[0])
+        result: Result = await session.execute(stmt)
+        proxies = result.scalar()
+
+        proxies._is_banned = True
+        session.add(proxies)
+        await session.commit()

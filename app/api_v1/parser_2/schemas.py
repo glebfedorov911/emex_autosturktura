@@ -8,5 +8,5 @@ class ParserCreate(BaseModel):
     delivery: str
     best_price: str
     quantity_goods: str
-    price_with_logo: str
+    price_with_logo: str | None = None
     user_id: int

@@ -45,7 +45,7 @@ async def auth_user(user_log: UserLogin, response: Response, session: AsyncSessi
 
     token = encode_jwt(payload=payload)
     # response.set_cookie(key="access_token", value=token, httponly=True, secure=True, samesite='Strict')
-    response.set_cookie(key="access_token", value=token, httponly=False, samesite='None', secure=True, max_age=settings.auth.access_token_expire_minutes, domain=".forprojectstests.ru")
+    response.set_cookie(key="access_token", value=token, httponly=False, samesite='None', secure=True, max_age=settings.auth.access_token_expire_minutes, domain="localhost")
 
     # return TokenInfo(
     #     access_token=token,
@@ -64,8 +64,8 @@ async def logout(response: Response, access_token: str | None = Cookie(default=N
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Вы не авторизованы | You are not auth"
         )
-    # response.delete_cookie(key="access_token")
-    response.delete_cookie(key="access_token", domain=".forprojectstests.ru")
+    # response.delete_cookie(key="access_token")max_age=set
+    response.delete_cookie(key="access_token", httponly=False, samesite='None', secure=True,  domain="localhost")
     return {
         "msg": "Вы успешно вышли | Success logout"
     }

@@ -21,6 +21,12 @@ async def upload_file(file: UploadFile = File(...), session: AsyncSession = Depe
     # unique_filename = get_unique_filename(directory, f"{payload.get("username")}_дляпарсинг.xlsx")
     file_location = os.path.join(directory, unique_filename)
 
+    if file.filename.split('.')[-1] not in ("xlsx", "xls"):
+        raise HTTPException(
+            status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
+            detail="Неподходящий формат файла"
+        )
+
     with open(file_location, "wb") as buffer:
         buffer.write(await file.read())
 

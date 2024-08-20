@@ -59,19 +59,9 @@ async def websocket_status_endpoint(websocket: WebSocket, payload = Depends(get_
             await websocket.send_json({"Статус": ud["status"]})
             if int(len(ud["excel_result"])/ud["count_brands"]*100) == 100 and not flag:
                 ud["status"] = "Товары спаршены, подождите, идет сохранение"
-                df = pd.DataFrame(ud["excel_result"], columns=columns)
-                await crud.add_final_file_to_table(user_id=payload.get("sub"), session=session, result_name=result_file_name, filter_id_global=filter_id_global)
-                df.to_excel(str(settings.upload.path_for_upload) + '/' + result_file_name, index=False)
-                await crud.saving_to_table_data(user_id=payload.get("sub"), session=session, data=ud["excel_result"])
-                await crud.set_banned_proxy(proxy_servers=ud["ban_list"], session=session)
                 flag=True
             elif int(len(ud["ban_list"])/ud["count_proxies"]*100) == 100 and not flag:
                 ud["status"] = "Все прокси забанены, подождите, идет редактирование"
-                df = pd.DataFrame(ud["excel_result"], columns=columns)
-                await crud.add_final_file_to_table(user_id=payload.get("sub"), session=session, result_name=result_file_name, filter_id_global=filter_id_global)
-                df.to_excel(str(settings.upload.path_for_upload) + '/' + result_file_name, index=False)
-                await crud.saving_to_table_data(user_id=payload.get("sub"), session=session, data=ud["excel_result"])
-                await crud.set_banned_proxy(proxy_servers=ud["ban_list"], session=session)
                 flag=True
             elif any([thread is None for thread in ud["threads"]]) or not any([thread.is_alive() for thread in ud["threads"]]):
                 ud["status"] = "Парсер не запущен"
@@ -79,6 +69,14 @@ async def websocket_status_endpoint(websocket: WebSocket, payload = Depends(get_
                     ud["status"] = "Парсер не запущен | Данные сохранены"
             else:
                 ud["status"] = "Парсер работает"
+
+            if ud["status"] in ("Все прокси забанены, подождите, идет редактирование", "Товары спаршены, подождите, идет сохранение"):
+                df = pd.DataFrame(ud["excel_result"], columns=columns)
+                await crud.add_final_file_to_table(user_id=payload.get("sub"), session=session, result_name=result_file_name, filter_id_global=filter_id_global)
+                df.to_excel(str(settings.upload.path_for_upload) + '/' + result_file_name, index=False)
+                await crud.saving_to_table_data(user_id=payload.get("sub"), session=session, data=ud["excel_result"])
+                await crud.set_banned_proxy(proxy_servers=ud["ban_list"], session=session)
+                
             await asyncio.sleep(1)
     except WebSocketDisconnect:
         await websocket.close()

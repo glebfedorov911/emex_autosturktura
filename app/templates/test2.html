@@ -20,7 +20,6 @@
             
             document.querySelector(".start").addEventListener("click", start)
             document.querySelector(".stop").addEventListener("click", stop)
-            document.querySelector(".status").addEventListener("click", status)
             function start() {
                 fetch(window.location.href + "start/")
                     .then(response => response.json())

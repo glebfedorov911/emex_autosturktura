@@ -46,8 +46,8 @@ async def upload_file(file: UploadFile = File(...), session: AsyncSession = Depe
 @router.post("/download_file")
 async def download_last_file(session: AsyncSession = Depends(db_helper.session_depends), payload=Depends(get_payload)):
     last_file = await crud.get_last_file(session=session, user_id=payload.get("sub"))
-    file_location = os.path.join(settings.upload.path_for_upload, last_file.before_parsing_filename)
-    return FileResponse(path=file_location, filename=last_file.before_parsing_filename)
+    file_location = os.path.join(settings.upload.path_for_upload, last_file.after_parsing_filename)
+    return FileResponse(path=file_location, filename=last_file.after_parsing_filename)
 
 @router.post("/download_file/before_parsing/{file_id}")
 async def download_file(file_id: int, session: AsyncSession = Depends(db_helper.session_depends), payload=Depends(get_payload)):

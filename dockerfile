@@ -14,8 +14,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Указываем команду для запуска приложения
-CMD ["sh", "-c", "alembic upgrade head && playwright install-deps && playwright install && python main.py"]
-# CMD ["sh", "-c", "alembic upgrade head && python main.py"]
+# CMD ["sh", "-c", "alembic upgrade head && playwright install-deps && playwright install && python main.py"]
+CMD ["sh", "-c", "alembic upgrade head && python main.py"]
 
 # Открываем порт для доступа
 EXPOSE 8000

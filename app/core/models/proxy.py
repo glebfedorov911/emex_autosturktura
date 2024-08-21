@@ -22,3 +22,6 @@ class Proxy(Base):
 
     def __str__(self):
         return self.ip_with_port, self.login, self.password, str(self._is_banned), str(self.expired_at)
+    
+    def __repr__(self):
+        return f"{self.ip_with_port}, {self.login}, {self.password}, {str(self._is_banned)}, {str(self.expired_at)}"

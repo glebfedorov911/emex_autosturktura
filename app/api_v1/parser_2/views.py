@@ -23,8 +23,6 @@ templates = Jinja2Templates(directory=settings.templates.templates_path)
 
 count_of_threadings = 4 
 threads: list[Thread] = [None] * count_of_threadings
-flag = False
-filter_id_global = 0
 
 @router.get("/")
 async def get(request: Request):
@@ -41,14 +39,15 @@ async def websocket_endpoint(websocket: WebSocket, payload = Depends(get_payload
     try:
         while True:
             ud = user_data[payload.get("sub")]
-            await websocket.send_json({"Проценты спаршенных товаров": int(len(ud["excel_result"])/ud["count_brands"]*100),
-                                       "Процент забаненных прокси": int(len(ud["ban_list"])/ud["count_proxies"]*100)})
+            await websocket.send_json({"Percent_parsing_goods": int(len(ud["excel_result"])/ud["count_brands"]*100),
+                                       "Percent_banned_list": int(len(ud["ban_list"])/ud["count_proxies"]*100), 
+                                       "Start_file": ud["start_file"]})
     except WebSocketDisconnect:
         await websocket.close()
 
 @router.websocket("/websocket_status")
 async def websocket_status_endpoint(websocket: WebSocket, payload = Depends(get_payload), session: AsyncSession = Depends(db_helper.get_scoped_session)):
-    global user_data, flag, filter_id_global
+    global user_data
 
     await websocket.accept()
     files = (await crud.get_last_upload_files(user_id=payload.get("sub"), session=session)).before_parsing_filename
@@ -56,46 +55,43 @@ async def websocket_status_endpoint(websocket: WebSocket, payload = Depends(get_
     try:
         while True:
             ud = user_data[payload.get("sub")]
-            await websocket.send_json({"Статус": ud["status"]})
-            if int(len(ud["excel_result"])/ud["count_brands"]*100) == 100 and not flag:
+            await websocket.send_json({"Status": ud["status"]})
+            if int(len(ud["excel_result"])/ud["count_brands"]*100) == 100 and not ud["flag"]:
                 ud["status"] = "Товары спаршены, подождите, идет сохранение"
-                flag=True
-            elif int(len(ud["ban_list"])/ud["count_proxies"]*100) == 100 and not flag:
+                ud["flag"]=True
+            elif int(len(ud["ban_list"])/ud["count_proxies"]*100) == 100 and not ud["flag"]:
                 ud["status"] = "Все прокси забанены, подождите, идет редактирование"
-                flag=True
+                ud["flag"]=True
             elif any([thread is None for thread in ud["threads"]]) or not any([thread.is_alive() for thread in ud["threads"]]):
                 ud["status"] = "Парсер не запущен"
-                if flag:
+                if ud["flag"]:
                     ud["status"] = "Парсер не запущен | Данные сохранены"
             else:
                 ud["status"] = "Парсер работает"
 
             if ud["status"] in ("Все прокси забанены, подождите, идет редактирование", "Товары спаршены, подождите, идет сохранение"):
                 df = pd.DataFrame(ud["excel_result"], columns=columns)
-                await crud.add_final_file_to_table(user_id=payload.get("sub"), session=session, result_name=result_file_name, filter_id_global=filter_id_global)
+                await crud.add_final_file_to_table(user_id=payload.get("sub"), session=session, result_name=result_file_name, filter_id_global=ud["filter_id"])
                 df.to_excel(str(settings.upload.path_for_upload) + '/' + result_file_name, index=False)
                 await crud.saving_to_table_data(user_id=payload.get("sub"), session=session, data=ud["excel_result"])
                 await crud.set_banned_proxy(proxy_servers=ud["ban_list"], session=session)
-                
-            await asyncio.sleep(1)
     except WebSocketDisconnect:
         await websocket.close()
 
 @router.get("/start/{filter_id}")
 async def start(filter_id: int, payload=Depends(get_payload), session: AsyncSession = Depends(db_helper.get_scoped_session)):
-    global user_data, flag, filter_id_global
+    global user_data
 
     messages = []
     user_id = payload.get("sub")
-    flag=False
-    filter_id_global = filter_id
     proxies = await crud.get_proxies(session=session, user_id=payload.get("sub"))
     filter = await crud.get_filter(session=session, user_id=payload.get("sub"), filter_id=filter_id)
+    files = (await crud.get_last_upload_files(user_id=user_id, session=session)).before_parsing_filename
     user_data[payload.get("sub")] = {"threads": threads.copy(), "events": [Event() for _ in range(count_of_threadings)], 
                                     "proxies": proxies, "filter": filter, "excel_result": [], "status": "Парсер не запущен",
-                                    "count_proxies": len(proxies), "ban_list": set(), "count_brands": 1}
+                                    "count_proxies": len(proxies), "ban_list": set(), "count_brands": 1, "filter_id": filter_id, "flag": False,
+                                    "start_file": files}
 
-    files = (await crud.get_last_upload_files(user_id=user_id, session=session)).before_parsing_filename
     df = pd.read_excel(str(settings.upload.path_for_upload) + '/' + files)
 
     df = df.apply(lambda col: col.astype(object))

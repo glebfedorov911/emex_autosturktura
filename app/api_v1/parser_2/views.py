@@ -43,6 +43,7 @@ async def websocket_endpoint(websocket: WebSocket, payload = Depends(get_payload
             await websocket.send_json({"Percent_parsing_goods": int(len(ud["excel_result"])/ud["count_brands"]*100),
                                        "Percent_banned_list": int(len(ud["ban_list"])/ud["count_proxies"]*100), 
                                        "Start_file": ud["start_file"]})
+            await asyncio.sleep(1)
     except WebSocketDisconnect:
         await websocket.close()
 
@@ -79,6 +80,7 @@ async def websocket_status_endpoint(websocket: WebSocket, payload = Depends(get_
                 df.to_excel(str(settings.upload.path_for_upload) + '/' + result_file_name, index=False)
                 await crud.saving_to_table_data(user_id=payload.get("sub"), session=session, data=ud["excel_result"])
                 await crud.set_banned_proxy(proxy_servers=ud["ban_list"], session=session)
+            await asyncio.sleep(1)
     except WebSocketDisconnect:
         await websocket.close()
 

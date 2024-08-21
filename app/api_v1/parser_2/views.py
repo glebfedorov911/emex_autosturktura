@@ -105,7 +105,7 @@ async def websocket_status_endpoint(
     try:
         while True:
             ud = user_data[payload.get("sub")]
-            asyncio.sleep(10)
+            # asyncio.sleep(10)
             await websocket.send_json({"Status": ud["status"]})
             if (
                 int(len(ud["excel_result"]) / ud["count_brands"] * 100) == 100

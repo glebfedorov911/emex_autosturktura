@@ -21,7 +21,7 @@ class Proxy(Base):
     user = relationship("User", back_populates="proxies")
 
     def __str__(self):
-        return self.ip_with_port, self.login, self.password, self._is_banned, self.expired_at
+        return self.ip_with_port, self.login, self.password, str(self._is_banned), str(self.expired_at)
     
     def __repr__(self):
-        return self.ip_with_port, self.login, self.password, self._is_banned, self.expired_at
+        return self.ip_with_port, self.login, self.password, str(self._is_banned), str(self.expired_at)

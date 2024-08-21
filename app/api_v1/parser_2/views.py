@@ -34,7 +34,8 @@ async def get(request: Request):
 async def websocket_endpoint(websocket: WebSocket, payload = Depends(get_payload), session: AsyncSession = Depends(db_helper.get_scoped_session)):
     global user_data
 
-    user_data[payload.get("sub")] = {"excel_result": [], "status": "Парсер не запущен", "count_proxies": 1, "ban_list": set(), "count_brands": 1, "threads": threads.copy()}
+    user_data[payload.get("sub")] = {"excel_result": [], "status": "Парсер не запущен", "count_proxies": 1, "ban_list": set(), "count_brands": 1, "threads": threads.copy(), "start_file": None,
+                                    "flag": False}
     await websocket.accept()
     try:
         while True:

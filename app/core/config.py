@@ -31,7 +31,7 @@ class Templates(BaseModel):
     templates_path: str = "app/templates"
 
 class UploadFiles(BaseModel):
-    path_for_upload: Path = "app/upload_file"
+    path_for_upload: Path = "/" + BASE_DIR / "upload_file"
 
 class Settings(BaseSettings):
     db: DBSettings = DBSettings()

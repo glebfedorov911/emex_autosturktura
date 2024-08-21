@@ -45,7 +45,7 @@ async def auth_user(user_log: UserLogin, response: Response, session: AsyncSessi
 
     token = encode_jwt(payload=payload)
     # response.set_cookie(key="access_token", value=token, httponly=True, secure=True, samesite='Strict')
-    response.set_cookie(key="access_token", value=token, httponly=False, samesite='None', secure=True, max_age=settings.auth.access_token_expire_minutes, domain=".forprojectstests.ru")
+    response.set_cookie(key="access_token", value=token, httponly=False, samesite='Strict', secure=True, max_age=settings.auth.access_token_expire_minutes, domain=".forprojectstests.ru")
 
     # return TokenInfo(
     #     access_token=token,

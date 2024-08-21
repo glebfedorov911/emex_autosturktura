@@ -36,7 +36,7 @@
                     .catch(error => console.error(error))
             }
             function stop() {
-                fetch(window.location.href + "stop/")
+                fetch(window.location.href + "stop")
                     .then(response => response.json())
                     .then(data => {
                         document.querySelector(".messages").textContent = JSON.stringify(data, null, 2)

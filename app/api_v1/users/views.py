@@ -66,7 +66,7 @@ async def auth_user(
         samesite="None",
         secure=True,
         max_age=settings.auth.access_token_expire_minutes,
-    )
+     )
 
     # return TokenInfo(
     #     access_token=token,

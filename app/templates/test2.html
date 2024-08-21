@@ -12,13 +12,13 @@
         <button class="stop">Стоп</button>
         <script>
             let filter_id = 13
-            let ws = new WebSocket("wss://api.forprojectstests.ru/v1/new_parser/websocket_percent") 
+            let ws = new WebSocket("ws://localhost/v1/new_parser/websocket_percent") 
             ws.onmessage = function(event) {
                 let data = document.querySelector(".data")
                 let content = document.createTextNode(event.data)
                 data.innerText = content.data
             }
-            let ws2 = new WebSocket("wss://api.forprojectstests.ru/v1/new_parser/websocket_status") 
+            let ws2 = new WebSocket("ws://localhost/v1/new_parser/websocket_status") 
             ws2.onmessage = function(event) {
                 let data = document.querySelector(".status")
                 let content = document.createTextNode(event.data)

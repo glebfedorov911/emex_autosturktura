@@ -53,9 +53,9 @@ async def main(brands, nums, user_id):
                 page = await browser.new_page()
 
                 try:
-                    await page.goto(url, timeout=1500)
+                    await page.goto(url, timeout=5555)
                 except:
-                    await page.goto(url, timeout=1500)
+                    await page.goto(url, timeout=5555)
 
                 pre = await (await page.query_selector("pre")).text_content()
                 response = dict(json.loads(pre))
@@ -110,9 +110,9 @@ async def main(brands, nums, user_id):
                 best_data = min(cut_data_by_availability, key=lambda x: x[2])
 
                 try:
-                    await page.goto(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=1500)
+                    await page.goto(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=5555)
                 except:
-                    await page.goto(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=1500)
+                    await page.goto(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=5555)
 
                 pre_with_logo = await (await page.query_selector("pre")).text_content()
                 response_with_logo = dict(json.loads(pre_with_logo))
@@ -126,7 +126,7 @@ async def main(brands, nums, user_id):
                     sorted_by_price = quick_sort(originals, 2)
                     for data in sorted_by_price:
                         try:
-                            await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=1500)
+                            await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=5555)
                         except:
                             sorted_by_price.append(data)
                             continue

@@ -11,7 +11,7 @@
         <button class="start">Старт</button>
         <button class="stop">Стоп</button>
         <script>
-            let filter_id = 9
+            let filter_id = 13
             let ws = new WebSocket("ws://" + window.location.host + window.location.pathname + "websocket_percent") 
             ws.onmessage = function(event) {
                 let data = document.querySelector(".data")

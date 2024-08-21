@@ -49,7 +49,7 @@ async def main(brands, nums, user_id):
         url = f"https://emex.ru/api/search/search?make={create_params_for_url(brand[1])}&detailNum={num[1]}&locationId=38760&showAll=true&longitude=37.8613&latitude=55.7434"
         async with async_playwright() as p:
             try:
-                browser = await p.chromium.launch(headless=False, proxy={"server": proxy[0], "username": proxy[1], "password": proxy[2]})
+                browser = await p.chromium.launch(headless=True, proxy={"server": proxy[0], "username": proxy[1], "password": proxy[2]})
                 page = await browser.new_page()
 
                 try:

@@ -18,7 +18,7 @@ class DBSettings(BaseModel):
     echo: bool = False
 
 class Proxy(BaseModel):
-    API_KEY: str = "fea1d0c98a179dfc855b7255d801b7f0"
+    API_KEY: str = os.getenv("API_TOKEN")
     URL: str = "https://api.dashboard.proxy.market"
 
 class Auth(BaseModel):

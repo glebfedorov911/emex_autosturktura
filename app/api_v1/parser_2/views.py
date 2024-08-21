@@ -53,6 +53,7 @@ async def websocket_status_endpoint(websocket: WebSocket, payload = Depends(get_
     await websocket.accept()
     files = (await crud.get_last_upload_files(user_id=payload.get("sub"), session=session)).before_parsing_filename
     result_file_name = payload.get("username") + "_послепарсинга_" + files.split("_")[-1]
+    print("hello")
     try:
         while True:
             ud = user_data[payload.get("sub")]

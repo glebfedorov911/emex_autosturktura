@@ -51,6 +51,8 @@ async def websocket_status_endpoint(websocket: WebSocket, payload = Depends(get_
     global user_data
 
     await websocket.accept()
+    user_data[payload.get("sub")] = {"excel_result": [], "status": "Парсер не запущен", "count_proxies": 1, "ban_list": set(), "count_brands": 1, "threads": threads.copy(), "start_file": None,
+                                "flag": False}
     files = (await crud.get_last_upload_files(user_id=payload.get("sub"), session=session)).before_parsing_filename
     result_file_name = payload.get("username") + "_послепарсинга_" + files.split("_")[-1]
     print("hello")

@@ -73,7 +73,7 @@ async def websocket_endpoint(
                     "Percent_banned_list": int(
                         len(ud["ban_list"]) / ud["count_proxies"] * 100
                     ),
-                    "Start_file": ud["start_file"],
+                    "Start_file": files,
                 }
             )
             await asyncio.sleep(10)

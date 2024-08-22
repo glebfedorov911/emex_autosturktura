@@ -47,9 +47,12 @@ async def websocket_endpoint(
 ):
     global user_data
 
-    files = (
-        await crud.get_last_upload_files(user_id=payload.get("sub"), session=session)
-    ).before_parsing_filename
+    try:
+        files = (
+            await crud.get_last_upload_files(user_id=payload.get("sub"), session=session)
+        ).before_parsing_filename
+    except:
+        files = "Не загружено"
 
     user_data[payload.get("sub")] = {
         "excel_result": [],

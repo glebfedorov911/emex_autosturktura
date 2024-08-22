@@ -144,7 +144,8 @@ async def main(brands, nums, user_id):
                         result.append(best_data[2])
                     else:
                         result.append("Нет такого лого среди оригиналов")
-                user_data[user_id]["excel_result"].append(result)
+                if result not in user_data[user_id]["excel_result"]:
+                    user_data[user_id]["excel_result"].append(result)
             except:
                 brands.append(brand)
                 nums.append(num)

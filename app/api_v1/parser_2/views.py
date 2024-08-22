@@ -48,7 +48,7 @@ async def websocket_endpoint(
     global user_data
 
     files = (
-        await crud.get_last_upload_files(user_id=user_id, session=session)
+        await crud.get_last_upload_files(user_id=payload.get("sub"), session=session)
     ).before_parsing_filename
 
     user_data[payload.get("sub")] = {

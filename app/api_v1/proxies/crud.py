@@ -36,7 +36,7 @@ async def buy_proxy(count: int = 1, duration: int = 30):
 
     response = dict(json.loads(requests.post(url, json=data).text))
     
-    not_enough_money(response=response)
+    # not_enough_money(response=response)
 
 async def add_proxy_to_database(user_id: int, count: int, session: AsyncSession):
     url = settings.proxy.URL + f"/dev-api/list/{settings.proxy.API_KEY}"

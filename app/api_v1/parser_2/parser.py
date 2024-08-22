@@ -145,8 +145,7 @@ async def main(brands, nums, user_id):
                     else:
                         result.append("Нет такого лого среди оригиналов")
                 user_data[user_id]["excel_result"].append(result)
-            except Error as e:
-                print(e)
+            except:
                 brands.append(brand)
                 nums.append(num)
                 if proxy != ["http://test:8888", "user1", "pass1"]:

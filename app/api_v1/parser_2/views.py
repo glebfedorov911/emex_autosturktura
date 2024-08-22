@@ -47,6 +47,10 @@ async def websocket_endpoint(
 ):
     global user_data
 
+    files = (
+        await crud.get_last_upload_files(user_id=user_id, session=session)
+    ).before_parsing_filename
+
     user_data[payload.get("sub")] = {
         "excel_result": [],
         "status": "Парсер не запущен",
@@ -54,7 +58,7 @@ async def websocket_endpoint(
         "ban_list": set(),
         "count_brands": 1,
         "threads": threads.copy(),
-        "start_file": None,
+        "start_file": files,
         "flag": False,
     }
     await websocket.accept()

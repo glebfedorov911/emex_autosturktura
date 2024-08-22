@@ -91,6 +91,7 @@ async def websocket_status_endpoint(
     session: AsyncSession = Depends(db_helper.get_scoped_session),
 ):
     global user_data
+    await crud.unbanned_proxy(session=session, user_id=payload.get("sub"))
 
     await websocket.accept()
     user_data[payload.get("sub")] = {

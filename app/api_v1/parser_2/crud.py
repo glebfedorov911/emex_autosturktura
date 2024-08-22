@@ -81,3 +81,15 @@ async def set_banned_proxy(proxy_servers: list, session: AsyncSession):
         proxies._is_banned = True
         session.add(proxies)
         await session.commit()
+
+async def unbanned_proxy(session: AsyncSession, user_id: int):
+    stmt = select(Proxy).where(Proxy.user_id==user_id).where(Proxy._is_banned==True)
+    result: Result = await session.execute(stmt)
+    proxies = result.scalars().all()
+
+    for proxy in proxies:
+        if (datetime.now() - proxy.when_banned).total_seconds() / 60 >= 1440:
+            proxy._is_banned = False
+            proxy.when_banned = None
+            session.add(proxy)
+            await session.commit()

@@ -110,7 +110,7 @@ async def websocket_status_endpoint(
         user_data[payload.get("sub")]["status"] = "Файл спаршен либо не загружен"
     else:
         result_file_name = (
-            payload.get("username") + "_послепарсинга_" + files.split(".")[-1]
+            payload.get("username") + "_послепарсинга." + files.split(".")[-1]
         )
     await websocket.accept()
     try:

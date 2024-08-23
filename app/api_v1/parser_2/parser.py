@@ -123,7 +123,7 @@ async def main(brands, nums, user_id):
                 
                 if LOGO:
                     best_data = None
-                    sorted_by_price = quick_sort(originals, 2)
+                    sorted_by_price = quick_sort(originals, 2)[:20]
                     for data in sorted_by_price:
                         try:
                             await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=2222)

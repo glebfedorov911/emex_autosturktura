@@ -109,11 +109,6 @@ async def websocket_status_endpoint(
         "start_file": None,
         "flag": False,
     }
-    files = (
-        await crud.get_last_upload_files(user_id=payload.get("sub"), session=session)
-    ).before_parsing_filename
-    if files is None:
-        user_data[payload.get("sub")]["status"] = "Файл спаршен либо не загружен"
     result_file_name = f"{payload.get('username')}_послепарсинга_{random.randint(1, 100000000000)}.xlsx"
 
     await websocket.accept()

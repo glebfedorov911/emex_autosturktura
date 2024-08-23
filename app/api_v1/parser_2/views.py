@@ -98,6 +98,7 @@ async def websocket_status_endpoint(
 ):
     global user_data
     await crud.unbanned_proxy(session=session, user_id=payload.get("sub"))
+    await crud.delete_proxy_banned(session=session, user_id=payload.get("sub"))
 
     user_data[payload.get("sub")] = {
         "excel_result": [],

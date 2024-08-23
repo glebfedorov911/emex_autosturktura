@@ -112,6 +112,7 @@ async def prolong_proxy(date: str, count: int, duration: int, user_id: int, sess
     for proxy in proxies:
         if str(proxy.id_proxy) in ids.split(', '): 
             proxy.expired_at += datetime.timedelta(days=duration)
+            proxy.is_using = True
             await session.commit()
             k += 1
         

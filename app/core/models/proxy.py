@@ -18,6 +18,7 @@ class Proxy(Base):
     ip_with_port: Mapped[str]
     _is_banned: Mapped[bool] = mapped_column(default=False, nullable=True)
     when_banned: Mapped[datetime] = mapped_column(nullable=True)
+    is_using: Mapped[bool] = mapped_column(default=True, nullable=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     user = relationship("User", back_populates="proxies")
 

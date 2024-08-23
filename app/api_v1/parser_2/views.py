@@ -112,9 +112,8 @@ async def websocket_status_endpoint(
     if files is None:
         user_data[payload.get("sub")]["status"] = "Файл спаршен либо не загружен"
     else:
-        result_file_name = (
-            payload.get("username") + "_послепарсинга." + files.split(".")[-1]
-        )
+        result_file_name = get_unique_filename(str(settings.upload.path_for_upload), f"{payload.get('username')}_послепарсинга.xlsx")
+        print(result_file_name)
     await websocket.accept()
     try:
         while True:
@@ -147,7 +146,6 @@ async def websocket_status_endpoint(
                 "Товары спаршены, подождите, идет сохранение",
             ):
                 df = pd.DataFrame(ud["excel_result"], columns=columns)
-                print(result_file_name)
                 await crud.add_final_file_to_table(
                     user_id=payload.get("sub"),
                     session=session,

@@ -17,6 +17,7 @@ from threading import Thread, Event
 from app.core.config import settings
 from app.core.models import db_helper
 from app.api_v1.users.crud import get_payload
+from app.api_v1.files.depends import get_unique_filename
 from . import crud
 from .parser import user_data, run, columns
 from .depends import *
@@ -47,13 +48,9 @@ async def websocket_endpoint(
 ):
     global user_data
 
-    try:
-        files = (
-            await crud.get_last_upload_files(user_id=payload.get("sub"), session=session)
-        ).before_parsing_filename
-    except:
-        files = "Файл не загружен"
-
+    files = f'{payload.get("username")}_дляпарсинг.xlsx'
+    files = get_unique_filename(str(settings.upload.path_for_upload), files)
+    
     user_data[payload.get("sub")] = {
         "excel_result": [],
         "status": "Парсер не запущен",
@@ -64,8 +61,6 @@ async def websocket_endpoint(
         "start_file": files,
         "flag": False,
     }
-    if files is None:
-        user_data[payload.get("sub")]["status"] = "Файл спаршен либо не загружен"
 
     await websocket.accept()
     try:
@@ -79,7 +74,7 @@ async def websocket_endpoint(
                     "Percent_banned_list": int(
                         len(ud["ban_list"]) / ud["count_proxies"] * 100
                     ),
-                    "Start_file": ud["start_file"],
+                    "Start_file": files,
                 }
             )
             await asyncio.sleep(10)
@@ -137,6 +132,7 @@ async def websocket_status_endpoint(
                 ud["status"] = "Парсер не запущен"
                 if ud["flag"]:
                     ud["status"] = "Парсер не запущен | Данные сохранены"
+                    ud["excel_result"] = []
             else:
                 ud["status"] = "Парсер работает"
 

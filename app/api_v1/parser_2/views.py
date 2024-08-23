@@ -102,7 +102,6 @@ async def websocket_status_endpoint(
         "start_file": None,
         "flag": False,
     }
-    result_file_name = f"{payload.get('username')}_послепарсинга_{random.randint(1, 100000000000)}.xlsx"
     await websocket.accept()
     try:
         while True:
@@ -135,6 +134,7 @@ async def websocket_status_endpoint(
                 "Все прокси забанены, подождите, идет редактирование",
                 "Товары спаршены, подождите, идет сохранение",
             ):
+                result_file_name = f"{payload.get('username')}_послепарсинга_{random.randint(1, 100000000000)}.xlsx"
                 df = pd.DataFrame(ud["excel_result"], columns=columns)
                 await crud.add_final_file_to_table(
                     user_id=payload.get("sub"),

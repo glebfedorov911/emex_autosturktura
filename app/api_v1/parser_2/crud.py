@@ -3,15 +3,15 @@ from fastapi import HTTPException, status
 from app.core.models import Proxy, NewFilter, File, Parser
 from .schemas import ParserCreate
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.engine import Result
-from sqlalchemy import select
+from sqlalchemy import select, func, text
 
 
 async def get_proxies(session: AsyncSession, user_id: int):
-    stmt = select(Proxy).where(Proxy.user_id==user_id).where(Proxy._is_banned==False)
+    stmt = select(Proxy).where(Proxy.user_id==user_id).where(Proxy._is_banned==False).where(Proxy.is_using==True)
     result: Result = await session.execute(stmt)
     proxies = result.scalars().all()
     # if proxies == []:
@@ -81,6 +81,7 @@ async def set_banned_proxy(proxy_servers: list, session: AsyncSession):
         proxies = result.scalar()
 
         proxies._is_banned = True
+        proxies.is_using = False
         session.add(proxies)
         await session.commit()
 
@@ -92,6 +93,16 @@ async def unbanned_proxy(session: AsyncSession, user_id: int):
     for proxy in proxies:
         if (datetime.now() - proxy.when_banned).total_seconds() / 60 >= 1440:
             proxy._is_banned = False
+            proxy.is_using = True
             proxy.when_banned = None
             session.add(proxy)
             await session.commit()
+
+async def delete_proxy_banned(session: AsyncSession, user_id: int):
+    stmt = select(Proxy).where(Proxy.user_id==user_id).where((Proxy.expired_at - func.now()) < timedelta(days=0))
+    result: Result = await session.execute(stmt)
+    proxies = result.scalars().all()
+    for proxy in proxies:
+        proxy.is_using = False
+        session.add(proxy)
+        await session.commit()

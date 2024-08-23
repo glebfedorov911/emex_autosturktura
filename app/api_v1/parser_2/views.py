@@ -74,6 +74,10 @@ async def websocket_endpoint(
     try:
         while True:
             ud = user_data[payload.get("sub")]
+            if ud["count_proxies"] == 0:
+                ud["count_proxies"] = 1
+                ud["status"] = "Закончились прокси"
+                
             await websocket.send_json(
                 {
                     "Percent_parsing_goods": int(

@@ -47,12 +47,9 @@ async def websocket_endpoint(
 ):
     global user_data
 
-    try:
-        files = (
-            await crud.get_last_upload_files(user_id=payload.get("sub"), session=session)
-        ).before_parsing_filename
-    except:
-        files = "Не загружено"
+    files = (
+        await crud.get_last_upload_files(user_id=payload.get("sub"), session=session)
+    ).before_parsing_filename
 
     user_data[payload.get("sub")] = {
         "excel_result": [],
@@ -64,6 +61,9 @@ async def websocket_endpoint(
         "start_file": files,
         "flag": False,
     }
+    if files is None:
+        user_data[payload.get("sub")]["status"] = "Файл спаршен либо не загружен"
+
     await websocket.accept()
     try:
         while True:
@@ -93,7 +93,6 @@ async def websocket_status_endpoint(
     global user_data
     await crud.unbanned_proxy(session=session, user_id=payload.get("sub"))
 
-    await websocket.accept()
     user_data[payload.get("sub")] = {
         "excel_result": [],
         "status": "Парсер не запущен",
@@ -107,9 +106,13 @@ async def websocket_status_endpoint(
     files = (
         await crud.get_last_upload_files(user_id=payload.get("sub"), session=session)
     ).before_parsing_filename
-    result_file_name = (
-        payload.get("username") + "_послепарсинга_" + files.split(".")[-1]
-    )
+    if files is None:
+        user_data[payload.get("sub")]["status"] = "Файл спаршен либо не загружен"
+    else:
+        result_file_name = (
+            payload.get("username") + "_послепарсинга_" + files.split(".")[-1]
+        )
+    await websocket.accept()
     try:
         while True:
             ud = user_data[payload.get("sub")]
@@ -193,33 +196,43 @@ async def start(
         "flag": False,
         "start_file": files,
     }
+    if proxies == []:
+        user_data[payload.get("sub")]["status"] = "Закончились прокси"
+        return JSONResponse("Закончились прокси")
+    elif files is None:
+        user_data[payload.get("sub")]["status"] = "Данный файл уже спаршен либо не загружен"
+        return JSONResponse("Данный файл уже спаршен")
+    elif filter is None:
+        user_data[payload.get("sub")]["status"] = "Неизвестный фальтр"
+        return JSONResponse("Неизвестный фальтр")
+    else:
 
-    df = pd.read_excel(str(settings.upload.path_for_upload) + "/" + files)
+        df = pd.read_excel(str(settings.upload.path_for_upload) + "/" + files)
 
-    df = df.apply(lambda col: col.astype(object))
-    df_to_list = df.values.tolist()
-    brands, nums = create(df_to_list)
-    user_data[user_id]["count_brands"] = len(brands)
+        df = df.apply(lambda col: col.astype(object))
+        df_to_list = df.values.tolist()
+        brands, nums = create(df_to_list)
+        user_data[user_id]["count_brands"] = len(brands)
 
-    brands, nums = split_file_for_thr(count_of_threadings, brands), split_file_for_thr(
-        count_of_threadings, nums
-    )
-    user_data[user_id]["threads"] = user_data[user_id]["threads"][: len(brands)]
-    for index in range(len(brands)):
-        if (
-            user_data[user_id]["threads"][index] is None
-            or not user_data[user_id]["threads"][index].is_alive()
-        ):
-            user_data[user_id]["events"][index].clear()
-            user_data[user_id]["threads"][index] = Thread(
-                target=run, args=(brands[index], nums[index], user_id)
-            )
-            user_data[user_id]["threads"][index].start()
-            messages.append(f"поток {index+1} запущен")
-        else:
-            messages.append(f"поток {index+1} уже запущен")
+        brands, nums = split_file_for_thr(count_of_threadings, brands), split_file_for_thr(
+            count_of_threadings, nums
+        )
+        user_data[user_id]["threads"] = user_data[user_id]["threads"][: len(brands)]
+        for index in range(len(brands)):
+            if (
+                user_data[user_id]["threads"][index] is None
+                or not user_data[user_id]["threads"][index].is_alive()
+            ):
+                user_data[user_id]["events"][index].clear()
+                user_data[user_id]["threads"][index] = Thread(
+                    target=run, args=(brands[index], nums[index], user_id)
+                )
+                user_data[user_id]["threads"][index].start()
+                messages.append(f"поток {index+1} запущен")
+            else:
+                messages.append(f"поток {index+1} уже запущен")
 
-    return JSONResponse(messages)
+        return JSONResponse(messages)
 
 
 @router.get("/stop")

@@ -110,7 +110,7 @@ async def websocket_status_endpoint(
         user_data[payload.get("sub")]["status"] = "Файл спаршен либо не загружен"
     else:
         result_file_name = (
-            payload.get("username") + "_послепарсинга_" + files.split(".")[-1]
+            payload.get("username") + "_послепарсинга." + files.split(".")[-1]
         )
     await websocket.accept()
     try:
@@ -143,17 +143,18 @@ async def websocket_status_endpoint(
                 "Все прокси забанены, подождите, идет редактирование",
                 "Товары спаршены, подождите, идет сохранение",
             ):
-                df = pd.DataFrame(ud["excel_result"], columns=columns)
+                # df = pd.DataFrame(ud["excel_result"], columns=columns)
+                print(result_file_name)
                 await crud.add_final_file_to_table(
                     user_id=payload.get("sub"),
                     session=session,
                     result_name=result_file_name,
                     filter_id_global=ud["filter_id"],
                 )
-                df.to_excel(
-                    str(settings.upload.path_for_upload) + "/" + result_file_name,
-                    index=False,
-                )
+                # df.to_excel(
+                #     str(settings.upload.path_for_upload) + "/" + result_file_name,
+                #     index=False,
+                # )
                 await crud.saving_to_table_data(
                     user_id=payload.get("sub"), session=session, data=ud["excel_result"]
                 )

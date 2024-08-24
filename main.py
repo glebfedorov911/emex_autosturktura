@@ -9,7 +9,7 @@ import uvicorn
 
 app = FastAPI()
 app.include_router(router=router)
-
+#test
 origins = [
     "http://localhost",
     "http://localhost:8000",

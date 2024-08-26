@@ -180,8 +180,6 @@ async def start(
     messages = []
     user_id = payload.get("sub")
     proxies = await crud.get_proxies(session=session, user_id=payload.get("sub"))
-    print(payload.get("sub"))
-    print(proxies)
     filter = await crud.get_filter(
         session=session, user_id=payload.get("sub"), filter_id=filter_id
     )

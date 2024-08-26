@@ -15,15 +15,12 @@ async def get_proxies(session: AsyncSession, user_id: int):
     result: Result = await session.execute(stmt)
     proxies = result.scalars().all()
 
-    stmt = select(Proxy).where(Proxy.user_id==user_id)
-    result: Result = await session.execute(stmt)
-    proxies2 = result.scalars().all()
     # if proxies == []:
     #     raise HTTPException(
     #         status_code=status.HTTP_404_NOT_FOUND,
     #         detail="Закочнились прокси"
     #     )
-    return proxies, proxies2
+    return proxies
 
 async def get_filter(session: AsyncSession, user_id: int, filter_id: int):
     stmt = select(NewFilter).where(NewFilter.user_id == user_id).where(NewFilter.id == filter_id)

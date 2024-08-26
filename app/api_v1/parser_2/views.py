@@ -117,23 +117,23 @@ async def websocket_status_endpoint(
                 int(len(ud["excel_result"]) / ud["count_brands"] * 100) == 100
                 and not ud["flag"]
             ):
-                ud["status"] = "Товары спаршены, подождите, идет сохранение"
+                ud["status"] = "PARSING_COMPLETED"
                 ud["flag"] = True
             elif (
                 int(len(ud["ban_list"]) / ud["count_proxies"] * 100) == 100
                 and not ud["flag"]
             ):
-                ud["status"] = "Все прокси забанены, подождите, идет редактирование"
+                ud["status"] = "ALL_PROXIES_BANNED"
                 ud["flag"] = True
             elif any([thread is None for thread in ud["threads"]]) or not any(
                 [thread.is_alive() for thread in ud["threads"]]
             ):
                 ud["status"] = "Парсер не запущен"
                 if ud["flag"]:
-                    ud["status"] = "Парсер не запущен | Данные сохранены"
+                    ud["status"] = "PARSER_NOT_STARTED_DATA_SAVED"
                     ud["excel_result"] = []
             else:
-                ud["status"] = "Парсер работает"
+                ud["status"] = "PARSER_RUNNING"
 
             if ud["status"] in (
                 "Все прокси забанены, подождите, идет редактирование",

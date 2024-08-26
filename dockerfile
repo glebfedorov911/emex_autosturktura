@@ -13,9 +13,9 @@ RUN cd /tmp/testpsycopg2
 RUN python3 -m venv venv
 RUN . venv/bin/activate
 RUN pip install wheel
-RUN apt install libpq-dev
-RUN apt install python3-dev
-RUN apt install build-essential
+RUN apt-get install libpq-dev
+RUN apt-get install python3-dev
+RUN apt-get install build-essential
 RUN cd /app
 RUN . venv/bin/activate
 RUN pip install --no-cache-dir -r requirements.txt

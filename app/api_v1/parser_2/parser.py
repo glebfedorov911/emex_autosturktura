@@ -146,6 +146,7 @@ async def main(brands, nums, user_id):
                         result.append("Нет такого лого среди оригиналов")
                 # if result not in user_data[user_id]["excel_result"]:
                 user_data[user_id]["excel_result"].append(result)
+                await browser.close()
             except Exception as e:
                 print(e)
                 brands.append(brand)

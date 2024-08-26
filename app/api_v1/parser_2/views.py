@@ -165,6 +165,8 @@ async def websocket_status_endpoint(
                     proxy_servers=ud["ban_list"], session=session
                 )
             await asyncio.sleep(10)
+    except Exception as e:
+        print(e)
     except WebSocketDisconnect:
         await websocket.close()
 

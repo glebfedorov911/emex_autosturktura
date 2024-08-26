@@ -77,7 +77,7 @@ async def websocket_endpoint(
             if ud["count_proxies"] == 0:
                 ud["count_proxies"] = 1
                 ud["status"] = "Закончились прокси"
-                
+
             await websocket.send_json(
                 {
                     "Percent_parsing_goods": int(
@@ -89,6 +89,12 @@ async def websocket_endpoint(
                     "Start_file": files,
                 }
             )
+            if len(ud["excel_result"]) / ud["count_brands"] * 100 == 100 or len(ud["ban_list"]) / ud["count_proxies"] * 100 == 100:
+                del ud["excel_result"]
+                del ud["ban_list"]
+                ud["excel_result"] = []
+                ud["ban_list"] = set()
+
             await asyncio.sleep(10)
     except WebSocketDisconnect:
         await websocket.close()
@@ -163,10 +169,6 @@ async def websocket_status_endpoint(
                 await crud.set_banned_proxy(
                     proxy_servers=ud["ban_list"], session=session
                 )
-                del ud["excel_result"]
-                del ud["ban_list"]
-                ud["excel_result"] = []
-                ud["ban_list"] = set()
             await asyncio.sleep(10)
     except WebSocketDisconnect:
         await websocket.close()

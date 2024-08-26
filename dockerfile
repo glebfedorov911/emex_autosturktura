@@ -14,9 +14,6 @@ RUN python3 -m venv venv
 RUN . venv/bin/activate
 RUN pip install wheel
 RUN apt-get update
-RUN apt-get install libpq-dev
-RUN apt-get install python3-dev
-RUN apt-get install build-essential
 RUN cd /app
 RUN . venv/bin/activate
 RUN pip install --no-cache-dir -r requirements.txt

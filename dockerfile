@@ -8,7 +8,16 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Устанавливаем зависимости
-RUN pip install --upgrade pip
+RUN mkdir /tmp/testpsycopg2
+RUN cd /tmp/testpsycopg2
+RUN python3 -m venv venv
+RUN source venv/bin/activate
+RUN pip install wheel
+RUN sudo apt install libpq-dev
+RUN sudo apt install python3-dev
+RUN sudo apt install build-essential
+RUN cd /app
+RUN source venv/bin/activate
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Копируем все файлы проекта в контейнер

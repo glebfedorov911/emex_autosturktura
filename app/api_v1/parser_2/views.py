@@ -119,7 +119,7 @@ async def websocket_status_endpoint(
         while True:
             ud = user_data[payload.get("sub")]
             # asyncio.sleep(10)
-            await websocket.send_json({"a": "a"})
+            await websocket.send_json({"Status": ud["status"]})
             if (
                 int(len(ud["excel_result"]) / ud["count_brands"] * 100) == 100
                 and not ud["flag"]
@@ -165,8 +165,6 @@ async def websocket_status_endpoint(
                     proxy_servers=ud["ban_list"], session=session
                 )
             await asyncio.sleep(10)
-    except Exception as e:
-        print(e)
     except WebSocketDisconnect:
         await websocket.close()
 

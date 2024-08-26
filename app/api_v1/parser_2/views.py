@@ -138,7 +138,6 @@ async def websocket_status_endpoint(
                 ud["status"] = "Парсер не запущен"
                 if ud["flag"]:
                     ud["status"] = "Парсер не запущен | Данные сохранены"
-                    ud["excel_result"] = []
             else:
                 ud["status"] = "Парсер работает"
 
@@ -164,6 +163,10 @@ async def websocket_status_endpoint(
                 await crud.set_banned_proxy(
                     proxy_servers=ud["ban_list"], session=session
                 )
+                del ud["excel_result"]
+                del ud["ban_list"]
+                ud["excel_result"] = []
+                ud["ban_list"] = set()
             await asyncio.sleep(10)
     except WebSocketDisconnect:
         await websocket.close()
@@ -186,6 +189,7 @@ async def start(
     files = (
         await crud.get_last_upload_files(user_id=user_id, session=session)
     ).before_parsing_filename
+    del user_data[payload.get("sub")]
     user_data[payload.get("sub")] = {
         "threads": threads.copy(),
         "events": [Event() for _ in range(count_of_threadings)],

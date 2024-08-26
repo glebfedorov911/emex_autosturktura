@@ -146,6 +146,7 @@ async def main(brands, nums, user_id):
                         result.append("Нет такого лого среди оригиналов")
                 # if result not in user_data[user_id]["excel_result"]:
                 user_data[user_id]["excel_result"].append(result)
+                del result
                 await browser.close()
             except Exception as e:
                 print(e)
@@ -161,6 +162,7 @@ async def main(brands, nums, user_id):
                         proxy = [proxy[0], proxy[1], proxy[2]]
                 else:
                     proxy = ["http://test:8888", "user1", "pass1"]
+                await browser.close()
     user_data[user_id]["proxies"].append(proxy)
         
 def run(brands, nums, user_id):

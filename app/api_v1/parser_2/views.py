@@ -134,10 +134,10 @@ async def websocket_status_endpoint(
                     ud["excel_result"] = []
             else:
                 ud["status"] = "PARSER_RUNNING"
-
+            
             if ud["status"] in (
-                "Все прокси забанены, подождите, идет редактирование",
-                "Товары спаршены, подождите, идет сохранение",
+                "ALL_PROXIES_BANNED",
+                "PARSING_COMPLETED",
             ):
                 result_file_name = f"{payload.get('username')}_послепарсинга_{random.randint(1, 100000000000)}.xlsx"
                 df = pd.DataFrame(ud["excel_result"], columns=columns)

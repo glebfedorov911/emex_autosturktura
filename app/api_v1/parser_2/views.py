@@ -179,7 +179,7 @@ async def start(
     session: AsyncSession = Depends(db_helper.get_scoped_session),
 ):
     global user_data
-
+#
     messages = []
     user_id = payload.get("sub")
     proxies = await crud.get_proxies(session=session, user_id=payload.get("sub"))

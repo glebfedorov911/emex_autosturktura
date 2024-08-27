@@ -246,7 +246,7 @@ async def start(
 @router.get("/stop")
 async def stop(payload = Depends(get_payload)):
     global user_data
-    
+
 
     user_id = payload.get("sub")
     for index in range(count_of_threadings):

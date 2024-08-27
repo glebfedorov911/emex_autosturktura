@@ -1,6 +1,10 @@
 import jwt
 import bcrypt
 
+from fastapi import HTTPException, status
+
+from jwt.exceptions import InvalidTokenError
+
 from app.core.config import settings
 
 from datetime import timedelta, datetime
@@ -45,6 +49,19 @@ def decode_jwt(
     )
 
     return decoded
+
+async def get_payload(access_token: str | None = None):
+    try:
+        payload = decode_jwt(
+            token=access_token
+        )
+    except InvalidTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Ошибка токена | Token error"
+        )
+
+    return payload
 
 def hash_password(
     password: str,

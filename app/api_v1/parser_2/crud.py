@@ -14,12 +14,12 @@ async def get_proxies(session: AsyncSession, user_id: int):
     stmt = select(Proxy).where(Proxy.user_id==user_id).where(Proxy._is_banned==False).where(Proxy.is_using==True)
     result: Result = await session.execute(stmt)
     proxies = result.scalars().all()
-
     # if proxies == []:
     #     raise HTTPException(
     #         status_code=status.HTTP_404_NOT_FOUND,
     #         detail="Закочнились прокси"
     #     )
+    
     return proxies
 
 async def get_filter(session: AsyncSession, user_id: int, filter_id: int):
@@ -46,7 +46,7 @@ async def get_last_upload_files(user_id: int, session: AsyncSession):
         # )
         return None
 
-    if files[-1].after_parsing_filename != None:
+    if files[-1].after_parsing_filename != None or files[-1].after_parsing_filename != None:
         # raise HTTPException(
         #     status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
         #     detail="Данный файл уже спаршен"

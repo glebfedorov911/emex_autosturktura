@@ -40,3 +40,10 @@ def check_same(file):
     df = pd.read_excel(file)
 
     return list(df) == RIGHT_DATA 
+
+def check_has_last_file_after_parsing(last_file):
+    if last_file.after_parsing_filename is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Последний файл еще не спаршен"
+        )

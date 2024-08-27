@@ -40,6 +40,6 @@ if __name__ == "__main__":
     uvicorn.run("main:app", reload=False,  port=8000, ssl_keyfile="key.pem", ssl_certfile="cert.pem") 
 #     # uvicorn.run("main:app", reload=False) 
  
-'''uvicorn main:app --reload'''
+'''uvicorn main:app --reload''' #в header писать access-token
 
 # 1) исправить баги если они будут (они будут наверное =( )

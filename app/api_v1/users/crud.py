@@ -17,19 +17,6 @@ from app.api_v1.auth.utils import decode_jwt
 
 http_bearer = HTTPBearer()
 
-async def get_payload(access_token: str | None = None):
-    try:
-        payload = decode_jwt(
-            token=access_token
-        )
-    except InvalidTokenError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Ошибка токена | Token error"
-        )
-
-    return payload
-
 async def create_user(user_in: UserCreate, session: AsyncSession):
     try:
         hashed_password = hash_password(password=user_in.password)

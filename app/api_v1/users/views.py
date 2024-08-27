@@ -5,10 +5,10 @@ from fastapi import APIRouter, Depends, HTTPException, status, Response, Cookie,
 from .schemas import UserCreate, UserUpdate, UserLogin
 from app.core.models import db_helper
 from . import crud
-from .crud import get_payload
+from app.api_v1.auth.utils import get_payload
 from .token_info import TokenInfo
 from app.api_v1.auth.utils import encode_jwt
-from app.api_v1.auth.depends import check_payload
+
 from app.core.models import User   
 from app.core.config import settings 
 from .depends import exception_admin    
@@ -22,15 +22,15 @@ router = APIRouter(prefix="/users", tags=["Users"])
 #     return await crud.create_user(user_in=user_in, session=session)
 
 @router.post("/sign_up")
-async def create_user(user_in: UserCreate, access_token: str | None = Header(default=None, convert_underscores=False), session: AsyncSession = Depends(db_helper.session_depends)):
-    payload = await check_payload(access_token=access_token)
+async def create_user(user_in: UserCreate, payload = Depends(get_payload), session: AsyncSession = Depends(db_helper.session_depends)):
+    
 
     exception_admin(payload)
 
     return await crud.create_user(user_in=user_in, session=session)
 
 @router.post("/login")#, response_model=TokenInfo)
-async def auth_user(user_log: UserLogin, response: Response, access_token: str | None = Header(default=None, convert_underscores=False), session: AsyncSession = Depends(db_helper.session_depends)):
+async def auth_user(user_log: UserLogin, response: Response, access_token: str | None = Header(default=None, convert_underscores=True), session: AsyncSession = Depends(db_helper.session_depends)):
     if access_token:
         raise HTTPException(
             status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
@@ -62,7 +62,7 @@ async def auth_user(user_log: UserLogin, response: Response, access_token: str |
 #     return payload
 
 @router.get("/logout")
-async def logout(response: Response, access_token: str | None = Header(default=None, convert_underscores=False)):
+async def logout(response: Response, access_token: str | None = Header(default=None, convert_underscores=True)):
     if not access_token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -76,32 +76,32 @@ async def logout(response: Response, access_token: str | None = Header(default=N
     }
 
 @router.get("/show_all")
-async def show_all_users(session: AsyncSession = Depends(db_helper.session_depends), access_token: str | None = Header(default=None, convert_underscores=False)):
-    payload = await check_payload(access_token=access_token)
+async def show_all_users(session: AsyncSession = Depends(db_helper.session_depends), payload = Depends(get_payload)):
+    
 
     exception_admin(payload=payload)
     
     return await crud.show_all_users(session=session)
 
 @router.get("/about_one/{user_id}")
-async def about_one_user(user_id: int, session: AsyncSession = Depends(db_helper.session_depends), access_token: str | None = Header(default=None, convert_underscores=False)):
-    payload = await check_payload(access_token=access_token)
+async def about_one_user(user_id: int, session: AsyncSession = Depends(db_helper.session_depends), payload = Depends(get_payload)):
+    
 
     exception_admin(payload=payload)
 
     return await crud.about_one_user(user_id=user_id, session=session)
 
 @router.patch("/edit/{user_id}")
-async def edit_user(user_id: int, upd_user: UserUpdate, session: AsyncSession = Depends(db_helper.session_depends), access_token: str | None = Header(default=None, convert_underscores=False)):
-    payload = await check_payload(access_token=access_token)
+async def edit_user(user_id: int, upd_user: UserUpdate, session: AsyncSession = Depends(db_helper.session_depends), payload = Depends(get_payload)):
+    
     
     exception_admin(payload=payload)
 
     return await crud.edit_user(user_id, upd_user, session)
 
 @router.delete("/delete/{user_id}")
-async def delete_user(user_id: int, session: AsyncSession = Depends(db_helper.session_depends), access_token: str | None = Header(default=None, convert_underscores=False)):
-    payload = await check_payload(access_token=access_token)
+async def delete_user(user_id: int, session: AsyncSession = Depends(db_helper.session_depends), payload = Depends(get_payload)):
+    
 
     exception_admin(payload=payload)
 

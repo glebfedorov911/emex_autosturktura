@@ -46,7 +46,7 @@ async def get_last_upload_files(user_id: int, session: AsyncSession):
         # )
         return None
 
-    if files[-1].after_parsing_filename != None:
+    if files[-1].after_parsing_filename != None or files[-1].after_parsing_filename != None:
         # raise HTTPException(
         #     status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
         #     detail="Данный файл уже спаршен"

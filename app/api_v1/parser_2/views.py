@@ -17,9 +17,9 @@ from threading import Thread, Event
 
 from app.core.config import settings
 from app.core.models import db_helper
-from app.api_v1.users.crud import get_payload
+from app.api_v1.auth.utils import get_payload
 from app.api_v1.files.depends import get_unique_filename
-from app.api_v1.auth.depends import check_payload
+
 from . import crud
 from .parser import user_data, run, columns
 from .depends import *
@@ -46,12 +46,12 @@ async def get(request: Request):
 @router.websocket("/websocket_percent")
 async def websocket_endpoint(
     websocket: WebSocket,
-    access_token: str | None = Header(default=None, convert_underscores=False),
+    payload = Depends(get_payload),
     session: AsyncSession = Depends(db_helper.get_scoped_session),
 ):
     global user_data
 
-    payload = await check_payload(access_token=access_token)
+    
 
     files = f'{payload.get("username")}_дляпарсинг.xlsx'
     files = get_unique_filename(str(settings.upload.path_for_upload), files)
@@ -98,11 +98,11 @@ async def websocket_endpoint(
 @router.websocket("/websocket_status")
 async def websocket_status_endpoint(
     websocket: WebSocket,
-    access_token: str | None = Header(default=None, convert_underscores=False),
+    payload = Depends(get_payload),
     session: AsyncSession = Depends(db_helper.get_scoped_session),
 ):
     global user_data
-    payload = await check_payload(access_token=access_token)
+    
     
     await crud.unbanned_proxy(session=session, user_id=payload.get("sub"))
     await crud.delete_proxy_banned(session=session, user_id=payload.get("sub"))
@@ -175,11 +175,11 @@ async def websocket_status_endpoint(
 @router.get("/start/{filter_id}")
 async def start(
     filter_id: int,
-    access_token: str | None = Header(default=None, convert_underscores=False),
+    payload = Depends(get_payload),
     session: AsyncSession = Depends(db_helper.get_scoped_session),
 ):
     global user_data
-    payload = await check_payload(access_token=access_token)
+    
 
     messages = []
     user_id = payload.get("sub")
@@ -244,9 +244,9 @@ async def start(
 
 
 @router.get("/stop")
-async def stop(access_token: str | None = Header(default=None, convert_underscores=False)):
+async def stop(payload = Depends(get_payload)):
     global user_data
-    payload = await check_payload(access_token=access_token)
+    
 
     user_id = payload.get("sub")
     for index in range(count_of_threadings):

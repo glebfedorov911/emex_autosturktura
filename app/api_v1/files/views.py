@@ -5,8 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.models import db_helper
 from app.core.config import settings
-from app.api_v1.users.crud import get_payload
-from app.api_v1.auth.depends import check_payload
+from app.api_v1.auth.utils import get_payload
+
 from . import crud
 from .depends import get_unique_filename, check_same, check_has_last_file_after_parsing
 
@@ -16,8 +16,8 @@ import os
 router = APIRouter(prefix="/files", tags=["Files"])
 
 @router.post("/upload_file")
-async def upload_file(file: UploadFile = File(...), session: AsyncSession = Depends(db_helper.session_depends), access_token: str | None = Header(default=None, convert_underscores=False)):
-    payload = await check_payload(access_token=access_token)
+async def upload_file(file: UploadFile = File(...), session: AsyncSession = Depends(db_helper.session_depends), payload = Depends(get_payload)):
+    
     directory = settings.upload.path_for_upload
     unique_filename = get_unique_filename(directory, f"{payload.get('username')}_дляпарсинг.{file.filename.split('.')[-1]}")
     # unique_filename = get_unique_filename(directory, f"{payload.get("username")}_дляпарсинг.xlsx")
@@ -46,8 +46,8 @@ async def upload_file(file: UploadFile = File(...), session: AsyncSession = Depe
     }
 
 @router.post("/download_file")
-async def download_last_file(session: AsyncSession = Depends(db_helper.session_depends), access_token: str | None = Header(default=None, convert_underscores=False)):
-    payload = await check_payload(access_token=access_token)
+async def download_last_file(session: AsyncSession = Depends(db_helper.session_depends), payload = Depends(get_payload)):
+    
 
     last_file = await crud.get_last_file(session=session, user_id=payload.get("sub"))
     check_has_last_file_after_parsing(last_file)
@@ -56,8 +56,8 @@ async def download_last_file(session: AsyncSession = Depends(db_helper.session_d
     return FileResponse(path=file_location, filename=last_file.after_parsing_filename)
 
 @router.post("/download_file/before_parsing/{file_id}")
-async def download_file(file_id: int, session: AsyncSession = Depends(db_helper.session_depends), access_token: str | None = Header(default=None, convert_underscores=False)):
-    payload = await check_payload(access_token=access_token)
+async def download_file(file_id: int, session: AsyncSession = Depends(db_helper.session_depends), payload = Depends(get_payload)):
+    
 
     filename = await crud.get_files_by_id(session=session, user_id=payload.get("sub"), file_id=file_id)
     file_location = os.path.join(settings.upload.path_for_upload, filename.before_parsing_filename)
@@ -69,8 +69,8 @@ async def download_file(file_id: int, session: AsyncSession = Depends(db_helper.
     return FileResponse(path=file_location, filename=filename.before_parsing_filename)
 
 @router.post("/download_file/after_parsing/{file_id}")
-async def download_file(file_id: int, session: AsyncSession = Depends(db_helper.session_depends), access_token: str | None = Header(default=None, convert_underscores=False)):
-    payload = await check_payload(access_token=access_token)
+async def download_file(file_id: int, session: AsyncSession = Depends(db_helper.session_depends), payload = Depends(get_payload)):
+    
 
     filename = await crud.get_files_by_id(session=session, user_id=payload.get("sub"), file_id=file_id)
     check_has_last_file_after_parsing(filename)
@@ -83,8 +83,8 @@ async def download_file(file_id: int, session: AsyncSession = Depends(db_helper.
     return FileResponse(path=file_location, filename=filename.after_parsing_filename)
 
 @router.get("/all_files")
-async def get_files(session: AsyncSession = Depends(db_helper.session_depends), access_token: str | None = Header(default=None, convert_underscores=False)):
-    payload = await check_payload(access_token=access_token)
+async def get_files(session: AsyncSession = Depends(db_helper.session_depends), payload = Depends(get_payload)):
+    
 
     return await crud.get_files_by_user_id(session=session, user_id=payload.get("sub"))
 

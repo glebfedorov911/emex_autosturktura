@@ -1,7 +1,7 @@
 import jwt
 import bcrypt
 
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Header
 
 from jwt.exceptions import InvalidTokenError
 
@@ -50,7 +50,7 @@ def decode_jwt(
 
     return decoded
 
-async def get_payload(access_token: str | None = None):
+async def get_payload(access_token: str | None = Header(default=None, convert_underscores=True)):
     try:
         payload = decode_jwt(
             token=access_token

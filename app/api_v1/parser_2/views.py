@@ -197,7 +197,7 @@ async def start(
         "filter": filter,
         "excel_result": [],
         "status": "Парсер не запущен",
-        "count_proxies": len(proxies),
+        "count_proxies": len(set(proxies)),
         "ban_list": set(),
         "count_brands": 1,
         "filter_id": filter_id,

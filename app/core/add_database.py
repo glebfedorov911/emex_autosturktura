@@ -14,7 +14,7 @@ tables = ["files", "parsers", "proxys"]
 
 db_config = {
     'dbname': os.getenv("DBNAME"),
-    'user': os.getenv("USER"),
+    'user': "postgres",
     'password': os.getenv("PASSWORD"),
     'host': os.getenv("HOST"),
     'port': os.getenv("PORT"),      

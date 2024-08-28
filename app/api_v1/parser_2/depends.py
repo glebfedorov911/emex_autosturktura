@@ -3,6 +3,8 @@ from math import ceil
 import pandas as pd
 import urllib.parse as up
 
+from app.api_v1.auth.utils import get_payload
+
 
 def create(df_to_list):
     brands, nums = [], []

@@ -43,7 +43,7 @@ async def get(request: Request):
     return templates.TemplateResponse(request=request, name="test2.html")
 
 
-@router.websocket("/websocket_percent")
+@router.websocket("/websocket_percent/{access_token}")
 async def websocket_endpoint(
     websocket: WebSocket,
     access_token: str,

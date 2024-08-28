@@ -51,3 +51,11 @@ def quick_sort(arr: list, index: int):
         middle = [x for x in arr if x[index] == pivot]
         right = [x for x in arr if x[index] > pivot]
         return quick_sort(left, index) + middle + quick_sort(right, index)
+
+async def check_payload(access_token):
+    try:
+        payload = await get_payload(access_token=access_token)
+    except Exception as e:
+        raise e
+
+    return payload

@@ -46,12 +46,12 @@ async def get(request: Request):
 @router.websocket("/websocket_percent")
 async def websocket_endpoint(
     websocket: WebSocket,
-    payload = Depends(get_payload),
+    access_token: str,
     session: AsyncSession = Depends(db_helper.get_scoped_session),
 ):
     global user_data
 
-    
+    payload = await check_payload(access_token=access_token)
 
     files = f'{payload.get("username")}_дляпарсинг.xlsx'
     files = get_unique_filename(str(settings.upload.path_for_upload), files)
@@ -95,14 +95,15 @@ async def websocket_endpoint(
         await websocket.close()
 
 
-@router.websocket("/websocket_status")
+@router.websocket("/websocket_status/{access_token}")
 async def websocket_status_endpoint(
     websocket: WebSocket,
-    payload = Depends(get_payload),
+    access_token: str,
     session: AsyncSession = Depends(db_helper.get_scoped_session),
 ):
     global user_data
     
+    payload = await check_payload(access_token=access_token)
     
     await crud.unbanned_proxy(session=session, user_id=payload.get("sub"))
     await crud.delete_proxy_banned(session=session, user_id=payload.get("sub"))

@@ -82,6 +82,7 @@ async def set_banned_proxy(proxy_servers: list, session: AsyncSession):
 
         proxies._is_banned = True
         proxies.is_using = False
+        proxies.when_banned = datetime.now()
         session.add(proxies)
         await session.commit()
 

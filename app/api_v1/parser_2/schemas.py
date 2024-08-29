@@ -10,3 +10,4 @@ class ParserCreate(BaseModel):
     quantity_goods: str
     price_with_logo: str | None = None
     user_id: int
+    file_id: int

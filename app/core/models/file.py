@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from .user import User
     from .filter import Filter
     from .new_filter import NewFilter
+    from .parser import Parser
 
 
 class File(Base):
@@ -21,3 +22,4 @@ class File(Base):
     user = relationship("User", back_populates="files")
     new_filter_id: Mapped[list[int]] = mapped_column(ForeignKey("newfilters.id"), nullable=True)
     newfilters = relationship("NewFilter", back_populates="files")
+    parsers = relationship("Parser", back_populates="files")

@@ -163,7 +163,7 @@ async def websocket_status_endpoint(
                     index=False,
                 )
                 await crud.saving_to_table_data(
-                    user_id=payload.get("sub"), session=session, data=ud["excel_result"]
+                    user_id=payload.get("sub"), session=session, data=ud["excel_result"], filename=result_file_name
                 )
                 await crud.set_banned_proxy(
                     proxy_servers=ud["ban_list"], session=session

@@ -55,12 +55,15 @@ async def get_last_upload_files(user_id: int, session: AsyncSession):
 
     return files[-1]
 
-async def saving_to_table_data(user_id: int, session: AsyncSession, data: list):
+async def saving_to_table_data(user_id: int, session: AsyncSession, data: list, filename: str):
+    stmt = select(File.id).where(File.after_parsing_filename==filename)
+    result: Result = await session.execute(stmt)
+    file_id = result.scalar()
     for value in data:
         if len(value) == 7:
-            parser_in = ParserCreate(article=str(value[0]), number_of_goods=str(value[1]), logo=str(value[2]), delivery=str(value[3]), best_price=str(value[4]), quantity_goods=str(value[5]), price_with_logo=str(value[6]), user_id=user_id)
+            parser_in = ParserCreate(article=str(value[0]), number_of_goods=str(value[1]), logo=str(value[2]), delivery=str(value[3]), best_price=str(value[4]), quantity_goods=str(value[5]), price_with_logo=str(value[6]), user_id=user_id, file_id=file_id)
         else:
-            parser_in = ParserCreate(article=str(value[0]), number_of_goods=str(value[1]), logo=str(value[2]), delivery=str(value[3]), best_price=str(value[4]), quantity_goods=str(value[5]), price_with_logo="Цена не найдена", user_id=user_id)
+            parser_in = ParserCreate(article=str(value[0]), number_of_goods=str(value[1]), logo=str(value[2]), delivery=str(value[3]), best_price=str(value[4]), quantity_goods=str(value[5]), price_with_logo="Цена не найдена", user_id=user_id, file_id=file_id)
         parser = Parser(**parser_in.model_dump())
         session.add(parser)
         await session.commit()

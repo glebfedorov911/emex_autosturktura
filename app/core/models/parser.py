@@ -8,6 +8,7 @@ from .base import Base
 
 if TYPE_CHECKING:
     from .user import User
+    from .file import File
 
 
 class Parser(Base):
@@ -20,3 +21,5 @@ class Parser(Base):
     price_with_logo: Mapped[str] = mapped_column(nullable=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
     user = relationship("User", back_populates="parsers")
+    file_id: Mapped[int] = mapped_column(ForeignKey("files.id"), nullable=True)
+    files = relationship("File", back_populates="parsers")

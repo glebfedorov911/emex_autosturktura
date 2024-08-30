@@ -152,7 +152,7 @@ async def websocket_status_endpoint(
                 "PARSING_COMPLETED",
             ):
                 file_name_last = (await crud.get_last_upload_files(user_id=payload.get("sub"), session=session)).before_parsing_filename
-                result_file_name = f"{file_name_last.split(".")[0]}_после_парсинга_{random.randint(1, 10000000000000000)}.xlsx"
+                result_file_name = f"{file_name_last.split('.')[0]}_после_парсинга_{random.randint(1, 10000000000000000)}.xlsx"
                 df = pd.DataFrame(ud["excel_result"], columns=columns)
                 await crud.add_final_file_to_table(
                     user_id=payload.get("sub"),

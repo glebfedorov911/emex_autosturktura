@@ -14,6 +14,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from threading import Thread, Event
+from datetime import datetime
 
 from app.core.config import settings
 from app.core.models import db_helper
@@ -53,8 +54,8 @@ async def websocket_endpoint(
 
     payload = await check_payload(access_token=access_token)
 
-    files = f'{payload.get("username")}_дляпарсинг.xlsx'
-    files = get_unique_filename(str(settings.upload.path_for_upload), files)
+    # files = f'{payload.get("username")}_дляпарсинг.xlsx'
+    # files = get_unique_filename(str(settings.upload.path_for_upload), files)
     
     user_data[payload.get("sub")] = {
         "excel_result": [],
@@ -63,7 +64,7 @@ async def websocket_endpoint(
         "ban_list": set(),
         "count_brands": 1,
         "threads": threads.copy(),
-        "start_file": None,
+        # "start_file": None,
         "flag": False,
     }
 
@@ -74,10 +75,10 @@ async def websocket_endpoint(
             if ud["count_proxies"] == 0:
                 ud["count_proxies"] = 1
                 ud["status"] = "Закончились прокси"
-            if ud["start_file"] is None:
-                files = f'{payload.get("username")}_дляпарсинг.xlsx'
-                files = get_unique_filename(str(settings.upload.path_for_upload), files)
-                ud["start_file"] = files
+            # if ud["start_file"] is None:
+                # files = f'{payload.get("username")}_дляпарсинг.xlsx'
+                # files = get_unique_filename(str(settings.upload.path_for_upload), files)
+                # ud["start_file"] = files
 
             await websocket.send_json(
                 {
@@ -87,7 +88,7 @@ async def websocket_endpoint(
                     "Percent_banned_list": int(
                         len(ud["ban_list"]) / ud["count_proxies"] * 100
                     ),
-                    "Start_file": files,
+                    # "Start_file": files,
                 }
             )
             await asyncio.sleep(10)
@@ -150,7 +151,8 @@ async def websocket_status_endpoint(
                 "ALL_PROXIES_BANNED",
                 "PARSING_COMPLETED",
             ):
-                result_file_name = f"{payload.get('username')}_послепарсинга_{random.randint(1, 100000000000)}.xlsx"
+                file_name_last = (await crud.get_last_upload_files(user_id=payload.get("sub"), session=session)).before_parsing_filename
+                result_file_name = f"{file_name_last.split(".")[0]}_после_парсинга_{random.randint(1, 10000000000000000)}.xlsx"
                 df = pd.DataFrame(ud["excel_result"], columns=columns)
                 await crud.add_final_file_to_table(
                     user_id=payload.get("sub"),
@@ -203,7 +205,7 @@ async def start(
         "count_brands": 1,
         "filter_id": filter_id,
         "flag": False,
-        "start_file": files,
+        # "start_file": files,
     }
     if proxies == []:
         user_data[payload.get("sub")]["status"] = "Закончились прокси"

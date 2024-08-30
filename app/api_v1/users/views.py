@@ -43,7 +43,8 @@ async def auth_user(user_log: UserLogin, response: Response, access_token: str |
         "username": user.username,
         "description": user.description,
         "fullname": user.fullname,
-        "is_admin": user.is_admin
+        "is_admin": user.is_admin,
+        "is_parsing": user.is_parsing
     }
 
     token = encode_jwt(payload=payload)

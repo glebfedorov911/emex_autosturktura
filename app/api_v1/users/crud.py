@@ -51,11 +51,11 @@ async def validate_user(user_log: UserLogin, session: AsyncSession):
     return user
 
 async def show_all_users(session: AsyncSession):
-    stmt = select(User.id, User.username, User.fullname, User.description, User.is_admin)
+    stmt = select(User.id, User.username, User.fullname, User.description, User.is_admin, User.is_parsing)
     result: Result = await session.execute(stmt)
     users = result.fetchall()
 
-    return [UserOut(id=user[0], username=user[1], fullname=user[2], description=user[3], is_admin=user[4]) for user in users]
+    return [UserOut(id=user[0], username=user[1], fullname=user[2], description=user[3], is_admin=user[4], is_parsing=user[5]) for user in users]
 
 async def edit_user(user_id: int, upd_user: UserUpdate, session: AsyncSession):
     user = await get_user_by_id(user_id=user_id, session=session)

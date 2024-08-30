@@ -1,6 +1,6 @@
 from fastapi import HTTPException, status
 
-from app.core.models import Proxy, NewFilter, File, Parser
+from app.core.models import Proxy, NewFilter, File, Parser, User
 from .schemas import ParserCreate
 
 from datetime import datetime, timedelta
@@ -110,3 +110,16 @@ async def delete_proxy_banned(session: AsyncSession, user_id: int):
         proxy.is_using = False
         session.add(proxy)
         await session.commit()
+
+async def set_parsing(session: AsyncSession, user_id: int):
+    stmt = select(User).where(User.id==user_id)
+    result: Result = await session.execute(stmt)
+    user = result.scalar()
+
+    if user.is_parsing:
+        user.is_parsing = False
+    else:
+        user.is_parsing = True
+
+    session.add(user)
+    await session.commit()

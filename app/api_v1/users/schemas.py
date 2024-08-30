@@ -9,6 +9,7 @@ class UserBase(BaseModel):
 
 class UserOut(UserBase):
     id: int
+    is_parsing: bool
 
 class UserCreate(UserBase):
     password: str

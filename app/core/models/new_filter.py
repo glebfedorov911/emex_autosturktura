@@ -17,6 +17,6 @@ class NewFilter(Base):
     is_bigger: Mapped[bool | None] = mapped_column(default=None, nullable=True)
     date: Mapped[int | None] = mapped_column(default=None, nullable=True)
     logo: Mapped[str | None] = mapped_column(default=None, nullable=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)
     user = relationship("User", back_populates="newfilters")
     files = relationship("File", back_populates="newfilters")

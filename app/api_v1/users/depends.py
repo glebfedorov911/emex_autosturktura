@@ -5,6 +5,7 @@ from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.models import User 
+from app.api_v1.users.schemas import UserOut
 
 
 def exception_admin(payload):
@@ -27,3 +28,10 @@ async def get_user_by_id(user_id: int, session: AsyncSession):
     user = result.scalar()
 
     return user
+
+async def all_information(session: AsyncSession):
+    stmt = select(User.id, User.username, User.fullname, User.description, User.is_admin, User.is_parsing)
+    result: Result = await session.execute(stmt)
+    users = result.fetchall()
+
+    return [UserOut(id=user[0], username=user[1], fullname=user[2], description=user[3], is_admin=user[4], is_parsing=user[5]) for user in users]

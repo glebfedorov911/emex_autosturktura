@@ -103,7 +103,7 @@ async def main(brands, nums, user_id):
 
                 sorted_data_by_date = quick_sort(originals, 1)
                 # cut_data_by_date = sorted_data_by_date[:len(sorted_data_by_date)//2+1]
-                cut_data_by_date = sorted_data_by_date[-DEEP_FILTER:]
+                cut_data_by_date = sorted_data_by_date[:DEEP_FILTER]
 
                 # sorted_data_by_availability = quick_sort(cut_data_by_date, 3)
                 # cut_data_by_availability = sorted_data_by_availability[-DEEP_FILTER:]

@@ -3,6 +3,12 @@ from math import ceil
 import pandas as pd
 import urllib.parse as up
 
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.engine import Result
+from sqlalchemy import select
+
+from app.core.models import File
+
 from app.api_v1.auth.utils import get_payload
 
 
@@ -61,3 +67,9 @@ async def check_payload(access_token):
         raise e
 
     return payload
+
+async def check_after_parsing_file(session: AsyncSession, user_id: int):
+    stmt = select(File).where(File.user_id == user_id)
+    result: Result = await session.execute(stmt)
+    # print(result.scalars().all()[-1].after_parsing_filename)
+    return result.scalars().all()[-1].after_parsing_filename is None

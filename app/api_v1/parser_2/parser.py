@@ -53,9 +53,9 @@ async def main(brands, nums, user_id):
                 page = await browser.new_page()
 
                 try:
-                    await page.goto(url, timeout=2222)
+                    await page.goto(url, timeout=1555)
                 except:
-                    await page.goto(url, timeout=2222)
+                    await page.goto(url, timeout=1555)
 
                 pre = await (await page.query_selector("pre")).text_content()
                 response = dict(json.loads(pre))
@@ -102,19 +102,20 @@ async def main(brands, nums, user_id):
                     originals = [data for data in originals if data]
 
                 sorted_data_by_date = quick_sort(originals, 1)
-                sorted_by_price = quick_sort(originals, 2)[:20]
-                cut_data_by_date = sorted_data_by_date[:len(sorted_data_by_date)//2+1]
-                del originals
+                # cut_data_by_date = sorted_data_by_date[:len(sorted_data_by_date)//2+1]
+                cut_data_by_date = sorted_data_by_date[:DEEP_FILTER]
 
-                sorted_data_by_availability = quick_sort(cut_data_by_date, 3)
-                cut_data_by_availability = sorted_data_by_availability[-DEEP_FILTER:]
+                # sorted_data_by_availability = quick_sort(cut_data_by_date, 3)
+                # cut_data_by_availability = sorted_data_by_availability[-DEEP_FILTER:]
 
-                best_data = min(cut_data_by_availability, key=lambda x: x[2])
+                # best_data = min(cut_data_by_availability, key=lambda x: x[2])
+                sorted_by_price = quick_sort(cut_data_by_date, 2)
+                best_data = sorted_by_price[0]
 
                 try:
-                    await page.goto(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=2222)
+                    await page.goto(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=1555)
                 except:
-                    await page.goto(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=2222)
+                    await page.goto(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=1555)
 
                 pre_with_logo = await (await page.query_selector("pre")).text_content()
                 response_with_logo = dict(json.loads(pre_with_logo))
@@ -125,9 +126,10 @@ async def main(brands, nums, user_id):
                 
                 if LOGO:
                     best_data = None
+                    sorted_by_price = quick_sort(originals, 2)[:20]
                     for data in sorted_by_price:
                         try:
-                            await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=2222)
+                            await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=1555)
                         except:
                             sorted_by_price.append(data)
                             continue
@@ -145,12 +147,8 @@ async def main(brands, nums, user_id):
                         result.append(best_data[2])
                     else:
                         result.append("Нет такого лого среди оригиналов")
-                # if result not in user_data[user_id]["excel_result"]:
                 user_data[user_id]["excel_result"].append(result)
-                del result
-                await browser.close()
-            except Exception as e:
-                print(e)
+            except:
                 brands.append(brand)
                 nums.append(num)
                 if proxy != ["http://test:8888", "user1", "pass1"]:
@@ -163,7 +161,6 @@ async def main(brands, nums, user_id):
                         proxy = [proxy[0], proxy[1], proxy[2]]
                 else:
                     proxy = ["http://test:8888", "user1", "pass1"]
-                await browser.close()
     user_data[user_id]["proxies"].append(proxy)
         
 def run(brands, nums, user_id):

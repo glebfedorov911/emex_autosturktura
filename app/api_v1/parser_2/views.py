@@ -144,6 +144,9 @@ async def websocket_status_endpoint(
                 if ud["flag"]:
                     ud["status"] = "PARSER_NOT_STARTED_DATA_SAVED"
                     ud["excel_result"] = []
+                if await check_after_parsing_file(session=session, user_id=payload.get("sub")) and ud["flag"]:
+                    ud["flag"] = False
+                    ud["status"] = "Парсер не запущен"
             else:
                 ud["status"] = "PARSER_RUNNING"
             
@@ -171,6 +174,7 @@ async def websocket_status_endpoint(
                 await crud.set_banned_proxy(
                     proxy_servers=ud["ban_list"], session=session
                 )
+
             await asyncio.sleep(10)
     except WebSocketDisconnect:
         await websocket.close()
@@ -200,7 +204,7 @@ async def start(
         "proxies": proxies,
         "filter": filter,
         "excel_result": [],
-        "status": "Парсер не запущен",
+        "status": "PARSER_RUNNING",
         "count_proxies": len(set(proxies)),
         "ban_list": set(),
         "count_brands": 1,

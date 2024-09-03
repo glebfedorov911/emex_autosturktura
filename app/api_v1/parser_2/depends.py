@@ -14,9 +14,9 @@ from app.api_v1.auth.utils import get_payload
 
 def create(df_to_list):
     brands, nums = [], []
-    for i in df_to_list:
-        brands.append((df_to_list.index(i), i[2]))
-        nums.append((df_to_list.index(i), i[3]))
+    for i in range(len(df_to_list)):
+        brands.append((i, df_to_list[i][2]))
+        nums.append((i, df_to_list[i][3]))
 
     return brands, nums
 

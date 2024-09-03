@@ -66,7 +66,7 @@ async def edit_user(user_id: int, upd_user: UserUpdate, session: AsyncSession):
         update_user["password"] = hash_password(update_user["password"])
 
     for key, value in update_user.items():
-        if value == "" or not value:
+        if value == "" or value is None:
             continue
         setattr(user, key, value)
 

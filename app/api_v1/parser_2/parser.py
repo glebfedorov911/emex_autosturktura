@@ -102,12 +102,15 @@ async def main(brands, nums, user_id):
                     originals = [data for data in originals if data]
 
                 sorted_data_by_date = quick_sort(originals, 1)
-                cut_data_by_date = sorted_data_by_date[:len(sorted_data_by_date)//2+1]
+                # cut_data_by_date = sorted_data_by_date[:len(sorted_data_by_date)//2+1]
+                cut_data_by_date = sorted_data_by_date[:DEEP_FILTER]
 
-                sorted_data_by_availability = quick_sort(cut_data_by_date, 3)
-                cut_data_by_availability = sorted_data_by_availability[-DEEP_FILTER:]
+                # sorted_data_by_availability = quick_sort(cut_data_by_date, 3)
+                # cut_data_by_availability = sorted_data_by_availability[-DEEP_FILTER:]
 
-                best_data = min(cut_data_by_availability, key=lambda x: x[2])
+                # best_data = min(cut_data_by_availability, key=lambda x: x[2])
+                sorted_by_price = quick_sort(cut_data_by_date, 2)
+                best_data = sorted_by_price[0]
 
                 try:
                     await page.goto(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=1555)

@@ -77,9 +77,9 @@ async def add_final_file_to_table(user_id: int, session: AsyncSession, result_na
     file.new_filter_id = filter_id_global
     await session.commit()
 
-async def set_banned_proxy(proxy_servers: list, session: AsyncSession):
+async def set_banned_proxy(proxy_servers: list, session: AsyncSession, user_id: int):
     for proxy in proxy_servers:
-        stmt = select(Proxy).where(Proxy.ip_with_port == proxy.split("@")[0])
+        stmt = select(Proxy).where(Proxy.ip_with_port == proxy.split("@")[0]).where(Proxy.user_id==user_id)
         result: Result = await session.execute(stmt)
         proxies = result.scalar()
 
@@ -93,7 +93,6 @@ async def unbanned_proxy(session: AsyncSession, user_id: int):
     stmt = select(Proxy).where(Proxy.user_id==user_id).where(Proxy._is_banned==True)
     result: Result = await session.execute(stmt)
     proxies = result.scalars().all()
-
     for proxy in proxies:
         if (datetime.now() - proxy.when_banned).total_seconds() / 60 >= 1440:
             proxy._is_banned = False

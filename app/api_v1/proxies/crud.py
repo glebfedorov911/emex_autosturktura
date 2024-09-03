@@ -30,7 +30,8 @@ async def buy_proxy(count: int = 1, duration: int = 30):
             "count": count,
             "duration": duration,
             "type": 100,
-            "country": "ru"
+            "country": "ru",
+            "speed": 2
         }
     }
 

@@ -63,7 +63,8 @@ async def add_proxy_to_database(user_id: int, count: int, session: AsyncSession)
         session.add(new_proxy)
         await session.commit()
 
-    return await get_proxies_group(user_id=user_id, session=session)
+    # return await get_proxies_group(user_id=user_id, session=session)
+    return await get_proxies(user_id=user_id, session=session)
 
 
 async def get_list_proxy_group_date(user_id, session: AsyncSession):
@@ -119,5 +120,6 @@ async def prolong_proxy(date: str, count: int, duration: int, user_id: int, sess
         if k == len(ids.split(", ")):
             break
 
-    return await get_proxies_group(user_id=user_id, session=session)
+    # return await get_proxies_group(user_id=user_id, session=session)
+    return await get_proxies(user_id=user_id, session=session)
         

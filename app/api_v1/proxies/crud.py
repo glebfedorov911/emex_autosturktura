@@ -30,8 +30,7 @@ async def buy_proxy(count: int = 1, duration: int = 30):
             "count": count,
             "duration": duration,
             "type": 100,
-            "country": "ru",
-            "speed": 2
+            "country": "ru"
         }
     }
 
@@ -64,7 +63,8 @@ async def add_proxy_to_database(user_id: int, count: int, session: AsyncSession)
         session.add(new_proxy)
         await session.commit()
 
-    return await get_proxies_group(user_id=user_id, session=session)
+    # return await get_proxies_group(user_id=user_id, session=session)
+    return await get_proxies(user_id=user_id, session=session)
 
 
 async def get_list_proxy_group_date(user_id, session: AsyncSession):
@@ -106,7 +106,7 @@ async def prolong_proxy(date: str, count: int, duration: int, user_id: int, sess
 
     response = dict(json.loads(requests.post(url, json=data).text))
 
-    not_enough_money(response=response)
+    # not_enough_money(response=response)
     proxies = await get_proxies(session=session, date=date, user_id=user_id)
     k = 0
 
@@ -120,5 +120,6 @@ async def prolong_proxy(date: str, count: int, duration: int, user_id: int, sess
         if k == len(ids.split(", ")):
             break
 
-    return await get_proxies_group(user_id=user_id, session=session)
+    # return await get_proxies_group(user_id=user_id, session=session)
+    return await get_proxies(user_id=user_id, session=session)
         

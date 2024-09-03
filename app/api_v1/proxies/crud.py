@@ -22,7 +22,7 @@ async def check_balance():
         "balance": dict(json.loads(requests.get(url).text))["balance"]
     }
     
-async def buy_proxy(count: int = 1, speed: int = 2, duration: int = 30):
+async def buy_proxy(count: int = 1, duration: int = 30):
     url = settings.proxy.URL + f"/dev-api/buy-proxy/{settings.proxy.API_KEY}"
 
     data = {
@@ -30,8 +30,7 @@ async def buy_proxy(count: int = 1, speed: int = 2, duration: int = 30):
             "count": count,
             "duration": duration,
             "type": 100,
-            "country": "ru",
-            "speed": speed
+            "country": "ru"
         }
     }
 

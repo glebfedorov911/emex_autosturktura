@@ -26,7 +26,7 @@ async def get_balance(access_token: str | None = Header(default=None, convert_un
     return await crud.check_balance()
 
 @router.get("/buy_proxy")
-async def buy_proxy(payload = Depends(get_payload), count: int = 1, duration: int = 30, speed: int = 2, session: AsyncSession = Depends(db_helper.session_depends)):
+async def buy_proxy(payload = Depends(get_payload), count: int = 1, duration: int = 30, session: AsyncSession = Depends(db_helper.session_depends)):
     '''
     count - количество прокси
     duration - срок

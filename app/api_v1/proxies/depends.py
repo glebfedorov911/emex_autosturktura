@@ -28,8 +28,11 @@ def check_correct_date(date):
     
     return date
 
-async def get_proxies(session: AsyncSession, date, user_id):
-    stmt = select(Proxy).where(Proxy.expired_at == date).where(Proxy.user_id == user_id)
+async def get_proxies(session: AsyncSession, user_id: int, date: str | datetime.datetime | None = None):
+    if date:
+        stmt = select(Proxy).where(Proxy.expired_at == date).where(Proxy.user_id == user_id)
+    else:
+        stmt = select(Proxy).where(Proxy.user_id == user_id)
     results: Result = await session.execute(stmt)
     proxies = results.scalars().all() 
 

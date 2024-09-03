@@ -59,7 +59,7 @@ async def edit_user(user_id: int, upd_user: UserUpdate, session: AsyncSession):
     user = await get_user_by_id(user_id=user_id, session=session)
 
     unknown_user(user)
-    await check_username(session=session, username=upd_user.username)
+    await check_username(session=session, username=upd_user.username, user_id=user_id)
     
     update_user = upd_user.dict(exclude_unset=True)
     if update_user.get("password", None):

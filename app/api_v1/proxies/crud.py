@@ -106,7 +106,7 @@ async def prolong_proxy(date: str, count: int, duration: int, user_id: int, sess
 
     response = dict(json.loads(requests.post(url, json=data).text))
 
-    not_enough_money(response=response)
+    # not_enough_money(response=response)
     proxies = await get_proxies(session=session, date=date, user_id=user_id)
     k = 0
 

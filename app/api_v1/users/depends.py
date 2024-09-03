@@ -35,3 +35,12 @@ async def all_information(session: AsyncSession):
     users = result.fetchall()
 
     return [UserOut(id=user[0], username=user[1], fullname=user[2], description=user[3], is_admin=user[4], is_parsing=user[5]) for user in users]
+
+async def check_username(session: AsyncSession, username: str):
+    stmt = select(User.username).where(User.username == username)
+    result: Result = await session.execute(stmt)
+    if not result.scalar() is None:
+        raise HTTPException(
+            status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
+            detail="Данное имя уже используется"
+        )

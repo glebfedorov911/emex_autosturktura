@@ -11,7 +11,7 @@ from jwt.exceptions import InvalidTokenError
 from .schemas import UserCreate, UserUpdate, UserLogin, UserOut
 from app.core.models import User        
 from app.api_v1.auth.utils import hash_password, validate_password
-from .depends import unknown_user, get_user_by_id, all_information
+from .depends import unknown_user, get_user_by_id, all_information, check_username
 from app.api_v1.auth.utils import decode_jwt
 
 
@@ -59,7 +59,8 @@ async def edit_user(user_id: int, upd_user: UserUpdate, session: AsyncSession):
     user = await get_user_by_id(user_id=user_id, session=session)
 
     unknown_user(user)
-
+    await check_username(session=session, username=upd_user.username)
+    
     update_user = upd_user.dict(exclude_unset=True)
     if update_user.get("password", None):
         update_user["password"] = hash_password(update_user["password"])

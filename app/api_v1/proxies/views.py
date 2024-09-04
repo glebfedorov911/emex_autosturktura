@@ -45,7 +45,7 @@ async def get_list_proxy_group_date(payload = Depends(get_payload), session: Asy
     return await crud.get_list_proxy_group_date(session=session, user_id=payload["sub"])
 
 @router.get("/get_proxy_by_date/") #2024-09-23 - date example
-async def get_proxy_by_date(date: str = "1970-01-01", session: AsyncSession = Depends(db_helper.session_depends), payload = Depends(get_payload)):
+async def get_proxy_by_date(date: str = "1970-01-01T00:00:00", session: AsyncSession = Depends(db_helper.session_depends), payload = Depends(get_payload)):
     '''
     date - дата окончания прокси
     '''
@@ -54,7 +54,7 @@ async def get_proxy_by_date(date: str = "1970-01-01", session: AsyncSession = De
     return await crud.get_proxy_by_date(date=date, session=session, user_id=payload["sub"])
 
 @router.get("/prolong_proxy")
-async def prolong_proxy(date: str = "1970-01-01", count: int = 1000, duration: int = 30, payload = Depends(get_payload), session: AsyncSession = Depends(db_helper.session_depends)):
+async def prolong_proxy(date: str = "1970-01-01T00:00:00", count: int = 1000, duration: int = 30, payload = Depends(get_payload), session: AsyncSession = Depends(db_helper.session_depends)):
     '''
     date - дата окончания прокси
     count - количество прокси которые будет продлено
@@ -66,5 +66,5 @@ async def prolong_proxy(date: str = "1970-01-01", count: int = 1000, duration: i
 
 
 @router.delete("/delete_proxy_group")
-async def delete_proxy(date: str = "1970-01-01", payload = Depends(get_payload), session: AsyncSession = Depends(db_helper.session_depends)):
+async def delete_proxy(date: str = "1970-01-01T00:00:00", payload = Depends(get_payload), session: AsyncSession = Depends(db_helper.session_depends)):
     return await crud.delete_proxy(date=date, user_id=payload.get("sub"), session=session)

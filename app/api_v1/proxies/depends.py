@@ -19,7 +19,7 @@ def not_enough_money(response):
 
 def check_correct_date(date):
     try:
-        date = datetime.datetime.strptime(date, '%Y-%m-%d')
+        date = datetime.datetime.strptime(date, '%Y-%m-%dT%H:%M:%S')
     except:
         raise HTTPException(
             status_code=status.HTTP_405_METHOD_NOT_ALLOWED,

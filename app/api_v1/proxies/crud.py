@@ -123,3 +123,13 @@ async def prolong_proxy(date: str, count: int, duration: int, user_id: int, sess
     return await get_proxies_group(user_id=user_id, session=session)
     # return await get_proxies(user_id=user_id, session=session)
         
+async def delete_proxy(date: str, user_id: int, session: AsyncSession):
+    date = check_correct_date(date)
+    stmt = select(Proxy).where(Proxy.expired_at==date).where(Proxy.user_id==user_id)
+    result: Result = await session.execute(stmt)
+    proxies = result.scalars().all()
+    for proxy in proxies:
+        await session.delete(proxy)
+        await session.commit()
+    
+    return await get_proxies_group(user_id=user_id, session=session)

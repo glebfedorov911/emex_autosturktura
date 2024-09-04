@@ -65,3 +65,6 @@ async def prolong_proxy(date: str = "1970-01-01", count: int = 1000, duration: i
     return await crud.prolong_proxy(date=date, count=count, duration=duration, user_id=payload.get("sub"), session=session)
 
 
+@router.delete("/delete_proxy_group")
+async def delete_proxy(date: str = "1970-01-01", payload = Depends(get_payload), session: AsyncSession = Depends(db_helper.session_depends)):
+    return await crud.delete_proxy(date=date, user_id=payload.get("sub"), session=session)

@@ -36,7 +36,7 @@ async def buy_proxy(count: int = 1, duration: int = 30):
 
     response = dict(json.loads(requests.post(url, json=data).text))
     
-    not_enough_money(response=response)
+    # not_enough_money(response=response)
 
 async def add_proxy_to_database(user_id: int, count: int, session: AsyncSession):
     url = settings.proxy.URL + f"/dev-api/list/{settings.proxy.API_KEY}"
@@ -56,7 +56,7 @@ async def add_proxy_to_database(user_id: int, count: int, session: AsyncSession)
 
     for proxy in proxies:
         ip_with_port = "http://" + proxy["ip"] + ":" + proxy["http_port"]
-        expired_at = datetime.datetime.strptime(proxy["expired_at"].split(" ")[0], '%Y-%m-%d').date()
+        expired_at = datetime.datetime.strptime(proxy["expired_at"], '%Y-%m-%d %H:%M:%S')
         proxy_add = ProxySchemas(id_proxy=str(proxy["id"]), login=proxy["login"], password=proxy["password"], ip_with_port=ip_with_port, expired_at=expired_at, user_id=user_id)
         
         new_proxy = Proxy(**proxy_add.model_dump())
@@ -106,7 +106,7 @@ async def prolong_proxy(date: str, count: int, duration: int, user_id: int, sess
 
     response = dict(json.loads(requests.post(url, json=data).text))
 
-    not_enough_money(response=response)
+    # not_enough_money(response=response)
     proxies = await get_proxies(session=session, date=date, user_id=user_id)
     k = 0
 
@@ -123,3 +123,13 @@ async def prolong_proxy(date: str, count: int, duration: int, user_id: int, sess
     return await get_proxies_group(user_id=user_id, session=session)
     # return await get_proxies(user_id=user_id, session=session)
         
+async def delete_proxy(date: str, user_id: int, session: AsyncSession):
+    date = check_correct_date(date)
+    stmt = select(Proxy).where(Proxy.expired_at==date).where(Proxy.user_id==user_id)
+    result: Result = await session.execute(stmt)
+    proxies = result.scalars().all()
+    for proxy in proxies:
+        await session.delete(proxy)
+        await session.commit()
+    
+    return await get_proxies_group(user_id=user_id, session=session)

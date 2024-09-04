@@ -91,7 +91,7 @@ async def websocket_endpoint(
                     # "Start_file": files,
                 }
             )
-            await asyncio.sleep(10)
+            await asyncio.sleep(3)
     except WebSocketDisconnect:
         await websocket.close()
 
@@ -176,7 +176,7 @@ async def websocket_status_endpoint(
                     proxy_servers=ud["ban_list"], session=session, user_id=payload.get("sub")
                 )
 
-            await asyncio.sleep(10)
+            await asyncio.sleep(3)
     except WebSocketDisconnect:
         await websocket.close()
 

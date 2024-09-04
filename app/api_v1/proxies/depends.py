@@ -43,3 +43,10 @@ async def get_proxies_group(session: AsyncSession, user_id):
     results: Result = await session.execute(stmt)
          
     return [{"expired_at": result[0], "count": result[1]} for result in results.all()]
+
+async def get_expired_at_proxies(session: AsyncSession, user_id: int):
+    stmt = select(Proxy.expired_at).where(Proxy.user_id == user_id)
+    results: Result = await session.execute(stmt)
+    proxies = results.scalars().all() 
+
+    return proxies

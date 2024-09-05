@@ -18,11 +18,11 @@ class ParserCreate(BaseModel):
     quantity: str
     price: str
     batch: str
-    NDS: str
-    bestPrice: str
+    nds: str
+    best_price: str
     logo: str
-    deliveryTime: str
-    newPrice: str | None = None
+    delivery_time: str
+    new_price: str | None = None
     quantity1: str
     user_id: int
     file_id: int 

@@ -13,10 +13,14 @@ from .depends import filter_by_id, unknown_filter, all_filters
 async def create_filter(session: AsyncSession, filter_in: FilterCreate, user_id: int):
     filter = NewFilter(**filter_in.model_dump())
     filter.user_id = user_id
+    if filter.logo == "":
+        filter.logo = None
+    if filter.is_bigger == "":
+        filter.is_bigger = None 
     session.add(filter)
     await session.commit()
 
-    return filter
+    return await all_filters(user_id=user_id, session=session)
 
 async def get_filter(session: AsyncSession, user_id: int):
     filters = await all_filters(user_id=user_id, session=session)
@@ -42,7 +46,7 @@ async def edit_filter(session: AsyncSession, upd_filter: FilterUpdate, user_id: 
     session.add(_filter)
     await session.commit()
 
-    return _filter
+    return await all_filters(user_id=user_id, session=session)
 
 async def delete_filter(session: AsyncSession, user_id: int, filter_id: int):
     _filter = await filter_by_id(session=session, user_id=user_id, filter_id=filter_id)

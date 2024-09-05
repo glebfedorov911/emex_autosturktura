@@ -35,9 +35,10 @@ def zero_files(files):
         )
 
 def check_same(file):
-    RIGHT_DATA = list(pd.read_excel("app/upload_file/shablon.xlsx"))
-
-    df = pd.read_excel(file)
+    RIGHT_DATA = [i for i in pd.read_excel("app/upload_file/shablon.xlsx").values.tolist() if "Артикул" in i][0]
+    RIGHT_DATA = [i for i in RIGHT_DATA if str(i) != "nan"]
+    df = [i for i in pd.read_excel(file).values.tolist() if "Артикул" in i][0]
+    df = [i for i in df if str(i) != "nan"]
 
     return list(df) == RIGHT_DATA 
 

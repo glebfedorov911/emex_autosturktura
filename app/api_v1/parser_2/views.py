@@ -230,12 +230,10 @@ async def start(
 
         df = df.apply(lambda col: col.astype(object))
         df_to_list = df.values.tolist()
-        brands, nums = create(df_to_list)
+        brands= create(df_to_list)
         user_data[user_id]["count_brands"] = len(brands)
 
-        brands, nums = split_file_for_thr(count_of_threadings, brands), split_file_for_thr(
-            count_of_threadings, nums
-        )
+        brands = split_file_for_thr(count_of_threadings, brands)
         user_data[user_id]["threads"] = user_data[user_id]["threads"][: len(brands)]
         for index in range(len(brands)):
             if (
@@ -244,7 +242,7 @@ async def start(
             ):
                 user_data[user_id]["events"][index].clear()
                 user_data[user_id]["threads"][index] = Thread(
-                    target=run, args=(brands[index], nums[index], user_id)
+                    target=run, args=(brands[index], user_id)
                 )
                 user_data[user_id]["threads"][index].start()
                 messages.append(f"поток {index+1} запущен")

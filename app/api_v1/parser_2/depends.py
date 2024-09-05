@@ -13,12 +13,13 @@ from app.api_v1.auth.utils import get_payload
 
 
 def create(df_to_list):
-    brands, nums = [], []
+    brands = []
     for i in range(len(df_to_list)):
-        brands.append((i, df_to_list[i][2]))
-        nums.append((i, df_to_list[i][3]))
-
-    return brands, nums
+        df_to_list[i] = [j for j in df_to_list[i] if str(j) != "nan"]
+        if "нет" not in df_to_list[i] and "да" not in df_to_list[i]:
+            continue
+        brands.append(tuple([*df_to_list[i]]))
+    return brands
 
 def split_file_for_thr(num: int, url: list) -> list[list]:
     '''

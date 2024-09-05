@@ -64,7 +64,7 @@ async def main(brands, user_id):
                     if "originals" in response["searchResult"]:
                         originals += [[goods["offerKey"], int(str(goods["delivery"]["value"]).replace("Завтра", "1")), goods["displayPrice"]["value"], goods["data"]["maxQuantity"]["value"]] for orig in response["searchResult"]["originals"] for goods in orig["offers"]]
                     else:
-                        result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], "Пусто", "Пусто", "Пусто"]
+                        result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], "Пусто", "Пусто", "Пусто", "Товар не подходит под фильтр/Товара нет в наличие"]
                         if LOGO:
                             result.append("Товара нет в наличие")
                         # continue
@@ -81,7 +81,7 @@ async def main(brands, user_id):
                         else:
                             originals += [[goods["offerKey"], int(str(goods["delivery"]["value"]).replace("Завтра", "1")), goods["displayPrice"]["value"], goods["data"]["maxQuantity"]["value"]] if int(str(goods["delivery"]["value"]).replace("Завтра", "1")) <= DATE else False for orig in response["searchResult"]["originals"] for goods in orig["offers"]]
                     else:
-                        result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], "Пусто", "Пусто", "Пусто"]
+                        result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], "Пусто", "Пусто", "Пусто", "Товар не подходит под фильтр/Товара нет в наличие"]
                         if LOGO:
                             result.append("Товара нет в наличие")
                         # continue

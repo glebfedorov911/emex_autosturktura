@@ -91,7 +91,7 @@ async def websocket_endpoint(
                     # "Start_file": files,
                 }
             )
-            await asyncio.sleep(10)
+            await asyncio.sleep(3)
     except WebSocketDisconnect:
         await websocket.close()
 
@@ -157,6 +157,7 @@ async def websocket_status_endpoint(
             ):
                 file_name_last = (await crud.get_last_upload_files(user_id=payload.get("sub"), session=session)).before_parsing_filename
                 result_file_name = f"{file_name_last.split('.')[0]}_после_парсинга_{random.randint(1, 10000000000000000)}.xlsx"
+
                 df = pd.DataFrame(ud["excel_result"], columns=columns)
                 await crud.add_final_file_to_table(
                     user_id=payload.get("sub"),
@@ -176,7 +177,7 @@ async def websocket_status_endpoint(
                     proxy_servers=ud["ban_list"], session=session, user_id=payload.get("sub")
                 )
 
-            await asyncio.sleep(10)
+            await asyncio.sleep(3)
     except WebSocketDisconnect:
         await websocket.close()
 
@@ -229,12 +230,10 @@ async def start(
 
         df = df.apply(lambda col: col.astype(object))
         df_to_list = df.values.tolist()
-        brands, nums = create(df_to_list)
+        brands= create(df_to_list)
         user_data[user_id]["count_brands"] = len(brands)
 
-        brands, nums = split_file_for_thr(count_of_threadings, brands), split_file_for_thr(
-            count_of_threadings, nums
-        )
+        brands = split_file_for_thr(count_of_threadings, brands)
         user_data[user_id]["threads"] = user_data[user_id]["threads"][: len(brands)]
         for index in range(len(brands)):
             if (
@@ -243,7 +242,7 @@ async def start(
             ):
                 user_data[user_id]["events"][index].clear()
                 user_data[user_id]["threads"][index] = Thread(
-                    target=run, args=(brands[index], nums[index], user_id)
+                    target=run, args=(brands[index], user_id)
                 )
                 user_data[user_id]["threads"][index].start()
                 messages.append(f"поток {index+1} запущен")

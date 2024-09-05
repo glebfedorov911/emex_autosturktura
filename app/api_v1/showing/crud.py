@@ -10,4 +10,7 @@ async def show_data(session: AsyncSession, user_id: int, skip: int, limit: int, 
     result: Result = await session.execute(stmt)
     data = result.scalars().all()
 
-    return data
+    return {
+        "total": len(data),
+        "rows": data
+    }

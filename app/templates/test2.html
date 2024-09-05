@@ -11,7 +11,7 @@
         <button class="start">Старт</button>
         <button class="stop">Стоп</button>
         <script>
-            let filter_id = 1
+            let filter_id = 12
             let ws = new WebSocket("ws://127.0.0.1:8000/v1/new_parser/websocket_percent/eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsInVzZXJuYW1lIjoiYWRtaW4iLCJkZXNjcmlwdGlvbiI6ImFkbWluX2Rlc2NyaXB0aW9uIiwiZnVsbG5hbWUiOiJhZG1pbl9mdWxsbmFtZSIsImlzX2FkbWluIjp0cnVlLCJpc19wYXJzaW5nIjpmYWxzZX0.VyV_Ddzsg1-dWb89U59oYnDbFmQqhtN4AOBJjS-rz6_qyLNt2o-MqBCBUdUttgUAbz55AR4d-NPw2LLvjBD7A2Ugr6anf31pDbSrGzB91zYt8lO7kNcMs8wpkL8kPQRFICyYGjJ5LZKBjAKDnV6rxdMeSOO1P_Kj147mXIkqY-6ZXQZI9sxBtvlKxbLx-jSrnGA0Yc2_UO6TeVgZWmb6-Afaa_2C3inAJ1h7566mHu1pGilRAnGfDmnj1_6Ol0GDrBuMCim5RGRww4yiUXdSLHra0nzxE0sS50GRp70Wf1GVNxfmouEeyP5etl6O-z12oG7xAynVz6-xqj2ScM-MJw") 
             ws.onmessage = function(event) {
                 let data = document.querySelector(".data")

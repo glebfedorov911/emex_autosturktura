@@ -30,7 +30,7 @@ async def main(brands, nums, user_id):
 
     if LOGO and "Цена с лого" not in columns:
         columns.append("Цена с лого")
-    
+
     if user_data[user_id]["proxies"] != []:
         proxy = user_data[user_id]["proxies"].pop(0)
         proxy = [proxy.ip_with_port, proxy.login, proxy.password]
@@ -60,7 +60,6 @@ async def main(brands, nums, user_id):
                 pre = await (await page.query_selector("pre")).text_content()
                 response = dict(json.loads(pre))
                 originals = []
-
                 if IS_BIGGER is None:
                     if "originals" in response["searchResult"]:
                         originals += [[goods["offerKey"], int(str(goods["delivery"]["value"]).replace("Завтра", "1")), goods["displayPrice"]["value"], goods["data"]["maxQuantity"]["value"]] for orig in response["searchResult"]["originals"] for goods in orig["offers"]]
@@ -68,7 +67,7 @@ async def main(brands, nums, user_id):
                         result = [brand[1], num[1], "Пусто", "Пусто", "Пусто", "Пусто"]
                         if LOGO:
                             result.append("Товара нет в наличие")
-                        continue
+                        # continue
 
                     if "replacements" in response["searchResult"]:
                         originals += [[goods["offerKey"], int(str(goods["delivery"]["value"]).replace("Завтра", "1")), goods["displayPrice"]["value"], goods["data"]["maxQuantity"]["value"]] for repl in response["searchResult"]["replacements"] for goods in repl["offers"]]
@@ -85,7 +84,7 @@ async def main(brands, nums, user_id):
                         result = [brand[1], num[1], "Пусто", "Пусто", "Пусто", "Пусто"]
                         if LOGO:
                             result.append("Товара нет в наличие")
-                        continue
+                        # continue
 
                     if "replacements" in response["searchResult"]:
                         if IS_BIGGER:
@@ -101,54 +100,61 @@ async def main(brands, nums, user_id):
                     
                     originals = [data for data in originals if data]
 
-                sorted_data_by_date = quick_sort(originals, 1)
-                # cut_data_by_date = sorted_data_by_date[:len(sorted_data_by_date)//2+1]
-                cut_data_by_date = sorted_data_by_date[:DEEP_FILTER]
+                if originals == []:
+                    result = [brand[1], num[1], "Пусто", "Пусто", "Пусто", "Товара нет в наличие/Либо не подходит под фильтры"]
+                    if LOGO:
+                        result.append("Пусто")
+                    user_data[user_id]["excel_result"].append(result)
+                else:
 
-                # sorted_data_by_availability = quick_sort(cut_data_by_date, 3)
-                # cut_data_by_availability = sorted_data_by_availability[-DEEP_FILTER:]
+                    sorted_data_by_date = quick_sort(originals, 1)
+                    # cut_data_by_date = sorted_data_by_date[:len(sorted_data_by_date)//2+1]
+                    cut_data_by_date = sorted_data_by_date[:DEEP_FILTER]
 
-                # best_data = min(cut_data_by_availability, key=lambda x: x[2])
-                sorted_by_price = quick_sort(cut_data_by_date, 2)
-                best_data = sorted_by_price[0]
+                    # sorted_data_by_availability = quick_sort(cut_data_by_date, 3)
+                    # cut_data_by_availability = sorted_data_by_availability[-DEEP_FILTER:]
 
-                try:
-                    await page.goto(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=2500)
-                except:
-                    await page.goto(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=2500)
+                    # best_data = min(cut_data_by_availability, key=lambda x: x[2])
+                    sorted_by_price = quick_sort(cut_data_by_date, 2)
+                    best_data = sorted_by_price[0]
 
-                pre_with_logo = await (await page.query_selector("pre")).text_content()
-                response_with_logo = dict(json.loads(pre_with_logo))
-                price_logo = response_with_logo["priceLogo"] 
+                    try:
+                        await page.goto(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=2500)
+                    except:
+                        await page.goto(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=2500)
 
-                # result = [price_logo, *best_data[1:]]
-                result = [brand[1], num[1], price_logo, *best_data[1:]]
-                
-                if LOGO:
-                    best_data = None
-                    sorted_by_price = quick_sort(originals, 2)[:20]
-                    for data in sorted_by_price:
-                        try:
-                            await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=2500)
-                        except:
-                            sorted_by_price.append(data)
-                            continue
+                    pre_with_logo = await (await page.query_selector("pre")).text_content()
+                    response_with_logo = dict(json.loads(pre_with_logo))
+                    price_logo = response_with_logo["priceLogo"] 
 
-                        pre_with_logo = await (await page.query_selector("pre")).text_content()
-                        response_with_logo = dict(json.loads(pre_with_logo))
-                        price_logo = response_with_logo["priceLogo"] 
+                    # result = [price_logo, *best_data[1:]]
+                    result = [brand[1], num[1], price_logo, *best_data[1:]]
+                    
+                    if LOGO:
+                        best_data = None
+                        sorted_by_price = quick_sort(originals, 2)[:20]
+                        for data in sorted_by_price:
+                            try:
+                                await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=2500)
+                            except:
+                                sorted_by_price.append(data)
+                                continue
 
-                        data[0] = price_logo
-                        if price_logo == LOGO:
-                            best_data = data
-                            break
+                            pre_with_logo = await (await page.query_selector("pre")).text_content()
+                            response_with_logo = dict(json.loads(pre_with_logo))
+                            price_logo = response_with_logo["priceLogo"] 
 
-                    if best_data:
-                        result.append(best_data[2])
-                    else:
-                        result.append("Нет такого лого среди оригиналов")
-                user_data[user_id]["excel_result"].append(result)
-            except:
+                            data[0] = price_logo
+                            if price_logo == LOGO:
+                                best_data = data
+                                break
+
+                        if best_data:
+                            result.append(best_data[2])
+                        else:
+                            result.append("Нет такого лого среди оригиналов")
+                    user_data[user_id]["excel_result"].append(result)
+            except Exception as e:
                 brands.append(brand)
                 nums.append(num)
                 if proxy != ["http://test:8888", "user1", "pass1"]:

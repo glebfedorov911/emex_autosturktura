@@ -10,7 +10,11 @@ async def show_data(session: AsyncSession, user_id: int, skip: int, limit: int, 
     result: Result = await session.execute(stmt)
     data = result.scalars().all()
 
+    stmt = select(Parser).where(Parser.user_id==user_id).where(Parser.file_id==file_id)
+    result: Result = await session.execute(stmt)
+    all_data = result.scalars().all()
+
     return {
-        "total": len(data),
+        "total": len(all_data),
         "rows": data
     }

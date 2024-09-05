@@ -6,6 +6,7 @@ from psycopg2 import sql
 from dotenv import load_dotenv
 
 from app.api_v1.auth.utils import hash_password
+from app.core.config import settings
 
 
 load_dotenv()
@@ -94,7 +95,7 @@ with conn.cursor() as cursor:
     id_string9_filter = cursor.fetchone()[0]
 
 for filename in ("test1_дляпарсинг.xlsx", "test2_послепарсинга.xlsx"):
-    with open(filename, "w") as file:
+    with open(str(settings.upload.path_for_upload) + "/" + filename, "w") as file:
         file.write("hello world")
         file.close()
 

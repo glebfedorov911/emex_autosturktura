@@ -61,11 +61,11 @@ async def saving_to_table_data(user_id: int, session: AsyncSession, data: list, 
     file_id = result.scalar()
     for value in data:
         if len(value) == 13:
-            parser_in = ParserCreate(article=str(value[0]), name=str(value[1]), brand=str(value[2]), article1=str(value[3]), quantity=str(value[4]), price=str(value[5]), batch=str(value[6]), NDS=str(value[7]),
-            logo=str(value[8]), deliveryTime=str(value[9]), bestPrice=str(value[10]), quantity1=str(value[11]), newPrice=str(value[12]), user_id=user_id, file_id=file_id)
+            parser_in = ParserCreate(article=str(value[0]), name=str(value[1]), brand=str(value[2]), article1=str(value[3]), quantity=str(value[4]), price=str(value[5]), batch=str(value[6]), nds=str(value[7]),
+            logo=str(value[8]), delivery_time=str(value[9]), best_price=str(value[10]), quantity1=str(value[11]), new_price=str(value[12]), user_id=user_id, file_id=file_id)
         else:
-            parser_in = ParserCreate(article=str(value[0]), name=str(value[1]), brand=str(value[2]), article1=str(value[3]), quantity=str(value[4]), price=str(value[5]), batch=str(value[6]), NDS=str(value[7]),
-            logo=str(value[8]), deliveryTime=str(value[9]), bestPrice=str(value[10]), quantity1=str(value[11]), user_id=user_id, file_id=file_id)
+            parser_in = ParserCreate(article=str(value[0]), name=str(value[1]), brand=str(value[2]), article1=str(value[3]), quantity=str(value[4]), price=str(value[5]), batch=str(value[6]), nds=str(value[7]),
+            logo=str(value[8]), delivery_time=str(value[9]), best_price=str(value[10]), quantity1=str(value[11]), user_id=user_id, file_id=file_id)
         parser = Parser(**parser_in.model_dump())
         session.add(parser)
         await session.commit()

@@ -57,7 +57,6 @@ async def websocket_endpoint(
     # files = f'{payload.get("username")}_дляпарсинг.xlsx'
     # files = get_unique_filename(str(settings.upload.path_for_upload), files)
     if not payload.get("sub") in user_data:
-        print(user_data, "221jkfdsjfjsdjfds")
         user_data[payload.get("sub")] = {
             "excel_result": [],
             "status": "Парсер не запущен",
@@ -70,7 +69,6 @@ async def websocket_endpoint(
         }
     else:
         if not "threads" in user_data[payload.get("sub")]:
-            print(user_data, "21jkfdsjfjsdjfds")
             user_data[payload.get("sub")] = {
                 "excel_result": [],
                 "status": "PARSER_NOT_STARTED_DATA_SAVED",
@@ -123,7 +121,6 @@ async def websocket_status_endpoint(
     await crud.unbanned_proxy(session=session, user_id=payload.get("sub"))
     await crud.delete_proxy_banned(session=session, user_id=payload.get("sub"))
     if not payload.get("sub") in user_data:
-        print(user_data, "1jkfdsjfjsdjfds")
         user_data[payload.get("sub")] = {
             "excel_result": [],
             "status": "Парсер не запущен",
@@ -136,7 +133,6 @@ async def websocket_status_endpoint(
         }
     else:
         if not "threads" in user_data[payload.get("sub")]:
-            print(user_data, "11jkfdsjfjsdjfds")
             user_data[payload.get("sub")] = {
                 "excel_result": [],
                 "status": "PARSER_NOT_STARTED_DATA_SAVED",

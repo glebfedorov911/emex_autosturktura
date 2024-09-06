@@ -48,7 +48,7 @@ async def get(request: Request):
 async def websocket_endpoint(
     websocket: WebSocket,
     access_token: str,
-    session: AsyncSession = Depends(db_helper.get_scoped_session),
+    session: AsyncSession = Depends(db_helper.session_depends),
 ):
     global user_data
 
@@ -56,17 +56,31 @@ async def websocket_endpoint(
 
     # files = f'{payload.get("username")}_дляпарсинг.xlsx'
     # files = get_unique_filename(str(settings.upload.path_for_upload), files)
-    
-    user_data[payload.get("sub")] = {
-        "excel_result": [],
-        "status": "Парсер не запущен",
-        "count_proxies": 1,
-        "ban_list": set(),
-        "count_brands": 1,
-        "threads": threads.copy(),
-        # "start_file": None,
-        "flag": False,
-    }
+    if not payload.get("sub") in user_data:
+        print(user_data, "221jkfdsjfjsdjfds")
+        user_data[payload.get("sub")] = {
+            "excel_result": [],
+            "status": "Парсер не запущен",
+            "count_proxies": 1,
+            "ban_list": set(),
+            "count_brands": 1,
+            "threads": threads.copy(),
+            "start_file": None,
+            "flag": False,
+        }
+    else:
+        if not "threads" in user_data[payload.get("sub")]:
+            print(user_data, "21jkfdsjfjsdjfds")
+            user_data[payload.get("sub")] = {
+                "excel_result": [],
+                "status": "PARSER_NOT_STARTED_DATA_SAVED",
+                "count_proxies": 1,
+                "ban_list": set(),
+                "count_brands": 1,
+                "threads": threads.copy(),
+                "start_file": None,
+                "flag": True,
+            }
 
     await websocket.accept()
     try:
@@ -100,7 +114,7 @@ async def websocket_endpoint(
 async def websocket_status_endpoint(
     websocket: WebSocket,
     access_token: str,
-    session: AsyncSession = Depends(db_helper.get_scoped_session),
+    session: AsyncSession = Depends(db_helper.session_depends),
 ):
     global user_data
     
@@ -108,17 +122,33 @@ async def websocket_status_endpoint(
     
     await crud.unbanned_proxy(session=session, user_id=payload.get("sub"))
     await crud.delete_proxy_banned(session=session, user_id=payload.get("sub"))
+    if not payload.get("sub") in user_data:
+        print(user_data, "1jkfdsjfjsdjfds")
+        user_data[payload.get("sub")] = {
+            "excel_result": [],
+            "status": "Парсер не запущен",
+            "count_proxies": 1,
+            "ban_list": set(),
+            "count_brands": 1,
+            "threads": threads.copy(),
+            "start_file": None,
+            "flag": False,
+        }
+    else:
+        if not "threads" in user_data[payload.get("sub")]:
+            print(user_data, "11jkfdsjfjsdjfds")
+            user_data[payload.get("sub")] = {
+                "excel_result": [],
+                "status": "PARSER_NOT_STARTED_DATA_SAVED",
+                "count_proxies": 1,
+                "ban_list": set(),
+                "count_brands": 1,
+                "threads": threads.copy(),
+                "start_file": None,
+                "flag": True,
+            }
 
-    user_data[payload.get("sub")] = {
-        "excel_result": [],
-        "status": "Парсер не запущен",
-        "count_proxies": 1,
-        "ban_list": set(),
-        "count_brands": 1,
-        "threads": threads.copy(),
-        "start_file": None,
-        "flag": False,
-    }
+
     await websocket.accept()
     try:
         while True:
@@ -176,6 +206,11 @@ async def websocket_status_endpoint(
                 await crud.set_banned_proxy(
                     proxy_servers=ud["ban_list"], session=session, user_id=payload.get("sub")
                 )
+                user_data[payload.get("sub")]["threads"] = [None] * count_of_threadings
+            if ud["status"] == "Парсер не запущен":
+                if payload.get("sub") in user_data:
+                    user_data[payload.get("sub")]['ban_list'] = []
+                    user_data[payload.get("sub")]['excel_result'] = []
 
             await asyncio.sleep(3)
     except WebSocketDisconnect:
@@ -186,7 +221,7 @@ async def websocket_status_endpoint(
 async def start(
     filter_id: int,
     payload = Depends(get_payload),
-    session: AsyncSession = Depends(db_helper.get_scoped_session),
+    session: AsyncSession = Depends(db_helper.session_depends),
 ):
     global user_data
     
@@ -206,20 +241,23 @@ async def start(
             status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
             detail="Файл уже был спаршен"
         )
-    user_data[payload.get("sub")] = {
-        "threads": threads.copy(),
-        "events": [Event() for _ in range(count_of_threadings)],
-        "proxies": proxies,
-        "filter": filter,
-        "excel_result": [],
-        "status": "PARSER_RUNNING",
-        "count_proxies": len(set(proxies)),
-        "ban_list": set(),
-        "count_brands": 1,
-        "filter_id": filter_id,
-        "flag": False,
-        # "start_file": files,
-    }
+
+    if all( [user_data[user_id]["threads"][i] is None or not user_data[user_id]["threads"][i].is_alive() for i in range(count_of_threadings)] ):
+        user_data[payload.get("sub")] = {
+            "threads": threads.copy(),
+            "events": [Event() for _ in range(count_of_threadings)],
+            "proxies": proxies,
+            "filter": filter,
+            "excel_result": [],
+            "status": "PARSER_RUNNING",
+            "count_proxies": len(set(proxies)),
+            "ban_list": set(),
+            "count_brands": 1,
+            "filter_id": filter_id,
+            "flag": False,
+            # "start_file": files,
+        }
+
     if proxies == []:
         user_data[payload.get("sub")]["status"] = "Закончились прокси"
         return JSONResponse("Закончились прокси")
@@ -261,7 +299,6 @@ async def start(
 @router.get("/stop")
 async def stop(payload = Depends(get_payload)):
     global user_data
-
 
     user_id = payload.get("sub")
     for index in range(count_of_threadings):

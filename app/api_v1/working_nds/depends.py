@@ -75,3 +75,4 @@ async def to_file(filename: str, parser_data: list):
     excel = [[data.article, data.name, data.brand, data.article1, data.quantity, data.price, data.batch, data.nds, data.logo, data.delivery_time, data.best_price, data.quantity1, data.new_price] if data.new_price else [data.article, data.name, data.brand, data.article1, data.quantity, data.price, data.batch, data.nds, data.logo, data.delivery_time, data.best_price, data.quantity1] for data in parser_data ]
     df = pd.DataFrame(excel, columns=columns)
     df.to_excel(str(settings.upload.path_for_upload) + "/" + f"обработанный_{filename}", index=False)
+

@@ -11,7 +11,6 @@ app = FastAPI()
 app.include_router(router=router)
 #test teeest
 origins = [
-    CORSMiddleware
     "http://localhost",
     "http://localhost:8000",
     "http://127.0.0.1:8000",

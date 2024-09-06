@@ -197,9 +197,15 @@ async def start(
     filter = await crud.get_filter(
         session=session, user_id=payload.get("sub"), filter_id=filter_id
     )
-    files = (
-        await crud.get_last_upload_files(user_id=user_id, session=session)
-    ).before_parsing_filename
+    try:
+        files = (
+            await crud.get_last_upload_files(user_id=user_id, session=session)
+        ).before_parsing_filename
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_405_METHOD_NOT_ALLOWED
+            detail="Файл уже был спаршен"
+        )
     user_data[payload.get("sub")] = {
         "threads": threads.copy(),
         "events": [Event() for _ in range(count_of_threadings)],

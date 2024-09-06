@@ -24,6 +24,10 @@ origins = [
     "https://127.0.0.1:5173",
     "https://127.0.0.1","http://localhost:5173",
     "https://forprojectstests.ru",
+    "https://fronttest.forprojectstests.ru"
+    "https://fronttest1.forprojectstests.ru"
+    "https://fronttest2.forprojectstests.ru"
+    "https://fronttest3.forprojectstests.ru"
     # "https://api.forprojectstests.ru",
 ]
     

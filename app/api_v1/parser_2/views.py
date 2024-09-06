@@ -203,7 +203,7 @@ async def start(
         ).before_parsing_filename
     except:
         raise HTTPException(
-            status_code=status.HTTP_405_METHOD_NOT_ALLOWED
+            status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
             detail="Файл уже был спаршен"
         )
     user_data[payload.get("sub")] = {

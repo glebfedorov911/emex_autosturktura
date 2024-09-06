@@ -41,6 +41,8 @@ async def edit_filter(session: AsyncSession, upd_filter: FilterUpdate, user_id: 
 
     update_filter = upd_filter.dict(exclude_unset=True)
     for key, value in update_filter.items():
+        if value == "":
+            value = None
         setattr(_filter, key, value)
 
     session.add(_filter)

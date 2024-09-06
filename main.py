@@ -16,19 +16,26 @@ origins = [
     "http://127.0.0.1:8000",
     "http://127.0.0.1:5173",
     "http://127.0.0.1",
-    # "http://forprojectstests.ru",
-    # "http://api.forprojectstests.ru",
+    "http://forprojectstests.ru",
+    "http://forprojectstests.ru",
+    "http://fronttest.forprojectstests.ru"
+    "http://fronttest1.forprojectstests.ru"
+    "http://fronttest2.forprojectstests.ru"
+    "https://fronttest3.forprojectstests.ru"
+    "http://api.forprojectstests.ru",
+
     "https://localhost",
     "https://localhost:8000",
     "https://127.0.0.1:8000",
     "https://127.0.0.1:5173",
-    "https://127.0.0.1","http://localhost:5173",
+    "http://localhost:5173",
+    "https://127.0.0.1",
     "https://forprojectstests.ru",
     "https://fronttest.forprojectstests.ru"
     "https://fronttest1.forprojectstests.ru"
     "https://fronttest2.forprojectstests.ru"
     "https://fronttest3.forprojectstests.ru"
-    # "https://api.forprojectstests.ru",
+    "https://api.forprojectstests.ru",
 ]
     
 app.add_middleware(

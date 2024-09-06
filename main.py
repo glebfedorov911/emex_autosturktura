@@ -37,7 +37,7 @@ origins = [
     "https://fronttest3.forprojectstests.ru"
     "https://api.forprojectstests.ru",
 ]
-    
+    #
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

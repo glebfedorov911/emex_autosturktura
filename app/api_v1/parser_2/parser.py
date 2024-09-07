@@ -158,6 +158,7 @@ async def main(brands, user_id):
                                     raise Exception
                                 await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=4444)
                             except:
+                                await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=4444)
                                 atms += 1
                                 sorted_by_price.append(data)
                                 continue

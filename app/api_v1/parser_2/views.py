@@ -22,7 +22,7 @@ from app.api_v1.auth.utils import get_payload
 from app.api_v1.files.depends import get_unique_filename
 
 from . import crud
-from .parser import user_data, run, columns
+from .parser import user_data, run
 from .depends import *
 
 import asyncio
@@ -184,7 +184,7 @@ async def websocket_status_endpoint(
                 file_name_last = (await crud.get_last_upload_files(user_id=payload.get("sub"), session=session)).before_parsing_filename
                 result_file_name = f"{file_name_last.split('.')[0]}_после_парсинга_{random.randint(1, 10000000000000000)}.xlsx"
 
-                df = pd.DataFrame(ud["excel_result"], columns=columns)
+                df = pd.DataFrame(ud["excel_result"], columns=user_data[payload.get("sub")]['columns'])
                 await crud.add_final_file_to_table(
                     user_id=payload.get("sub"),
                     session=session,

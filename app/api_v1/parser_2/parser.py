@@ -130,13 +130,17 @@ async def main(brands, user_id):
                     # result = [price_logo, *best_data[1:]]
                     result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], price_logo, *best_data[1:]]
                     
+                    atms = 0
                     if LOGO:
                         best_data = None
                         sorted_by_price = quick_sort(originals, 2)[:20]
                         for data in sorted_by_price:
                             try:
+                                if atms == 25:
+                                    raise Exception
                                 await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=2500)
                             except:
+                                atms += 1
                                 sorted_by_price.append(data)
                                 continue
 

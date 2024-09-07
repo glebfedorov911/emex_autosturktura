@@ -3,6 +3,7 @@ from fastapi import HTTPException, status
 import asyncio
 import json
 import time
+import random
 
 from .depends import *
 
@@ -17,6 +18,25 @@ user_data = {}
    
 
 columns = ["Артикул", "Наименование", "Брэнд", "Артикул", "Кол-во", "Цена", "Партия", "НДС", "Лого", "Доставка", "Лучшая цена", "Количество"]
+
+USERAGENTS = [
+    "Mediapartners-Google",
+    "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0",
+    "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 YaBrowser/20.9.3.136 Yowser/2.5 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.105 YaBrowser/21.3.3.230 Yowser/2.5 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/62.0",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 11.1; rv:84.0) Gecko/20100101 Firefox/84.0",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.81 Safari/537.36 Maxthon/5.3.8.2000",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 YaBrowser/20.12.2.105 Yowser/2.5 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 YaBrowser/21.8.1.468 Yowser/2.5 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36",
+]
 
 async def main(brands, user_id):   
     global user_data, columns
@@ -50,12 +70,12 @@ async def main(brands, user_id):
         async with async_playwright() as p:
             try:
                 browser = await p.chromium.launch(headless=True, proxy={"server": proxy[0], "username": proxy[1], "password": proxy[2]})
-                page = await browser.new_page()
+                page = await browser.new_page(user_agent=random.choice(USERAGENTS))
 
                 try:
-                    await page.goto(url, timeout=2500)
+                    await page.goto(url, timeout=4444)
                 except:
-                    await page.goto(url, timeout=2500)
+                    await page.goto(url, timeout=4444)
 
                 pre = await (await page.query_selector("pre")).text_content()
                 response = dict(json.loads(pre))
@@ -119,9 +139,9 @@ async def main(brands, user_id):
                     best_data = sorted_by_price[0]
 
                     try:
-                        await page.goto(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=2500)
+                        await page.goto(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=4444)
                     except:
-                        await page.goto(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=2500)
+                        await page.goto(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=4444)
 
                     pre_with_logo = await (await page.query_selector("pre")).text_content()
                     response_with_logo = dict(json.loads(pre_with_logo))
@@ -129,7 +149,6 @@ async def main(brands, user_id):
 
                     # result = [price_logo, *best_data[1:]]
                     result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], price_logo, *best_data[1:]]
-                    
                     atms = 0
                     if LOGO:
                         best_data = None
@@ -138,7 +157,7 @@ async def main(brands, user_id):
                             try:
                                 if atms == 25:
                                     raise Exception
-                                await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=2500)
+                                await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=4444)
                             except:
                                 atms += 1
                                 sorted_by_price.append(data)
@@ -159,6 +178,7 @@ async def main(brands, user_id):
                             result.append("Нет такого лого среди оригиналов")
                     user_data[user_id]["excel_result"].append(result)
             except Exception as e:
+                print(e)
                 brands.append(brand)
                 if proxy != ["http://test:8888", "user1", "pass1"]:
                     user_data[user_id]["ban_list"].add("@".join(proxy))

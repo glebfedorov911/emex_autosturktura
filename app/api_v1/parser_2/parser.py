@@ -15,9 +15,6 @@ user_data = {}
 # {"threads": threads.copy(), "events": [Event() for _ in range(count_of_threadings)], 
 # "proxies": proxies, "filter": filter, "excel_result": [], "status": "Парсер не запущен",
 # "count_proxies": len(proxies), "ban_list": set()}
-   
-
-columns = ["Артикул", "Наименование", "Брэнд", "Артикул", "Кол-во", "Цена", "Партия", "НДС", "Лого", "Доставка", "Лучшая цена", "Количество"]
 
 USERAGENTS = [
     "Mediapartners-Google",
@@ -39,7 +36,7 @@ USERAGENTS = [
 ]
 
 async def main(brands, user_id):   
-    global user_data, columns
+    global user_data
 
     DEEP_FILTER = user_data[user_id]["filter"].deep_filter
     DEEP_ANALOG = user_data[user_id]["filter"].deep_analog
@@ -48,8 +45,10 @@ async def main(brands, user_id):
     DATE = user_data[user_id]["filter"].date
     LOGO = user_data[user_id]["filter"].logo #HXAW - пример лого None - Без лого
 
-    if LOGO and "Цена с лого" not in columns:
-        columns.append("Цена с лого")
+    user_data[user_id]['columns'] = ["Артикул", "Наименование", "Брэнд", "Артикул", "Кол-во", "Цена", "Партия", "НДС", "Лого", "Доставка", "Лучшая цена", "Количество"]
+
+    if LOGO and "Цена с лого" not in user_data[user_id]['columns']:
+        user_data[user_id]['columns'].append("Цена с лого")
 
     if user_data[user_id]["proxies"] != []:
         proxy = user_data[user_id]["proxies"].pop(0)

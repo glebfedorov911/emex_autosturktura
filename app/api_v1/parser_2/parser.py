@@ -68,7 +68,7 @@ async def main(brands, user_id):
         url = f"https://emex.ru/api/search/search?make={create_params_for_url(brand[2])}&detailNum={brand[0]}&locationId=38760&showAll=true&longitude=37.8613&latitude=55.7434"
         async with async_playwright() as p:
             try:
-                browser = await p.chromium.launch(headless=True, proxy={"server": proxy[0], "username": proxy[1], "password": proxy[2]})
+                browser = await p.chromium.launch(headless=False, proxy={"server": proxy[0], "username": proxy[1], "password": proxy[2]})
                 page = await browser.new_page(user_agent=random.choice(USERAGENTS))
 
                 try:
@@ -164,10 +164,7 @@ async def main(brands, user_id):
                             #     continue
 
                             while atms <= 12:
-                                try:
-                                    await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=2222)
-                                except:
-                                    await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=2222)
+                                await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=3333)
                                 atms += 1
 
                             print(brand, atms)                            
@@ -192,6 +189,7 @@ async def main(brands, user_id):
                     user_data[user_id]["excel_result"].append(result)
             except Exception as e:
                 print(e)
+                atms = 0
                 brands.append(brand)
                 if proxy != ["http://test:8888", "user1", "pass1"]:
                     user_data[user_id]["ban_list"].add("@".join(proxy))

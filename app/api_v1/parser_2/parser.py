@@ -153,22 +153,22 @@ async def main(brands, user_id):
                         best_data = None
                         sorted_by_price = quick_sort(originals, 2)[:20]
                         for data in sorted_by_price:
-                            # try:
-                            #     await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=4444)
-                            # except:
-                            #     await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=4444)
+                            try:
+                                await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=4444)
+                            except:
+                                await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=4444)
 
-                            while atms <= 5:
-                                try:
-                                    await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=3333)
-                                except:
-                                    atms += 1
+                            # while atms <= 5:
+                            #     try:
+                            #         await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=3333)
+                            #     except:
+                            #         atms += 1
 
-                            print(brand, atms)                            
-                            if atms >= 5:
-                                raise Exception
-                            else:
-                                atms = 0
+                            # print(brand, atms)                            
+                            # if atms >= 5:
+                            #     raise Exception
+                            # else:
+                            #     atms = 0
                             
                             pre_with_logo = await (await page.query_selector("pre")).text_content()
                             response_with_logo = dict(json.loads(pre_with_logo))

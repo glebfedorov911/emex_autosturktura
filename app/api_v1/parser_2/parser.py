@@ -158,7 +158,7 @@ async def main(brands, user_id):
                             # except:
                             #     await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=4444)
 
-                            while atms <= 12:
+                            while atms <= 5:
                                 try:
                                     await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=3333)
                                 except:

@@ -55,6 +55,7 @@ async def main(brands, user_id):
         proxy = [proxy.ip_with_port, proxy.login, proxy.password]
     else:
         proxy = ["http://test:8888", "user1", "pass1"]
+    atms = 0
     for brand in brands:
         if all([ev.is_set() for ev in user_data[user_id]["events"]]):
             break
@@ -148,7 +149,6 @@ async def main(brands, user_id):
 
                     # result = [price_logo, *best_data[1:]]
                     result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], price_logo, *best_data[1:]]
-                    atms = 0
                     if LOGO:
                         best_data = None
                         sorted_by_price = quick_sort(originals, 2)[:20]
@@ -185,19 +185,19 @@ async def main(brands, user_id):
                             result.append("Нет такого лого среди оригиналов")
                     user_data[user_id]["excel_result"].append(result)
             except Exception as e:
-                print(e)
-                atms = 0
                 brands.append(brand)
-                if proxy != ["http://test:8888", "user1", "pass1"]:
-                    user_data[user_id]["ban_list"].add("@".join(proxy))
-                if user_data[user_id]["proxies"] != []:
-                    proxy = user_data[user_id]["proxies"].pop(0)
-                    try:
-                        proxy = [proxy.ip_with_port, proxy.login, proxy.password]
-                    except:
-                        proxy = [proxy[0], proxy[1], proxy[2]]
-                else:
-                    proxy = ["http://test:8888", "user1", "pass1"]
+                atms += 1
+                if atms % 5 == 0:
+                    if proxy != ["http://test:8888", "user1", "pass1"]:
+                        user_data[user_id]["ban_list"].add("@".join(proxy))
+                    if user_data[user_id]["proxies"] != []:
+                        proxy = user_data[user_id]["proxies"].pop(0)
+                        try:
+                            proxy = [proxy.ip_with_port, proxy.login, proxy.password]
+                        except:
+                            proxy = [proxy[0], proxy[1], proxy[2]]
+                    else:
+                        proxy = ["http://test:8888", "user1", "pass1"]
     user_data[user_id]["proxies"].append(proxy)
         
 def run(brands, user_id):

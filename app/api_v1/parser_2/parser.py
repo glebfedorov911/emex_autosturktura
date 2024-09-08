@@ -165,7 +165,7 @@ async def main(brands, user_id):
                                     atms += 1
 
                             print(brand, atms)                            
-                            if atms >= 12:
+                            if atms >= 5:
                                 raise Exception
                             else:
                                 atms = 0

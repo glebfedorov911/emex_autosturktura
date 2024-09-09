@@ -187,7 +187,7 @@ async def main(brands, user_id):
             except Exception as e:
                 brands.append(brand)
                 atms += 1
-                if atms % 5 == 0:
+                if atms % 2 == 0:
                     if proxy != ["http://test:8888", "user1", "pass1"]:
                         user_data[user_id]["ban_list"].add("@".join(proxy))
                     if user_data[user_id]["proxies"] != []:

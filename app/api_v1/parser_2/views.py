@@ -6,7 +6,7 @@ from fastapi import (
     HTTPException,
     status,
     Depends,
-    Header
+    Header,
 )
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import JSONResponse
@@ -35,7 +35,7 @@ import pandas as pd
 router = APIRouter(prefix="/new_parser", tags=["New Parser"])
 templates = Jinja2Templates(directory=settings.templates.templates_path)
 
-count_of_threadings = 2
+count_of_threadings = 4
 threads: list[Thread] = [None] * count_of_threadings
 
 
@@ -88,9 +88,9 @@ async def websocket_endpoint(
                 ud["count_proxies"] = 1
                 ud["status"] = "Закончились прокси"
             # if ud["start_file"] is None:
-                # files = f'{payload.get("username")}_дляпарсинг.xlsx'
-                # files = get_unique_filename(str(settings.upload.path_for_upload), files)
-                # ud["start_file"] = files
+            # files = f'{payload.get("username")}_дляпарсинг.xlsx'
+            # files = get_unique_filename(str(settings.upload.path_for_upload), files)
+            # ud["start_file"] = files
 
             await websocket.send_json(
                 {
@@ -115,9 +115,9 @@ async def websocket_status_endpoint(
     session: AsyncSession = Depends(db_helper.session_depends),
 ):
     global user_data
-    
+
     payload = await check_payload(access_token=access_token)
-    
+
     await crud.unbanned_proxy(session=session, user_id=payload.get("sub"))
     await crud.delete_proxy_banned(session=session, user_id=payload.get("sub"))
     if not payload.get("sub") in user_data:
@@ -143,7 +143,6 @@ async def websocket_status_endpoint(
                 "start_file": None,
                 "flag": True,
             }
-
 
     await websocket.accept()
     try:
@@ -171,20 +170,31 @@ async def websocket_status_endpoint(
                     ud["status"] = "PARSER_NOT_STARTED_DATA_SAVED"
                     ud["excel_result"] = []
                     ud["ban_list"] = []
-                if await check_after_parsing_file(session=session, user_id=payload.get("sub")) and ud["flag"]:
+                if (
+                    await check_after_parsing_file(
+                        session=session, user_id=payload.get("sub")
+                    )
+                    and ud["flag"]
+                ):
                     ud["flag"] = False
                     ud["status"] = "Парсер не запущен"
             else:
                 ud["status"] = "PARSER_RUNNING"
-            
+
             if ud["status"] in (
                 "ALL_PROXIES_BANNED",
                 "PARSING_COMPLETED",
             ):
-                file_name_last = (await crud.get_last_upload_files(user_id=payload.get("sub"), session=session)).before_parsing_filename
+                file_name_last = (
+                    await crud.get_last_upload_files(
+                        user_id=payload.get("sub"), session=session
+                    )
+                ).before_parsing_filename
                 result_file_name = f"{file_name_last.split('.')[0]}_после_парсинга_{random.randint(1, 10000000000000000)}.xlsx"
 
-                df = pd.DataFrame(ud["excel_result"], columns=user_data[payload.get("sub")]['columns'])
+                df = pd.DataFrame(
+                    ud["excel_result"], columns=user_data[payload.get("sub")]["columns"]
+                )
                 await crud.add_final_file_to_table(
                     user_id=payload.get("sub"),
                     session=session,
@@ -196,17 +206,22 @@ async def websocket_status_endpoint(
                     index=False,
                 )
                 await crud.saving_to_table_data(
-                    user_id=payload.get("sub"), session=session, data=ud["excel_result"], filename=result_file_name
+                    user_id=payload.get("sub"),
+                    session=session,
+                    data=ud["excel_result"],
+                    filename=result_file_name,
                 )
                 await crud.set_parsing(session=session, user_id=payload.get("sub"))
                 await crud.set_banned_proxy(
-                    proxy_servers=ud["ban_list"], session=session, user_id=payload.get("sub")
+                    proxy_servers=ud["ban_list"],
+                    session=session,
+                    user_id=payload.get("sub"),
                 )
                 user_data[payload.get("sub")]["threads"] = [None] * count_of_threadings
             if ud["status"] == "Парсер не запущен":
                 if payload.get("sub") in user_data:
-                    user_data[payload.get("sub")]['ban_list'] = []
-                    user_data[payload.get("sub")]['excel_result'] = []
+                    user_data[payload.get("sub")]["ban_list"] = []
+                    user_data[payload.get("sub")]["excel_result"] = []
 
             await asyncio.sleep(3)
     except WebSocketDisconnect:
@@ -216,11 +231,10 @@ async def websocket_status_endpoint(
 @router.get("/start/{filter_id}")
 async def start(
     filter_id: int,
-    payload = Depends(get_payload),
+    payload=Depends(get_payload),
     session: AsyncSession = Depends(db_helper.session_depends),
 ):
     global user_data
-    
 
     messages = []
     user_id = payload.get("sub")
@@ -235,10 +249,16 @@ async def start(
     except:
         raise HTTPException(
             status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-            detail="Файл уже был спаршен"
+            detail="Файл уже был спаршен",
         )
 
-    if all( [user_data[user_id]["threads"][i] is None or not user_data[user_id]["threads"][i].is_alive() for i in range(count_of_threadings)] ):
+    if all(
+        [
+            user_data[user_id]["threads"][i] is None
+            or not user_data[user_id]["threads"][i].is_alive()
+            for i in range(count_of_threadings)
+        ]
+    ):
         user_data[payload.get("sub")] = {
             "threads": threads.copy(),
             "events": [Event() for _ in range(count_of_threadings)],
@@ -258,19 +278,21 @@ async def start(
         user_data[payload.get("sub")]["status"] = "Закончились прокси"
         return JSONResponse("Закончились прокси")
     elif files is None:
-        user_data[payload.get("sub")]["status"] = "Данный файл уже спаршен либо не загружен"
+        user_data[payload.get("sub")][
+            "status"
+        ] = "Данный файл уже спаршен либо не загружен"
         return JSONResponse("Данный файл уже спаршен")
     elif filter is None:
         user_data[payload.get("sub")]["status"] = "Неизвестный фальтр"
         return JSONResponse("Неизвестный фальтр")
     else:
         await crud.set_parsing(session=session, user_id=payload.get("sub"))
-        
+
         df = pd.read_excel(str(settings.upload.path_for_upload) + "/" + files)
 
         df = df.apply(lambda col: col.astype(object))
         df_to_list = df.values.tolist()
-        brands= create(df_to_list)
+        brands = create(df_to_list)
         user_data[user_id]["count_brands"] = len(brands)
 
         brands = split_file_for_thr(count_of_threadings, brands)
@@ -293,7 +315,7 @@ async def start(
 
 
 @router.get("/stop")
-async def stop(payload = Depends(get_payload)):
+async def stop(payload=Depends(get_payload)):
     global user_data
 
     user_id = payload.get("sub")

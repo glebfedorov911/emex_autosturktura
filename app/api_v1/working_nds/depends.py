@@ -64,6 +64,11 @@ async def get_filename(file_id: int, session: AsyncSession, user_id: int):
 async def set_filename(file_id: int, session: AsyncSession, user_id: int):
     file = await get_file(file_id=file_id, user_id=user_id, session=session)
 
+    if "обработанный_" in file.after_parsing_filename:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="уже обработан"
+        )
     file.after_parsing_filename = f"обработанный_{file.after_parsing_filename}"
     session.add(file)
     await session.commit()

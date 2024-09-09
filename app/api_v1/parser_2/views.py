@@ -256,7 +256,10 @@ async def start(
 
     if proxies == []:
         user_data[payload.get("sub")]["status"] = "Закончились прокси"
-        return JSONResponse("Закончились прокси")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="прокси закончились"
+        )
     elif files is None:
         user_data[payload.get("sub")]["status"] = "Данный файл уже спаршен либо не загружен"
         return JSONResponse("Данный файл уже спаршен")

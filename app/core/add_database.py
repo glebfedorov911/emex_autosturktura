@@ -34,10 +34,8 @@ def add_to_db(table, data_add):
         cursor.execute(check_query)
         count = cursor.fetchone()[0]
 
-    print(table)
-    if table != "proxys":
-        if count != 0:
-            return
+    if count != 0:
+        return
         
 
     for values in data_add:

@@ -76,3 +76,9 @@ async def to_file(filename: str, parser_data: list):
     df = pd.DataFrame(excel, columns=columns)
     df.to_excel(str(settings.upload.path_for_upload) + "/" + f"обработанный_{filename}", index=False)
 
+async def get_all_files(session: AsyncSession, user_id: int):
+    stmt = select(File).where(File.user_id==user_id)
+    result: Result = await session.execute(stmt)
+
+    return result.scalars().all()
+

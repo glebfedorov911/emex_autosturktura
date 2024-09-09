@@ -29,4 +29,4 @@ async def edit_with_nds(session: AsyncSession, user_id: int, file_id: int):
         ) 
     await set_filename(file_id=file_id, session=session, user_id=user_id)
 
-    return parsers_data
+    return await get_all_files(user_id=user_id, session=session)

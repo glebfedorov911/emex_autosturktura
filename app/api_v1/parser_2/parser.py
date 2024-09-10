@@ -75,8 +75,6 @@ async def main(brands, user_id):
                 try:
                     await page.goto(url, timeout=4444)
                 except:
-                    if "нет подключения к интернету" in (await (await page.query_selector("#main-message")).inner_text()).lower():
-                        raise Exception
                     await page.goto(url, timeout=4444)
 
                 pre = await (await page.query_selector("pre")).text_content()
@@ -143,8 +141,6 @@ async def main(brands, user_id):
                     try:
                         await page.goto(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=4444)
                     except:
-                        if "нет подключения к интернету" in (await (await page.query_selector("#main-message")).inner_text()).lower():
-                            raise Exception
                         await page.goto(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=4444)
 
                     pre_with_logo = await (await page.query_selector("pre")).text_content()
@@ -160,8 +156,6 @@ async def main(brands, user_id):
                             try:
                                 await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=4444)
                             except:
-                                if "нет подключения к интернету" in (await (await page.query_selector("#main-message")).inner_text()).lower():
-                                    raise Exception
                                 await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=4444)
 
                             # while atms <= 5:

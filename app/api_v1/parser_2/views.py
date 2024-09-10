@@ -30,7 +30,7 @@ import time
 import random
 import pandas as pd
 
-# ДОПИСАТЬ СОХРАНЕНИЕ
+# ДОПИСАТЬ СОХРАНЕНИЕ#
 
 router = APIRouter(prefix="/new_parser", tags=["New Parser"])
 templates = Jinja2Templates(directory=settings.templates.templates_path)

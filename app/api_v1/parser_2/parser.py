@@ -154,9 +154,9 @@ async def main(brands, user_id):
                         sorted_by_price = quick_sort(originals, 2)[:20]
                         for data in sorted_by_price:
                             try:
-                                await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=4444)
+                                await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=2500)
                             except:
-                                await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=4444)
+                                await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=2500)
 
                             # while atms <= 5:
                             #     try:

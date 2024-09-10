@@ -95,7 +95,7 @@ with conn.cursor() as cursor:
     cursor.execute(check_query5)
     id_string9_filter = cursor.fetchone()[0]
 
-for filename in ("test1_дляпарсинг.xlsx", "test2_послепарсинга.xlsx"):
+for filename in ("test1_дляпарсинг.xlsx", "test2_послепарсинга.xlsx", "test3_дляпарсинг", "test2_дляпарсинг"):
     with open(str(settings.upload.path_for_upload) + "/" + filename, "w") as file:
         file.write("hello world")
         file.close()

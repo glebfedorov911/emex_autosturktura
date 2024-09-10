@@ -69,14 +69,13 @@ async def main(brands, user_id):
         url = f"https://emex.ru/api/search/search?make={create_params_for_url(brand[2])}&detailNum={brand[0]}&locationId=38760&showAll=true&longitude=37.8613&latitude=55.7434"
         async with async_playwright() as p:
             try:
-                browser = await p.chromium.launch(headless=False, proxy={"server": "dsaasdsad", "username": proxy[1], "password": proxy[2]})
+                browser = await p.chromium.launch(headless=False, proxy={"server": proxy[0], "username": proxy[1], "password": proxy[2]})
                 page = await browser.new_page(user_agent=random.choice(USERAGENTS))
+                page.set_default_navigation_timeout(5555)
 
                 try:
                     await page.goto(url, timeout=4444)
                 except:
-                    if "нет подключения к интернету" in (await (await page.query_selector("#main-message")).inner_text()).lower():
-                        raise Exception
                     await page.goto(url, timeout=4444)
 
                 pre = await (await page.query_selector("pre")).text_content()
@@ -143,8 +142,6 @@ async def main(brands, user_id):
                     try:
                         await page.goto(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=4444)
                     except:
-                        if "нет подключения к интернету" in (await (await page.query_selector("#main-message")).inner_text()).lower():
-                            raise Exception
                         await page.goto(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=4444)
 
                     pre_with_logo = await (await page.query_selector("pre")).text_content()
@@ -160,8 +157,6 @@ async def main(brands, user_id):
                             try:
                                 await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=4444)
                             except:
-                                if "нет подключения к интернету" in (await (await page.query_selector("#main-message")).inner_text()).lower():
-                                    raise Exception
                                 await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=4444)
 
                             # while atms <= 5:
@@ -197,7 +192,6 @@ async def main(brands, user_id):
                 # if atms % 5 == 0:
                 if proxy != ["http://test:8888", "user1", "pass1"]:
                     user_data[user_id]["ban_list"].add("@".join(proxy))
-                    print(user_data[user_id]["ban_list"])
                 if user_data[user_id]["proxies"] != []:
                     proxy = user_data[user_id]["proxies"].pop(0)
                     try:

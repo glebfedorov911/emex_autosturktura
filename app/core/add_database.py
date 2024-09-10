@@ -229,13 +229,13 @@ data_add = {
         # {"expired_at": "2024-10-10 15:25:55", "id_proxy": "8", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://95.182.127.178:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
 
         {"expired_at": "2024-10-10 15:25:55", "id_proxy": "1", "login": os.getenv("login2_proxy"), "password": os.getenv("password2_proxy"), "ip_with_port": "http://45.81.76.140:8000", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        {"expired_at": "2024-10-10 15:25:55", "id_proxy": "1", "login": os.getenv("login2_proxy"), "password": os.getenv("password2_proxy"), "ip_with_port": "http://45.81.79.203:8000", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        {"expired_at": "2024-10-10 15:25:55", "id_proxy": "1", "login": os.getenv("login2_proxy"), "password": os.getenv("password2_proxy"), "ip_with_port": "http://45.81.79.2:8000", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        {"expired_at": "2024-10-10 15:25:55", "id_proxy": "1", "login": os.getenv("login2_proxy"), "password": os.getenv("password2_proxy"), "ip_with_port": "http://94.127.136.44:8000", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        {"expired_at": "2024-10-10 15:25:55", "id_proxy": "1", "login": os.getenv("login2_proxy"), "password": os.getenv("password2_proxy"), "ip_with_port": "http://195.19.200.161:8000", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        {"expired_at": "2024-10-10 15:25:55", "id_proxy": "1", "login": os.getenv("login2_proxy"), "password": os.getenv("password2_proxy"), "ip_with_port": "http://193.232.103.48:8000", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        {"expired_at": "2024-10-10 15:25:55", "id_proxy": "1", "login": os.getenv("login2_proxy"), "password": os.getenv("password2_proxy"), "ip_with_port": "http://195.19.200.10:8000", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        {"expired_at": "2024-10-10 15:25:55", "id_proxy": "1", "login": os.getenv("login2_proxy"), "password": os.getenv("password2_proxy"), "ip_with_port": "http://195.19.200.184:8000", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
+        {"expired_at": "2024-10-10 15:25:55", "id_proxy": "2", "login": os.getenv("login2_proxy"), "password": os.getenv("password2_proxy"), "ip_with_port": "http://45.81.79.203:8000", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
+        {"expired_at": "2024-10-10 15:25:55", "id_proxy": "3", "login": os.getenv("login2_proxy"), "password": os.getenv("password2_proxy"), "ip_with_port": "http://45.81.79.2:8000", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
+        {"expired_at": "2024-10-10 15:25:55", "id_proxy": "4", "login": os.getenv("login2_proxy"), "password": os.getenv("password2_proxy"), "ip_with_port": "http://94.127.136.44:8000", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
+        {"expired_at": "2024-10-10 15:25:55", "id_proxy": "5", "login": os.getenv("login2_proxy"), "password": os.getenv("password2_proxy"), "ip_with_port": "http://195.19.200.161:8000", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
+        {"expired_at": "2024-10-10 15:25:55", "id_proxy": "6", "login": os.getenv("login2_proxy"), "password": os.getenv("password2_proxy"), "ip_with_port": "http://193.232.103.48:8000", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
+        {"expired_at": "2024-10-10 15:25:55", "id_proxy": "7", "login": os.getenv("login2_proxy"), "password": os.getenv("password2_proxy"), "ip_with_port": "http://195.19.200.10:8000", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
+        {"expired_at": "2024-10-10 15:25:55", "id_proxy": "8", "login": os.getenv("login2_proxy"), "password": os.getenv("password2_proxy"), "ip_with_port": "http://195.19.200.184:8000", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
 
 
 

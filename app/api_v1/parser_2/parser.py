@@ -69,7 +69,7 @@ async def main(brands, user_id):
         url = f"https://emex.ru/api/search/search?make={create_params_for_url(brand[2])}&detailNum={brand[0]}&locationId=38760&showAll=true&longitude=37.8613&latitude=55.7434"
         async with async_playwright() as p:
             try:
-                browser = await p.chromium.launch(headless=False, proxy={"server": proxy[0], "username": proxy[1], "password": proxy[2]})
+                browser = await p.chromium.launch(headless=True, proxy={"server": proxy[0], "username": proxy[1], "password": proxy[2]})
                 page = await browser.new_page(user_agent=random.choice(USERAGENTS))
 
                 try:
@@ -199,7 +199,8 @@ async def main(brands, user_id):
                         proxy = [proxy[0], proxy[1], proxy[2]]
                 else:
                     proxy = ["http://test:8888", "user1", "pass1"]
-    user_data[user_id]["proxies"].append(proxy)
+    if proxy != ["http://test:8888", "user1", "pass1"]:
+        user_data[user_id]["proxies"].append(proxy)
         
 def run(brands, user_id):
     asyncio.run(main(brands, user_id))

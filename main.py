@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api_v1.path import router
-from app.core.add_database import *
+# from app.core.add_database import *
 
 import uvicorn
 

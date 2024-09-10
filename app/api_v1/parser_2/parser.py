@@ -199,7 +199,8 @@ async def main(brands, user_id):
                         proxy = [proxy[0], proxy[1], proxy[2]]
                 else:
                     proxy = ["http://test:8888", "user1", "pass1"]
-    user_data[user_id]["proxies"].append(proxy)
+    if proxy != ["http://test:8888", "user1", "pass1"]:
+        user_data[user_id]["proxies"].append(proxy)
         
 def run(brands, user_id):
     asyncio.run(main(brands, user_id))

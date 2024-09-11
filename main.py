@@ -11,9 +11,8 @@ app = FastAPI()
 app.include_router(router=router)
 # test teeest
 origins = [
-    "https://forprojectstests.ru",
-    "https://fronttest.forprojectstests.ru",
-    "http://localhost:5173",
+    "https://autostructure.ru",
+  
 ]
 #
 app.add_middleware(

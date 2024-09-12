@@ -1,4 +1,10 @@
-from sqlalchemy.orm import Mapped, mapped_column, declared_attr, DeclarativeBase, relationship
+from sqlalchemy.orm import (
+    Mapped,
+    mapped_column,
+    declared_attr,
+    DeclarativeBase,
+    relationship,
+)
 from sqlalchemy import String, ForeignKey
 
 from datetime import datetime
@@ -24,6 +30,7 @@ class Parser(Base):
     logo: Mapped[str]
     delivery_time: Mapped[str]
     new_price: Mapped[str] = mapped_column(nullable=True, default=None)
+    after_vat_price: Mapped[str] = mapped_column(nullable=True, default=None)
     quantity1: Mapped[str]
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)
     user = relationship("User", back_populates="parsers")

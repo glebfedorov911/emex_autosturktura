@@ -12,7 +12,6 @@ app.include_router(router=router)
 # test teeest
 origins = [
     "https://autostructure.ru",
-  
 ]
 #
 app.add_middleware(
@@ -25,12 +24,12 @@ app.add_middleware(
 #
 if __name__ == "__main__":
     uvicorn.run("main:app", reload=False, host="0.0.0.0", port=8000)
-# uvicorn.run(
-#     "main:app",
-#     reload=False,
-#     port=8000,
-#     ssl_keyfile="key.pem",
-#     ssl_certfile="cert.pem",
+    # uvicorn.run(
+    #    "main:app",
+    #    reload=False,
+    #   port=8000,
+    #    ssl_keyfile="key.pem",
+    #    ssl_certfile="cert.pem",
 # )
 # uvicorn.run("main:app", reload=False)
 

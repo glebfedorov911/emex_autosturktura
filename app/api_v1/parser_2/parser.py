@@ -12,7 +12,7 @@ from playwright.async_api import async_playwright
 
 user_data = {}
 
-# {"threads": threads.copy(), "events": [Event() for _ in range(count_of_threadings)], 
+# {"threads": threads.copy(), "events": [Event() for _ in range(count_of_threadings)],
 # "proxies": proxies, "filter": filter, "excel_result": [], "status": "Парсер не запущен",
 # "count_proxies": len(proxies), "ban_list": set()}
 
@@ -35,20 +35,36 @@ USERAGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36",
 ]
 
-async def main(brands, user_id):   
+
+async def main(brands, user_id):
     global user_data
 
     DEEP_FILTER = user_data[user_id]["filter"].deep_filter
     DEEP_ANALOG = user_data[user_id]["filter"].deep_analog
     ANALOG = user_data[user_id]["filter"].analog
-    IS_BIGGER = user_data[user_id]["filter"].is_bigger #True - больше False - меньше None - не указано
+    IS_BIGGER = user_data[user_id][
+        "filter"
+    ].is_bigger  # True - больше False - меньше None - не указано
     DATE = user_data[user_id]["filter"].date
-    LOGO = user_data[user_id]["filter"].logo #HXAW - пример лого None - Без лого
+    LOGO = user_data[user_id]["filter"].logo  # HXAW - пример лого None - Без лого
+    PICKUP_POINT = user_data[user_id]["filter"].pickup_point
+    user_data[user_id]["columns"] = [
+        "Артикул",
+        "Наименование",
+        "Брэнд",
+        "Артикул",
+        "Кол-во",
+        "Цена",
+        "Партия",
+        "НДС",
+        "Лого",
+        "Доставка",
+        "Лучшая цена",
+        "Количество",
+    ]
 
-    user_data[user_id]['columns'] = ["Артикул", "Наименование", "Брэнд", "Артикул", "Кол-во", "Цена", "Партия", "НДС", "Лого", "Доставка", "Лучшая цена", "Количество"]
-
-    if LOGO and "Цена с лого" not in user_data[user_id]['columns']:
-        user_data[user_id]['columns'].append("Цена с лого")
+    if LOGO and "Цена с лого" not in user_data[user_id]["columns"]:
+        user_data[user_id]["columns"].append("Цена с лого")
 
     if user_data[user_id]["proxies"] != []:
         proxy = user_data[user_id]["proxies"].pop(0)
@@ -63,13 +79,20 @@ async def main(brands, user_id):
         if user_data[user_id]["count_proxies"] == len(user_data[user_id]["ban_list"]):
             raise HTTPException(
                 status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-                detail="Закочнились прокси"
+                detail="Закочнились прокси",
             )
             break
-        url = f"https://emex.ru/api/search/search?make={create_params_for_url(brand[2])}&detailNum={brand[0]}&locationId=38760&showAll=true&longitude=37.8613&latitude=55.7434"
+        url = f"https://emex.ru/api/search/search?make={create_params_for_url(brand[2])}&detailNum={brand[0]}&locationId={PICKUP_POINT}&showAll=true&longitude=37.8613&latitude=55.7434"
         async with async_playwright() as p:
             try:
-                browser = await p.chromium.launch(headless=True, proxy={"server": proxy[0], "username": proxy[1], "password": proxy[2]})
+                browser = await p.chromium.launch(
+                    headless=True,
+                    proxy={
+                        "server": proxy[0],
+                        "username": proxy[1],
+                        "password": proxy[2],
+                    },
+                )
                 page = await browser.new_page(user_agent=random.choice(USERAGENTS))
 
                 try:
@@ -82,46 +105,262 @@ async def main(brands, user_id):
                 originals = []
                 if IS_BIGGER is None:
                     if "originals" in response["searchResult"]:
-                        originals += [[goods["offerKey"], int(str(goods["delivery"]["value"]).replace("Завтра", "1")), goods["displayPrice"]["value"], goods["data"]["maxQuantity"]["value"]] for orig in response["searchResult"]["originals"] for goods in orig["offers"]]
+                        originals += [
+                            [
+                                goods["offerKey"],
+                                int(
+                                    str(goods["delivery"]["value"]).replace(
+                                        "Завтра", "1"
+                                    )
+                                ),
+                                goods["displayPrice"]["value"],
+                                goods["data"]["maxQuantity"]["value"],
+                            ]
+                            for orig in response["searchResult"]["originals"]
+                            for goods in orig["offers"]
+                        ]
                     else:
-                        result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], "Пусто", "Пусто", "Пусто", "Товар не подходит под фильтр/Товара нет в наличие"]
+                        result = [
+                            brand[0],
+                            brand[1],
+                            brand[2],
+                            brand[3],
+                            brand[4],
+                            brand[5],
+                            brand[6],
+                            brand[7],
+                            "Пусто",
+                            "Пусто",
+                            "Пусто",
+                            "Товар не подходит под фильтр/Товара нет в наличие",
+                        ]
                         if LOGO:
                             result.append("Товара нет в наличие")
                         # continue
 
                     if "replacements" in response["searchResult"]:
-                        originals += [[goods["offerKey"], int(str(goods["delivery"]["value"]).replace("Завтра", "1")), goods["displayPrice"]["value"], goods["data"]["maxQuantity"]["value"]] for repl in response["searchResult"]["replacements"] for goods in repl["offers"]]
+                        originals += [
+                            [
+                                goods["offerKey"],
+                                int(
+                                    str(goods["delivery"]["value"]).replace(
+                                        "Завтра", "1"
+                                    )
+                                ),
+                                goods["displayPrice"]["value"],
+                                goods["data"]["maxQuantity"]["value"],
+                            ]
+                            for repl in response["searchResult"]["replacements"]
+                            for goods in repl["offers"]
+                        ]
 
                     if ANALOG and "analogs" in response["searchResult"]:
-                        originals += [[goods["offerKey"], int(str(goods["delivery"]["value"]).replace("Завтра", "1")), goods["displayPrice"]["value"], goods["data"]["maxQuantity"]["value"]] for anal in response["searchResult"]["analogs"][:DEEP_ANALOG] for goods in anal["offers"]]
+                        originals += [
+                            [
+                                goods["offerKey"],
+                                int(
+                                    str(goods["delivery"]["value"]).replace(
+                                        "Завтра", "1"
+                                    )
+                                ),
+                                goods["displayPrice"]["value"],
+                                goods["data"]["maxQuantity"]["value"],
+                            ]
+                            for anal in response["searchResult"]["analogs"][
+                                :DEEP_ANALOG
+                            ]
+                            for goods in anal["offers"]
+                        ]
                 else:
                     if "originals" in response["searchResult"]:
                         if IS_BIGGER:
-                            originals += [[goods["offerKey"], int(str(goods["delivery"]["value"]).replace("Завтра", "1")), goods["displayPrice"]["value"], goods["data"]["maxQuantity"]["value"]] if int(str(goods["delivery"]["value"]).replace("Завтра", "1")) >= DATE else False for orig in response["searchResult"]["originals"] for goods in orig["offers"]]
+                            originals += [
+                                (
+                                    [
+                                        goods["offerKey"],
+                                        int(
+                                            str(goods["delivery"]["value"]).replace(
+                                                "Завтра", "1"
+                                            )
+                                        ),
+                                        goods["displayPrice"]["value"],
+                                        goods["data"]["maxQuantity"]["value"],
+                                    ]
+                                    if int(
+                                        str(goods["delivery"]["value"]).replace(
+                                            "Завтра", "1"
+                                        )
+                                    )
+                                    >= DATE
+                                    else False
+                                )
+                                for orig in response["searchResult"]["originals"]
+                                for goods in orig["offers"]
+                            ]
                         else:
-                            originals += [[goods["offerKey"], int(str(goods["delivery"]["value"]).replace("Завтра", "1")), goods["displayPrice"]["value"], goods["data"]["maxQuantity"]["value"]] if int(str(goods["delivery"]["value"]).replace("Завтра", "1")) <= DATE else False for orig in response["searchResult"]["originals"] for goods in orig["offers"]]
+                            originals += [
+                                (
+                                    [
+                                        goods["offerKey"],
+                                        int(
+                                            str(goods["delivery"]["value"]).replace(
+                                                "Завтра", "1"
+                                            )
+                                        ),
+                                        goods["displayPrice"]["value"],
+                                        goods["data"]["maxQuantity"]["value"],
+                                    ]
+                                    if int(
+                                        str(goods["delivery"]["value"]).replace(
+                                            "Завтра", "1"
+                                        )
+                                    )
+                                    <= DATE
+                                    else False
+                                )
+                                for orig in response["searchResult"]["originals"]
+                                for goods in orig["offers"]
+                            ]
                     else:
-                        result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], "Пусто", "Пусто", "Пусто", "Товар не подходит под фильтр/Товара нет в наличие"]
+                        result = [
+                            brand[0],
+                            brand[1],
+                            brand[2],
+                            brand[3],
+                            brand[4],
+                            brand[5],
+                            brand[6],
+                            brand[7],
+                            "Пусто",
+                            "Пусто",
+                            "Пусто",
+                            "Товар не подходит под фильтр/Товара нет в наличие",
+                        ]
                         if LOGO:
                             result.append("Товара нет в наличие")
                         # continue
 
                     if "replacements" in response["searchResult"]:
                         if IS_BIGGER:
-                            originals += [[goods["offerKey"], int(str(goods["delivery"]["value"]).replace("Завтра", "1")), goods["displayPrice"]["value"], goods["data"]["maxQuantity"]["value"]] if int(str(goods["delivery"]["value"]).replace("Завтра", "1")) >= DATE else False for orig in response["searchResult"]["replacements"] for goods in orig["offers"]]
+                            originals += [
+                                (
+                                    [
+                                        goods["offerKey"],
+                                        int(
+                                            str(goods["delivery"]["value"]).replace(
+                                                "Завтра", "1"
+                                            )
+                                        ),
+                                        goods["displayPrice"]["value"],
+                                        goods["data"]["maxQuantity"]["value"],
+                                    ]
+                                    if int(
+                                        str(goods["delivery"]["value"]).replace(
+                                            "Завтра", "1"
+                                        )
+                                    )
+                                    >= DATE
+                                    else False
+                                )
+                                for orig in response["searchResult"]["replacements"]
+                                for goods in orig["offers"]
+                            ]
                         else:
-                            originals += [[goods["offerKey"], int(str(goods["delivery"]["value"]).replace("Завтра", "1")), goods["displayPrice"]["value"], goods["data"]["maxQuantity"]["value"]] if int(str(goods["delivery"]["value"]).replace("Завтра", "1")) <= DATE else False for orig in response["searchResult"]["replacements"] for goods in orig["offers"]]
+                            originals += [
+                                (
+                                    [
+                                        goods["offerKey"],
+                                        int(
+                                            str(goods["delivery"]["value"]).replace(
+                                                "Завтра", "1"
+                                            )
+                                        ),
+                                        goods["displayPrice"]["value"],
+                                        goods["data"]["maxQuantity"]["value"],
+                                    ]
+                                    if int(
+                                        str(goods["delivery"]["value"]).replace(
+                                            "Завтра", "1"
+                                        )
+                                    )
+                                    <= DATE
+                                    else False
+                                )
+                                for orig in response["searchResult"]["replacements"]
+                                for goods in orig["offers"]
+                            ]
 
                     if ANALOG and "analogs" in response["searchResult"]:
                         if IS_BIGGER:
-                            originals += [[goods["offerKey"], int(str(goods["delivery"]["value"]).replace("Завтра", "1")), goods["displayPrice"]["value"], goods["data"]["maxQuantity"]["value"]] if int(str(goods["delivery"]["value"]).replace("Завтра", "1")) >= DATE else False for orig in response["searchResult"]["analogs"][:DEEP_ANALOG] for goods in orig["offers"]]
+                            originals += [
+                                (
+                                    [
+                                        goods["offerKey"],
+                                        int(
+                                            str(goods["delivery"]["value"]).replace(
+                                                "Завтра", "1"
+                                            )
+                                        ),
+                                        goods["displayPrice"]["value"],
+                                        goods["data"]["maxQuantity"]["value"],
+                                    ]
+                                    if int(
+                                        str(goods["delivery"]["value"]).replace(
+                                            "Завтра", "1"
+                                        )
+                                    )
+                                    >= DATE
+                                    else False
+                                )
+                                for orig in response["searchResult"]["analogs"][
+                                    :DEEP_ANALOG
+                                ]
+                                for goods in orig["offers"]
+                            ]
                         else:
-                            originals += [[goods["offerKey"], int(str(goods["delivery"]["value"]).replace("Завтра", "1")), goods["displayPrice"]["value"], goods["data"]["maxQuantity"]["value"]] if int(str(goods["delivery"]["value"]).replace("Завтра", "1")) <= DATE else False for orig in response["searchResult"]["analogs"][:DEEP_ANALOG] for goods in orig["offers"]]
-                    
+                            originals += [
+                                (
+                                    [
+                                        goods["offerKey"],
+                                        int(
+                                            str(goods["delivery"]["value"]).replace(
+                                                "Завтра", "1"
+                                            )
+                                        ),
+                                        goods["displayPrice"]["value"],
+                                        goods["data"]["maxQuantity"]["value"],
+                                    ]
+                                    if int(
+                                        str(goods["delivery"]["value"]).replace(
+                                            "Завтра", "1"
+                                        )
+                                    )
+                                    <= DATE
+                                    else False
+                                )
+                                for orig in response["searchResult"]["analogs"][
+                                    :DEEP_ANALOG
+                                ]
+                                for goods in orig["offers"]
+                            ]
+
                     originals = [data for data in originals if data]
 
                 if originals == []:
-                    result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], "Пусто", "Пусто", "Пусто", "Товар не подходит под фильтр/Товара нет в наличие"]
+                    result = [
+                        brand[0],
+                        brand[1],
+                        brand[2],
+                        brand[3],
+                        brand[4],
+                        brand[5],
+                        brand[6],
+                        brand[7],
+                        "Пусто",
+                        "Пусто",
+                        "Пусто",
+                        "Товар не подходит под фильтр/Товара нет в наличие",
+                    ]
                     if LOGO:
                         result.append("Пусто")
                     user_data[user_id]["excel_result"].append(result)
@@ -139,24 +378,49 @@ async def main(brands, user_id):
                     best_data = sorted_by_price[0]
 
                     try:
-                        await page.goto(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=4444)
+                        await page.goto(
+                            f"https://emex.ru/api/search/rating?offerKey={best_data[0]}",
+                            timeout=4444,
+                        )
                     except:
-                        await page.goto(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=4444)
+                        await page.goto(
+                            f"https://emex.ru/api/search/rating?offerKey={best_data[0]}",
+                            timeout=4444,
+                        )
 
-                    pre_with_logo = await (await page.query_selector("pre")).text_content()
+                    pre_with_logo = await (
+                        await page.query_selector("pre")
+                    ).text_content()
                     response_with_logo = dict(json.loads(pre_with_logo))
-                    price_logo = response_with_logo["priceLogo"] 
+                    price_logo = response_with_logo["priceLogo"]
 
                     # result = [price_logo, *best_data[1:]]
-                    result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], price_logo, *best_data[1:]]
+                    result = [
+                        brand[0],
+                        brand[1],
+                        brand[2],
+                        brand[3],
+                        brand[4],
+                        brand[5],
+                        brand[6],
+                        brand[7],
+                        price_logo,
+                        *best_data[1:],
+                    ]
                     if LOGO:
                         best_data = None
                         sorted_by_price = quick_sort(originals, 2)[:20]
                         for data in sorted_by_price:
                             try:
-                                await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=4444)
+                                await page.goto(
+                                    f"https://emex.ru/api/search/rating?offerKey={data[0]}",
+                                    timeout=4444,
+                                )
                             except:
-                                await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=4444)
+                                await page.goto(
+                                    f"https://emex.ru/api/search/rating?offerKey={data[0]}",
+                                    timeout=4444,
+                                )
 
                             # while atms <= 5:
                             #     try:
@@ -164,15 +428,17 @@ async def main(brands, user_id):
                             #     except:
                             #         atms += 1
 
-                            # print(brand, atms)                            
+                            # print(brand, atms)
                             # if atms >= 5:
                             #     raise Exception
                             # else:
                             #     atms = 0
-                            
-                            pre_with_logo = await (await page.query_selector("pre")).text_content()
+
+                            pre_with_logo = await (
+                                await page.query_selector("pre")
+                            ).text_content()
                             response_with_logo = dict(json.loads(pre_with_logo))
-                            price_logo = response_with_logo["priceLogo"] 
+                            price_logo = response_with_logo["priceLogo"]
 
                             data[0] = price_logo
                             if price_logo == LOGO:
@@ -201,6 +467,7 @@ async def main(brands, user_id):
                     proxy = ["http://test:8888", "user1", "pass1"]
     if proxy != ["http://test:8888", "user1", "pass1"]:
         user_data[user_id]["proxies"].append(proxy)
-        
+
+
 def run(brands, user_id):
     asyncio.run(main(brands, user_id))

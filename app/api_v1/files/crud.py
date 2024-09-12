@@ -30,6 +30,7 @@ async def get_files_by_id(session: AsyncSession, file_id: int):
     stmt = select(File).where(File.id == file_id)
     result: Result = await session.execute(stmt)
     files = result.scalars().all()
+    print(files)
     zero_files(files)
 
     return files[0]

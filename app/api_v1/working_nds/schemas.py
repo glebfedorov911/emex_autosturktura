@@ -14,6 +14,7 @@ class ParserCreate(BaseModel):
     logo: str
     delivery_time: str
     new_price: str | None = None
+    after_vat_price: str | None = None
     quantity1: str
     user_id: int
-    file_id: int 
+    file_id: int

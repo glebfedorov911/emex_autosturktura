@@ -9,6 +9,7 @@ class FilterCreate(BaseModel):
     is_bigger: bool | None = None
     date: int | None = None
     logo: str | None = None
+    pickup_point: int | None = 38760
 
 
 class FilterUpdate(BaseModel):
@@ -19,3 +20,4 @@ class FilterUpdate(BaseModel):
     is_bigger: bool | None = None
     date: int | None = None
     logo: str | None = None
+    pickup_point: int | None = 38760

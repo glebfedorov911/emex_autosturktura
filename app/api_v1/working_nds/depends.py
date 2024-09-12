@@ -1,4 +1,4 @@
-from typing import List
+
 from fastapi import HTTPException, status
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -78,7 +78,7 @@ async def set_filename(file_id: int, session: AsyncSession, user_id: int):
     await session.commit()
 
 
-async def to_file(filename: str, parser_data: List):
+async def to_file(filename: str, parser_data: list):
     try:
         # Определяем базовые столбцы
         columns = [

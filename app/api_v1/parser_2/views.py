@@ -195,6 +195,7 @@ async def websocket_status_endpoint(
                     str(settings.upload.path_for_upload) + "/" + result_file_name,
                     index=False,
                 )
+                await edit_file(str(settings.upload.path_for_upload) + "/" + result_file_name)
                 await crud.saving_to_table_data(
                     user_id=payload.get("sub"), session=session, data=ud["excel_result"], filename=result_file_name
                 )

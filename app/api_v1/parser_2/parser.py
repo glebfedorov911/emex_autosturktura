@@ -129,13 +129,13 @@ async def main(brands, user_id):
                             brand[5],
                             brand[6],
                             brand[7],
-                            "Пусто",
-                            "Пусто",
-                            "Пусто",
-                            "Товар не подходит под фильтр/Товара нет в наличие",
+                            0,
+                            0,
+                            0,
+                            0,
                         ]
                         if LOGO:
-                            result.append("Товара нет в наличие")
+                            result.append(0)
                         # continue
 
                     if "replacements" in response["searchResult"]:
@@ -231,13 +231,13 @@ async def main(brands, user_id):
                             brand[5],
                             brand[6],
                             brand[7],
-                            "Пусто",
-                            "Пусто",
-                            "Пусто",
-                            "Товар не подходит под фильтр/Товара нет в наличие",
+                            0,
+                            0,
+                            0,
+                            0,
                         ]
                         if LOGO:
-                            result.append("Товара нет в наличие")
+                            result.append(0)
                         # continue
 
                     if "replacements" in response["searchResult"]:
@@ -356,13 +356,13 @@ async def main(brands, user_id):
                         brand[5],
                         brand[6],
                         brand[7],
-                        "Пусто",
-                        "Пусто",
-                        "Пусто",
-                        "Товар не подходит под фильтр/Товара нет в наличие",
+                        0,
+                        0,
+                        0,
+                        0,
                     ]
                     if LOGO:
-                        result.append("Пусто")
+                        result.append(0)
                     user_data[user_id]["excel_result"].append(result)
                 else:
 
@@ -376,6 +376,11 @@ async def main(brands, user_id):
                     # best_data = min(cut_data_by_availability, key=lambda x: x[2])
                     sorted_by_price = quick_sort(cut_data_by_date, 2)
                     best_data = sorted_by_price[0]
+                    for idx in range(len(best_data)):
+                        try:
+                            best_data[idx] = int(best_data[idx])
+                        except:
+                            pass
 
                     try:
                         await page.goto(
@@ -446,9 +451,9 @@ async def main(brands, user_id):
                                 break
 
                         if best_data:
-                            result.append(best_data[2])
+                            result.append(int(best_data[2]))
                         else:
-                            result.append("Нет такого лого среди оригиналов")
+                            result.append(0)
                     user_data[user_id]["excel_result"].append(result)
             except Exception as e:
                 # print(e)

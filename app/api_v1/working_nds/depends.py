@@ -129,7 +129,7 @@ async def to_file(filename: str, parser_data: list):
                 data.brand,
                 data.article1,
                 data.quantity,
-                data.price,
+                float(data.price),
                 data.batch,
                 data.nds,
                 data.logo,

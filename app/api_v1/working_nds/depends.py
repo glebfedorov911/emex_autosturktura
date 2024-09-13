@@ -136,8 +136,8 @@ async def to_file(filename: str, parser_data: list):
                 data.delivery_time,
                 int(data.best_price),
                 data.quantity1,
-                *( [int(data.new_price)] if has_new_price and hasattr(data, 'new_price') and not data.new_price is None else []),  # Добавляем 'new_price', если он существует
-                *( [int(data.after_vat_price)] if has_after_vat_price and hasattr(data, 'after_vat_price') and not data.after_vat_price is None else [])  # Добавляем 'after_vat_price', если он существует
+                *([int(data.new_price)] if hasattr(data, 'new_price') and has_new_price and data.new_price is not None else []),  # Добавляем 'new_price', если он существует
+                *([int(data.after_vat_price)] if hasattr(data, 'after_vat_price') and has_after_vat_price and data.after_vat_price is not None else [])  # Добавляем 'after_vat_price', если он существует
             ]
             for data in parser_data
         ]

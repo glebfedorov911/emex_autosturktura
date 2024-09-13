@@ -85,7 +85,7 @@ async def edit_file(filepath: str):
 
     integer_style = NamedStyle(name="integer_style", number_format='0')
 
-    for row in ["K", "M"]:
+    for row in ["K", "J", "L", "M", "F"]:
         for cell in ws[row]:  
             if isinstance(cell.value, (int, float)):
                 cell.style = integer_style

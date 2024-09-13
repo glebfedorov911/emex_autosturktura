@@ -87,7 +87,7 @@ async def edit_file(filepath: str):
 
     integer_style = NamedStyle(name="integer_style", number_format='0')
 
-    for row in ["J", "K", "L", "M", "N"]:
+    for row in ["J", "K", "L", "M", "N", "F"]:
         for cell in ws[row]:  
             if isinstance(cell.value, (int, float)):
                 cell.style = integer_style
@@ -133,9 +133,9 @@ async def to_file(filename: str, parser_data: list):
                 data.batch,
                 data.nds,
                 data.logo,
-                data.delivery_time,
+                int(data.delivery_time),
                 int(data.best_price),
-                data.quantity1,
+                int(data.quantity1),
                 *([int(data.new_price)] if hasattr(data, 'new_price') and has_new_price and data.new_price != "-1" else []),  # Добавляем 'new_price', если он существует
                 *([int(data.after_vat_price)] if hasattr(data, 'after_vat_price') and has_after_vat_price else [])  # Добавляем 'after_vat_price', если он существует
             ]

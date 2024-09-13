@@ -23,7 +23,7 @@ async def edit_with_nds(session: AsyncSession, user_id: int, file_id: int):
     
     filename = await get_filename(file_id=file_id, user_id=user_id, session=session)
     try:
-        await to_file(filename=filename, parser_data=await get_all_data_from_file(session=session, user_id=user_id, file_id=file_id))
+        await to_file(filename=filename, parser_data=await get_all_data_from_file(session=session, user_id=user_id, file_id=file_id), session=session)
     except:
         raise HTTPException(
             status_code=status.HTTP_405_METHOD_NOT_ALLOWED,

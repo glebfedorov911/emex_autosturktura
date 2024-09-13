@@ -94,7 +94,7 @@ async def edit_file(filepath: str):
     
     wb.save(filepath)
 
-async def to_file(filename: str, parser_data: list):
+async def to_file(filename: str, parser_data: list, session: AsyncSession):
     try:
         # Определяем базовые столбцы
         columns = [
@@ -143,6 +143,12 @@ async def to_file(filename: str, parser_data: list):
         ]
         if len(excel[0]) == 13:
             columns.remove("Цена с лого")
+            for data in parser_data:
+                data.new_price = None
+                session.add(data)
+                await session.commit()
+
+        
 
         # Создание DataFrame
         df = pd.DataFrame(excel, columns=columns)

@@ -16,6 +16,8 @@ async def edit_with_nds(session: AsyncSession, user_id: int, file_id: int):
             continue
         
         data.after_vat_price = str(best_price)
+        if not hasattr(data, "new_price"):
+            data.new_price = -1
         session.add(data)
         await session.commit()
     

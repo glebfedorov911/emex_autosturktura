@@ -141,8 +141,8 @@ async def to_file(filename: str, parser_data: list):
             ]
             for data in parser_data
         ]
-        print(excel[0])
-        print(columns)
+        if len(excel[0]) == 13:
+            columns.remove("Цена с лого")
 
         # Создание DataFrame
         df = pd.DataFrame(excel, columns=columns)

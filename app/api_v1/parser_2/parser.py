@@ -129,13 +129,13 @@ async def main(brands, user_id):
                             brand[5],
                             brand[6],
                             brand[7],
-                            "0",
-                            "0",
-                            "0",
-                            "0",
+                            0,
+                            0,
+                            0,
+                            0,
                         ]
                         if LOGO:
-                            result.append("0")
+                            result.append(0)
                         # continue
 
                     if "replacements" in response["searchResult"]:
@@ -231,13 +231,13 @@ async def main(brands, user_id):
                             brand[5],
                             brand[6],
                             brand[7],
-                            "0",
-                            "0",
-                            "0",
-                            "0",
+                            0,
+                            0,
+                            0,
+                            0,
                         ]
                         if LOGO:
-                            result.append("0")
+                            result.append(0)
                         # continue
 
                     if "replacements" in response["searchResult"]:
@@ -356,13 +356,13 @@ async def main(brands, user_id):
                         brand[5],
                         brand[6],
                         brand[7],
-                        "0",
-                        "0",
-                        "0",
-                        "0",
+                        0,
+                        0,
+                        0,
+                        0,
                     ]
                     if LOGO:
-                        result.append("0")
+                        result.append(0)
                     user_data[user_id]["excel_result"].append(result)
                 else:
 

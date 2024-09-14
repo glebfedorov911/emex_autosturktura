@@ -3,11 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api_v1.path import router
 from app.core.add_database import *
+from app.core.config import settings
 
 import uvicorn
 
 
-app = FastAPI()
+app = FastAPI(openapi_url=settings.docs.docs_url)
 app.include_router(router=router)
 # test teeest
 origins = [

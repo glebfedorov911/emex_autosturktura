@@ -33,6 +33,9 @@ class Templates(BaseModel):
 class UploadFiles(BaseModel):
     path_for_upload: Path = BASE_DIR / "upload_file"
 
+class Docs(BaseModel):
+    docs_url: str = ""
+
 class Settings(BaseSettings):
     db: DBSettings = DBSettings()
     auth: Auth = Auth()
@@ -40,6 +43,7 @@ class Settings(BaseSettings):
     proxy: Proxy = Proxy()
     upload: UploadFiles = UploadFiles()
     templates: Templates = Templates()
+    docs: Docs = Docs()
 
 settings = Settings()
 

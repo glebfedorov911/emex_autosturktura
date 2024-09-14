@@ -112,16 +112,12 @@ async def delete_proxy_banned(session: AsyncSession, user_id: int):
         session.add(proxy)
         await session.commit()
 
-async def set_parsing(session: AsyncSession, user_id: int):
+async def set_parsing(session: AsyncSession, status: bool, user_id: int):
     stmt = select(User).where(User.id==user_id)
     result: Result = await session.execute(stmt)
     user = result.scalar()
 
-    print(user.is_parsing)
-    if user.is_parsing:
-        user.is_parsing = False
-    else:
-        user.is_parsing = True
+    user.is_parsing = status
 
     session.add(user)
     await session.commit()

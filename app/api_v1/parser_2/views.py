@@ -200,7 +200,7 @@ async def websocket_status_endpoint(
                 await crud.saving_to_table_data(
                     user_id=payload.get("sub"), session=session, data=ud["excel_result"], filename=result_file_name
                 )
-                await crud.set_parsing(session=session, user_id=payload.get("sub"))
+                await crud.set_parsing(session=session, status=False, user_id=payload.get("sub"))
                 await crud.set_banned_proxy(
                     proxy_servers=ud["ban_list"], session=session, user_id=payload.get("sub")
                 )
@@ -269,7 +269,7 @@ async def start(
         user_data[payload.get("sub")]["status"] = "Неизвестный фальтр"
         return JSONResponse("Неизвестный фальтр")
     else:
-        await crud.set_parsing(session=session, user_id=payload.get("sub"))
+        await crud.set_parsing(session=session, status=True, user_id=payload.get("sub"))
         
         df = pd.read_excel(str(settings.upload.path_for_upload) + "/" + files)
 

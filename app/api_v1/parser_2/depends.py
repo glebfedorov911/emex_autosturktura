@@ -7,10 +7,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.engine import Result
 from sqlalchemy import select
 
-from openpyxl import load_workbook
-from openpyxl.utils.dataframe import dataframe_to_rows
-from openpyxl.styles import NamedStyle
-
 from app.core.models import File
 
 from app.api_v1.auth.utils import get_payload
@@ -78,16 +74,3 @@ async def check_after_parsing_file(session: AsyncSession, user_id: int):
     result: Result = await session.execute(stmt)
     # print(result.scalars().all()[-1].after_parsing_filename)
     return result.scalars().all()[-1].after_parsing_filename is None
-
-async def edit_file(filepath: str):
-    wb = load_workbook(filepath)
-    ws = wb.active
-
-    integer_style = NamedStyle(name="integer_style", number_format='0')
-
-    for row in ["K", "J", "L", "M", "F"]:
-        for cell in ws[row]:  
-            if isinstance(cell.value, (int, float)):
-                cell.style = integer_style
-    
-    wb.save(filepath)

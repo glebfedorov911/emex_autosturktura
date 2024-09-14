@@ -11,6 +11,7 @@ from openpyxl.styles import NamedStyle
 
 from app.core.models import Parser, File
 from app.core.config import settings
+from app.api_v1.utils.depends import edit_file 
 
 import pandas as pd
 
@@ -81,18 +82,6 @@ async def set_filename(file_id: int, session: AsyncSession, user_id: int):
     session.add(file)
     await session.commit()
 
-async def edit_file(filepath: str):
-    wb = load_workbook(filepath)
-    ws = wb.active
-
-    integer_style = NamedStyle(name="integer_style", number_format='0')
-
-    for row in ["J", "K", "L", "M", "N", "F"]:
-        for cell in ws[row]:  
-            if isinstance(cell.value, (int, float)):
-                cell.style = integer_style
-    
-    wb.save(filepath)
 
 async def to_file(filename: str, parser_data: list, session: AsyncSession):
     try:
@@ -156,7 +145,7 @@ async def to_file(filename: str, parser_data: list, session: AsyncSession):
         # Сохранение в файл Excel
         output_path = f"{str(settings.upload.path_for_upload)}/обработанный_{filename}"
         df.to_excel(output_path, index=False)
-        await edit_file(output_path)
+        await edit_file(output_path, ["J", "K", "L", "M", "N", "F"])
 
     except AttributeError as e:
         print(f"Ошибка атрибутов в данных: {e}")

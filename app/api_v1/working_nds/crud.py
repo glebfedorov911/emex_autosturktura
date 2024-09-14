@@ -3,7 +3,6 @@ from sqlalchemy.engine import Result
 from sqlalchemy import select
 
 from app.core.models import Parser
-from .schemas import ParserCreate
 from .depends import *
 
 

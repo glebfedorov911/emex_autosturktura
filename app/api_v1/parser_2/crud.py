@@ -117,6 +117,7 @@ async def set_parsing(session: AsyncSession, user_id: int):
     result: Result = await session.execute(stmt)
     user = result.scalar()
 
+    print(user.is_parsing)
     if user.is_parsing:
         user.is_parsing = False
     else:

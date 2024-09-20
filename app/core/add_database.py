@@ -1543,7 +1543,7 @@ data_add = {
 
 for table in tables:
     add_to_db(table, data_add[table])
-
+#
 
 # import psycopg2
 # import os

@@ -1,6 +1,7 @@
 from fastapi import HTTPException, status
 
 from app.core.models import Proxy, NewFilter, File, Parser, User
+from app.api_v1.filters.depends import filter_by_id 
 from .schemas import ParserCreate
 
 from datetime import datetime, timedelta
@@ -72,11 +73,16 @@ async def saving_to_table_data(user_id: int, session: AsyncSession, data: list, 
 
     return "все успешно сохранено"
 
+async def get_title_filter(session: AsyncSession, filter_id_global: int):
+    stmt = select(NewFilter.title).where(NewFilter.id==filter_id_global)
+    result: Result = await session.execute(stmt)
+    return result.scalars().all()[0]
+
 async def add_final_file_to_table(user_id: int, session: AsyncSession, result_name: str, filter_id_global: int):
     file = await get_last_upload_files(user_id=user_id, session=session)
     file.after_parsing_filename = result_name
     file.finish_date = datetime.now()
-    file.new_filter_id = filter_id_global
+    file.new_filter_id = await get_title_filter(session=session, filter_id_global=filter_id_global)
     await session.commit()
 
 async def set_banned_proxy(proxy_servers: list, session: AsyncSession, user_id: int):

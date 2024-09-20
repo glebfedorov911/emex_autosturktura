@@ -20,4 +20,4 @@ class NewFilter(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)
     pickup_point: Mapped[int] = mapped_column(default=38760, nullable=True)
     user = relationship("User", back_populates="newfilters")
-    files = relationship("File", back_populates="newfilters")
+    # files = relationship("File", back_populates="newfilters")

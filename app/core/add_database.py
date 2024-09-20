@@ -104,14 +104,46 @@ check_query2 = sql.SQL("SELECT id FROM users WHERE username = 'newuser'")
 check_query3 = sql.SQL("SELECT id FROM users WHERE username = 'simpleuser'")
 with conn.cursor() as cursor:
     cursor.execute(check_query1)
-    id_admin_fullname = cursor.fetchone()[0]
+    try:
+        id_admin_fullname = cursor.fetchone()[0]
+    except:
+        id_admin_fullname = None
     cursor.execute(check_query2)
-    id_newuser_fullname = cursor.fetchone()[0]
+    try:
+        id_newuser_fullname = cursor.fetchone()[0]
+    except:
+        id_newuser_fullname = None 
     cursor.execute(check_query3)
-    id_simpleuser_fullname = cursor.fetchone()[0]
+    try:
+        id_simpleuser_fullname = cursor.fetchone()[0]
+    except:
+        id_simpleuser_fullname = None
 
-data_add = {
-    "newfilters": (
+
+newfilters = []
+if id_admin_fullname:
+    fil = [{
+            "deep_filter": "11",
+            "deep_analog": "10",
+            "analog": False,
+            "is_bigger": False,
+            "date": "10",
+            "logo": "RMFZ",
+            "user_id": id_admin_fullname,
+            "title": "string9",
+            "pickup_point": "38760",
+        },
+        {
+            "deep_filter": "11",
+            "deep_analog": "10",
+            "analog": False,
+            "is_bigger": False,
+            "date": "10",
+            "logo": "RMFZ",
+            "user_id": id_admin_fullname,
+            "title": "string10",
+            "pickup_point": "38760",
+        },
         {
             "deep_filter": "10",
             "deep_analog": "10",
@@ -122,7 +154,13 @@ data_add = {
             "user_id": id_admin_fullname,
             "title": "string1",
             "pickup_point": "38760",
-        },
+        }]
+
+    for i in fil:
+        newfilters.append(i)
+
+if id_newuser_fullname:
+    fil = [
         {
             "deep_filter": "50",
             "deep_analog": "25",
@@ -135,6 +173,35 @@ data_add = {
             "pickup_point": "38760",
         },
         {
+            "deep_filter": "11",
+            "deep_analog": "23",
+            "analog": False,
+            "is_bigger": True,
+            "date": "5",
+            "logo": "OEOL",
+            "user_id": id_newuser_fullname,
+            "title": "string7",
+            "pickup_point": "38760",
+        },
+        {
+            "deep_filter": "11",
+            "deep_analog": "10",
+            "analog": False,
+            "is_bigger": False,
+            "date": "10",
+            "logo": "OEOL",
+            "user_id": id_newuser_fullname,
+            "title": "string8",
+            "pickup_point": "38760",
+        },
+    ]
+
+    for i in fil:
+        newfilters.append(i)
+
+if id_simpleuser_fullname:
+    fil = [
+ {
             "deep_filter": "15",
             "deep_analog": "25",
             "analog": True,
@@ -174,51 +241,13 @@ data_add = {
             "title": "string6",
             "pickup_point": "38760",
         },
-        {
-            "deep_filter": "11",
-            "deep_analog": "23",
-            "analog": False,
-            "is_bigger": True,
-            "date": "5",
-            "logo": "OEOL",
-            "user_id": id_newuser_fullname,
-            "title": "string7",
-            "pickup_point": "38760",
-        },
-        {
-            "deep_filter": "11",
-            "deep_analog": "10",
-            "analog": False,
-            "is_bigger": False,
-            "date": "10",
-            "logo": "OEOL",
-            "user_id": id_newuser_fullname,
-            "title": "string8",
-            "pickup_point": "38760",
-        },
-        {
-            "deep_filter": "11",
-            "deep_analog": "10",
-            "analog": False,
-            "is_bigger": False,
-            "date": "10",
-            "logo": "RMFZ",
-            "user_id": id_admin_fullname,
-            "title": "string9",
-            "pickup_point": "38760",
-        },
-        {
-            "deep_filter": "11",
-            "deep_analog": "10",
-            "analog": False,
-            "is_bigger": False,
-            "date": "10",
-            "logo": "RMFZ",
-            "user_id": id_admin_fullname,
-            "title": "string10",
-            "pickup_point": "38760",
-        },
-    ),
+    ]
+
+    for i in fil:
+        newfilters.append(i)
+
+data_add = {
+    "newfilters": newfilters
 }
 
 add_to_db("newfilters", data_add["newfilters"])
@@ -645,53 +674,6 @@ data_add = {
         },
     ),
     "proxys": (
-        # {"expired_at": "2024-10-09 16:53:55", "id_proxy": "1", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://194.35.113.168:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-09 16:53:55", "id_proxy": "1", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://188.130.185.145:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-09 16:53:55", "id_proxy": "1", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://45.84.176.60:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-09 16:53:55", "id_proxy": "1", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://194.35.113.232:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-09 16:53:55", "id_proxy": "1", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://46.8.16.199:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-09 16:53:55", "id_proxy": "1", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://45.90.196.181:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-09 16:53:55", "id_proxy": "1", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://46.8.23.109:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-09 16:53:55", "id_proxy": "1", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://109.248.205.82:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:03:55", "id_proxy": "1", "login": os.getenv("login1_proxy"), "password": os.getenv("password1_proxy"), "ip_with_port": "http://45.142.252.195:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:03:55", "id_proxy": "2", "login": os.getenv("login1_proxy"), "password": os.getenv("password1_proxy"), "ip_with_port": "http://95.182.125.202:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:03:55", "id_proxy": "3", "login": os.getenv("login1_proxy"), "password": os.getenv("password1_proxy"), "ip_with_port": "http://193.58.168.93:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:03:55", "id_proxy": "4", "login": os.getenv("login1_proxy"), "password": os.getenv("password1_proxy"), "ip_with_port": "http://45.84.177.36:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:03:55", "id_proxy": "5", "login": os.getenv("login1_proxy"), "password": os.getenv("password1_proxy"), "ip_with_port": "http://185.181.244.107:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:03:55", "id_proxy": "6", "login": os.getenv("login1_proxy"), "password": os.getenv("password1_proxy"), "ip_with_port": "http://45.139.176.33:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:03:55", "id_proxy": "7", "login": os.getenv("login1_proxy"), "password": os.getenv("password1_proxy"), "ip_with_port": "http://45.134.252.231:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:03:55", "id_proxy": "8", "login": os.getenv("login1_proxy"), "password": os.getenv("password1_proxy"), "ip_with_port": "http://109.248.139.237:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:03:55", "id_proxy": "9", "login": os.getenv("login1_proxy"), "password": os.getenv("password1_proxy"), "ip_with_port": "http://46.8.154.253:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:03:55", "id_proxy": "10", "login": os.getenv("login1_proxy"), "password": os.getenv("password1_proxy"), "ip_with_port": "http://46.8.154.63:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:03:55", "id_proxy": "11", "login": os.getenv("login1_proxy"), "password": os.getenv("password1_proxy"), "ip_with_port": "http://194.156.123.136:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:03:55", "id_proxy": "12", "login": os.getenv("login1_proxy"), "password": os.getenv("password1_proxy"), "ip_with_port": "http://92.119.193.248:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:03:55", "id_proxy": "13", "login": os.getenv("login1_proxy"), "password": os.getenv("password1_proxy"), "ip_with_port": "http://194.156.92.72:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:03:55", "id_proxy": "14", "login": os.getenv("login1_proxy"), "password": os.getenv("password1_proxy"), "ip_with_port": "http://46.8.223.94:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:03:55", "id_proxy": "15", "login": os.getenv("login1_proxy"), "password": os.getenv("password1_proxy"), "ip_with_port": "http://45.134.253.250:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:03:55", "id_proxy": "16", "login": os.getenv("login1_proxy"), "password": os.getenv("password1_proxy"), "ip_with_port": "http://84.54.53.129:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:03:55", "id_proxy": "17", "login": os.getenv("login1_proxy"), "password": os.getenv("password1_proxy"), "ip_with_port": "http://45.81.136.176:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:03:55", "id_proxy": "18", "login": os.getenv("login1_proxy"), "password": os.getenv("password1_proxy"), "ip_with_port": "http://193.53.168.103:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:03:55", "id_proxy": "19", "login": os.getenv("login1_proxy"), "password": os.getenv("password1_proxy"), "ip_with_port": "http://109.248.139.206:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:03:55", "id_proxy": "20", "login": os.getenv("login1_proxy"), "password": os.getenv("password1_proxy"), "ip_with_port": "http://109.248.205.253:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:03:55", "id_proxy": "21", "login": os.getenv("login1_proxy"), "password": os.getenv("password1_proxy"), "ip_with_port": "http://46.8.57.115:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:03:55", "id_proxy": "22", "login": os.getenv("login1_proxy"), "password": os.getenv("password1_proxy"), "ip_with_port": "http://188.130.143.32:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:03:55", "id_proxy": "23", "login": os.getenv("login1_proxy"), "password": os.getenv("password1_proxy"), "ip_with_port": "http://109.248.143.71:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:03:55", "id_proxy": "24", "login": os.getenv("login1_proxy"), "password": os.getenv("password1_proxy"), "ip_with_port": "http://45.144.36.237:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:03:55", "id_proxy": "25", "login": os.getenv("login1_proxy"), "password": os.getenv("password1_proxy"), "ip_with_port": "http://188.130.219.4:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:03:55", "id_proxy": "26", "login": os.getenv("login1_proxy"), "password": os.getenv("password1_proxy"), "ip_with_port": "http://188.130.186.72:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:03:55", "id_proxy": "27", "login": os.getenv("login1_proxy"), "password": os.getenv("password1_proxy"), "ip_with_port": "http://185.181.246.96:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:03:55", "id_proxy": "28", "login": os.getenv("login1_proxy"), "password": os.getenv("password1_proxy"), "ip_with_port": "http://45.87.253.96:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:03:55", "id_proxy": "29", "login": os.getenv("login1_proxy"), "password": os.getenv("password1_proxy"), "ip_with_port": "http://45.11.20.78:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:03:55", "id_proxy": "30", "login": os.getenv("login1_proxy"), "password": os.getenv("password1_proxy"), "ip_with_port": "http://188.130.187.218:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:25:55", "id_proxy": "1", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://188.130.211.254:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:25:55", "id_proxy": "2", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://188.130.128.156:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:25:55", "id_proxy": "3", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://109.248.15.126:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:25:55", "id_proxy": "4", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://109.248.14.41:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:25:55", "id_proxy": "5", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://185.181.246.195:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:25:55", "id_proxy": "6", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://46.8.154.169:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:25:55", "id_proxy": "7", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://188.130.143.69:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-10 15:25:55", "id_proxy": "8", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://95.182.127.178:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        
         {
             "expired_at": "2024-10-13 15:51:55",
             "id_proxy": "1",
@@ -1473,73 +1455,16 @@ data_add = {
             "user_id": id_simpleuser_fullname,
             "is_using": True,
         },
-        # {"expired_at": "2024-09-27 00:00:00", "id_proxy": "1", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://193.58.168.161:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-09-27 00:00:00", "id_proxy": "1", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://46.8.156.18:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-09-27 00:00:00", "id_proxy": "2", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://94.158.190.15:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-09-27 00:00:00", "id_proxy": "3", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://194.34.248.47:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-09-27 00:00:00", "id_proxy": "4", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://46.8.107.162:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-09-27 00:00:00", "id_proxy": "5", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://46.8.111.77:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-09-27 00:00:00", "id_proxy": "6", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://95.182.125.155:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-09-27 00:00:00", "id_proxy": "7", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://188.130.218.24:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-09-27 00:00:00", "id_proxy": "8", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://46.8.11.180:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-04 23:41:54", "id_proxy": "9", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://45.15.72.89:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-04 23:41:54", "id_proxy": "10", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://188.130.137.212:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-04 23:41:54", "id_proxy": "11", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://46.8.212.217:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-04 23:41:54", "id_proxy": "12", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://109.248.14.106:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-04 23:01:41", "id_proxy": "13", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://46.8.23.195:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-04 23:01:41", "id_proxy": "14", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://109.248.166.66:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-04 23:01:41", "id_proxy": "15", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://46.8.110.75:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-04 23:01:41", "id_proxy": "16", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://188.130.136.55:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-09 19:22:47", "id_proxy": "17", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://109.248.49.65:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-09 19:22:47", "id_proxy": "18", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://46.8.16.159:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-09 19:22:47", "id_proxy": "19", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://188.130.128.65:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-09 19:22:47", "id_proxy": "20", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://188.130.128.165:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-09 20:18:18", "id_proxy": "21", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://188.130.129.73:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-09 20:18:18", "id_proxy": "22", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://46.8.23.158:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-09 20:18:18", "id_proxy": "23", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://185.181.244.90:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-09 20:18:18", "id_proxy": "24", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://2.59.50.252:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-09 18:47:16", "id_proxy": "17", "login": "Ib5ni8", "password": "hgcniZGmBh", "ip_with_port": "http://109.248.12.74:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-09 18:47:16", "id_proxy": "18", "login": "Ib5ni8", "password": "hgcniZGmBh", "ip_with_port": "http://188.130.142.163:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-09 18:47:16", "id_proxy": "19", "login": "Ib5ni8", "password": "hgcniZGmBh", "ip_with_port": "http://46.8.193.97:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-09 18:47:16", "id_proxy": "20", "login": "Ib5ni8", "password": "hgcniZGmBh", "ip_with_port": "http://46.8.22.106:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-09 18:47:16", "id_proxy": "21", "login": "Ib5ni8", "password": "hgcniZGmBh", "ip_with_port": "http://188.130.128.204:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-09 18:47:16", "id_proxy": "22", "login": "Ib5ni8", "password": "hgcniZGmBh", "ip_with_port": "http://95.182.125.89:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-09 18:47:16", "id_proxy": "23", "login": "Ib5ni8", "password": "hgcniZGmBh", "ip_with_port": "http://194.32.229.204:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-10-09 18:47:16", "id_proxy": "24", "login": "Ib5ni8", "password": "hgcniZGmBh", "ip_with_port": "http://45.87.253.242:1050", "_is_banned": False, "user_id": id_admin_fullname, "is_using": True},
-        # {"expired_at": "2024-09-27 00:00:00", "id_proxy": "1", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://46.8.156.18:1050", "_is_banned": False, "user_id": id_newuser_fullname, "is_using": True},
-        # {"expired_at": "2024-09-27 00:00:00", "id_proxy": "2", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://94.158.190.15:1050", "_is_banned": False, "user_id": id_newuser_fullname, "is_using": True},
-        # {"expired_at": "2024-09-27 00:00:00", "id_proxy": "3", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://194.34.248.47:1050", "_is_banned": False, "user_id": id_newuser_fullname, "is_using": True},
-        # {"expired_at": "2024-09-27 00:00:00", "id_proxy": "4", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://46.8.107.162:1050", "_is_banned": False, "user_id": id_newuser_fullname, "is_using": True},
-        # {"expired_at": "2024-09-27 00:00:00", "id_proxy": "5", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://46.8.111.77:1050", "_is_banned": False, "user_id": id_newuser_fullname, "is_using": True},
-        # {"expired_at": "2024-09-27 00:00:00", "id_proxy": "6", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://95.182.125.155:1050", "_is_banned": False, "user_id": id_newuser_fullname, "is_using": True},
-        # {"expired_at": "2024-09-27 00:00:00", "id_proxy": "7", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://188.130.218.24:1050", "_is_banned": False, "user_id": id_newuser_fullname, "is_using": True},
-        # {"expired_at": "2024-09-27 00:00:00", "id_proxy": "8", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://46.8.11.180:1050", "_is_banned": False, "user_id": id_newuser_fullname, "is_using": True},
-        # {"expired_at": "2024-10-04 23:41:54", "id_proxy": "9", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://45.15.72.89:1050", "_is_banned": False, "user_id": id_newuser_fullname, "is_using": True},
-        # {"expired_at": "2024-10-04 23:41:54", "id_proxy": "10", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://188.130.137.212:1050", "_is_banned": False, "user_id": id_newuser_fullname, "is_using": True},
-        # {"expired_at": "2024-10-04 23:41:54", "id_proxy": "11", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://46.8.212.217:1050", "_is_banned": False, "user_id": id_newuser_fullname, "is_using": True},
-        # {"expired_at": "2024-10-04 23:41:54", "id_proxy": "12", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://109.248.14.106:1050", "_is_banned": False, "user_id": id_newuser_fullname, "is_using": True},
-        # {"expired_at": "2024-10-04 23:01:41", "id_proxy": "13", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://46.8.23.195:1050", "_is_banned": False, "user_id": id_newuser_fullname, "is_using": True},
-        # {"expired_at": "2024-10-04 23:01:41", "id_proxy": "14", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://109.248.166.66:1050", "_is_banned": False, "user_id": id_newuser_fullname, "is_using": True},
-        # {"expired_at": "2024-10-04 23:01:41", "id_proxy": "15", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://46.8.110.75:1050", "_is_banned": False, "user_id": id_newuser_fullname, "is_using": True},
-        # {"expired_at": "2024-10-04 23:01:41", "id_proxy": "16", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://188.130.136.55:1050", "_is_banned": False, "user_id": id_newuser_fullname, "is_using": True},
-        # {"expired_at": "2024-09-27 00:00:00", "id_proxy": "1", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://46.8.156.18:1050", "_is_banned": False, "user_id": id_simpleuser_fullname, "is_using": True},
-        # {"expired_at": "2024-09-27 00:00:00", "id_proxy": "2", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://94.158.190.15:1050", "_is_banned": False, "user_id": id_simpleuser_fullname, "is_using": True},
-        # {"expired_at": "2024-09-27 00:00:00", "id_proxy": "3", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://194.34.248.47:1050", "_is_banned": False, "user_id": id_simpleuser_fullname, "is_using": True},
-        # {"expired_at": "2024-09-27 00:00:00", "id_proxy": "4", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://46.8.107.162:1050", "_is_banned": False, "user_id": id_simpleuser_fullname, "is_using": True},
-        # {"expired_at": "2024-09-27 00:00:00", "id_proxy": "5", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://46.8.111.77:1050", "_is_banned": False, "user_id": id_simpleuser_fullname, "is_using": True},
-        # {"expired_at": "2024-09-27 00:00:00", "id_proxy": "6", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://95.182.125.155:1050", "_is_banned": False, "user_id": id_simpleuser_fullname, "is_using": True},
-        # {"expired_at": "2024-09-27 00:00:00", "id_proxy": "7", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://188.130.218.24:1050", "_is_banned": False, "user_id": id_simpleuser_fullname, "is_using": True},
-        # {"expired_at": "2024-09-27 00:00:00", "id_proxy": "8", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://46.8.11.180:1050", "_is_banned": False, "user_id": id_simpleuser_fullname, "is_using": True},
-        # {"expired_at": "2024-10-04 23:41:54", "id_proxy": "9", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://45.15.72.89:1050", "_is_banned": False, "user_id": id_simpleuser_fullname, "is_using": True},
-        # {"expired_at": "2024-10-04 23:41:54", "id_proxy": "10", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://188.130.137.212:1050", "_is_banned": False, "user_id": id_simpleuser_fullname, "is_using": True},
-        # {"expired_at": "2024-10-04 23:41:54", "id_proxy": "11", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://46.8.212.217:1050", "_is_banned": False, "user_id": id_simpleuser_fullname, "is_using": True},
-        # {"expired_at": "2024-10-04 23:41:54", "id_proxy": "12", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://109.248.14.106:1050", "_is_banned": False, "user_id": id_simpleuser_fullname, "is_using": True},
-        # {"expired_at": "2024-10-04 23:01:41", "id_proxy": "13", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://46.8.23.195:1050", "_is_banned": False, "user_id": id_simpleuser_fullname, "is_using": True},
-        # {"expired_at": "2024-10-04 23:01:41", "id_proxy": "14", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://109.248.166.66:1050", "_is_banned": False, "user_id": id_simpleuser_fullname, "is_using": True},
-        # {"expired_at": "2024-10-04 23:01:41", "id_proxy": "15", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://46.8.110.75:1050", "_is_banned": False, "user_id": id_simpleuser_fullname, "is_using": True},
-        # {"expired_at": "2024-10-04 23:01:41", "id_proxy": "16", "login": os.getenv("login_proxy"), "password": os.getenv("password_proxy"), "ip_with_port": "http://188.130.136.55:1050", "_is_banned": False, "user_id": id_simpleuser_fullname, "is_using": True},
     ),
 }
+
+for name in ("files", "proxys", "parsers"):
+    data = data_add[name]
+    for val in (id_admin_fullname, id_simpleuser_fullname, id_simpleuser_fullname, id_newuser_fullname):
+        if val is None:
+            data = [dat for dat in data if data["user_id"] != val]
+        
+    data_add[name] = data
 
 for table in tables:
     add_to_db(table, data_add[table])

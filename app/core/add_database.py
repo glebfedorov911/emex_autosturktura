@@ -256,17 +256,22 @@ check_query4 = sql.SQL("SELECT id FROM newfilters WHERE title = 'string2'")
 check_query5 = sql.SQL("SELECT id FROM newfilters WHERE title = 'string9'")
 with conn.cursor() as cursor:
     cursor.execute(check_query4)
-    id_string2_filter = cursor.fetchone()[0]
+    try:
+        id_string2_filter = cursor.fetchone()[0]
+    except:
+        id_string2_filter = None
     cursor.execute(check_query5)
-    id_string9_filter = cursor.fetchone()[0]
-
+    try:
+        id_string9_filter = cursor.fetchone()[0]
+    except:
+        id_string9_filter = None
 for filename in ("test1_дляпарсинг.xlsx", "test2_послепарсинга.xlsx"):
     with open(str(settings.upload.path_for_upload) + "/" + filename, "w") as file:
         file.write("hello world")
         file.close()
 
 data_add = {
-    "files": (
+    "files": [
         {
             "before_parsing_filename": "test1_дляпарсинг.xlsx",
             "after_parsing_filename": None,
@@ -284,27 +289,6 @@ data_add = {
             "after_parsing_filename": None,
             "date": str(datetime.now()),
             "user_id": id_simpleuser_fullname,
-        },
-        {
-            "before_parsing_filename": "test2_дляпарсинг.xlsx",
-            "after_parsing_filename": "test2_послепарсинга.xlsx",
-            "date": str(datetime.now()),
-            "user_id": id_newuser_fullname,
-            "new_filter_id": id_string2_filter,
-        },
-        {
-            "before_parsing_filename": "test2_дляпарсинг.xlsx",
-            "after_parsing_filename": "test2_послепарсинга.xlsx",
-            "date": str(datetime.now()),
-            "user_id": id_newuser_fullname,
-            "new_filter_id": id_string2_filter,
-        },
-        {
-            "before_parsing_filename": "test2_дляпарсинг.xlsx",
-            "after_parsing_filename": "test2_послепарсинга.xlsx",
-            "date": str(datetime.now()),
-            "user_id": id_admin_fullname,
-            "new_filter_id": id_string9_filter,
         },
         {
             "before_parsing_filename": "test3_дляпарсинг.xlsx",
@@ -330,7 +314,7 @@ data_add = {
             "date": str(datetime.now()),
             "user_id": id_simpleuser_fullname,
         },
-    ),
+    ],
     "parsers": (
         {
             "article": "test_article",
@@ -1458,11 +1442,40 @@ data_add = {
     ),
 }
 
+if not id_string2_filter is None:
+    data_add["files"].append(        {
+            "before_parsing_filename": "test2_дляпарсинг.xlsx",
+            "after_parsing_filename": "test2_послепарсинга.xlsx",
+            "date": str(datetime.now()),
+            "user_id": id_newuser_fullname,
+            "new_filter_id": id_string2_filter,
+        },)
+    data_add["files"].append(
+        {
+            "before_parsing_filename": "test2_дляпарсинг.xlsx",
+            "after_parsing_filename": "test2_послепарсинга.xlsx",
+            "date": str(datetime.now()),
+            "user_id": id_newuser_fullname,
+            "new_filter_id": id_string2_filter,
+        },
+    )
+
+if not id_string9_filter is None:
+    data_add["files"].append(        
+        {
+            "before_parsing_filename": "test2_дляпарсинг.xlsx",
+            "after_parsing_filename": "test2_послепарсинга.xlsx",
+            "date": str(datetime.now()),
+            "user_id": id_admin_fullname,
+            "new_filter_id": id_string9_filter,
+        },
+    )
+
 for name in ("files", "proxys", "parsers"):
     data = data_add[name]
     for val in (id_admin_fullname, id_simpleuser_fullname, id_simpleuser_fullname, id_newuser_fullname):
         if val is None:
-            data = [dat for dat in data if data["user_id"] != val]
+            data = [dat for dat in data if dat["user_id"] != val]
         
     data_add[name] = data
 

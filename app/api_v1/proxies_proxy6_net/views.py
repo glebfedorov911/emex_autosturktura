@@ -11,7 +11,7 @@ from . import crud
 
 router = APIRouter(prefix="/proxies", tags=["Proxies2"])
 
-@router.post("/upload_file_with_proxy/")
+@router.post("/upload_file_with_proxy")
 async def upload_proxy_from_file(session: AsyncSession = Depends(db_helper.session_depends), file: UploadFile = File(...), payload = Depends(get_payload)):
     return await crud.save_proxy_to_db_from_file(file=file, user_id=payload.get("sub"), session=session)
 

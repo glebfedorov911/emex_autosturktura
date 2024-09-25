@@ -10,16 +10,6 @@ import os
 import pandas as pd
 
 
-def get_unique_filename(directory, filename):
-    base, extension = os.path.splitext(filename)
-    counter = 1
-    unique_filename = filename
-    while os.path.exists(os.path.join(directory, unique_filename)):
-        unique_filename = f"{base}_({counter}){extension}"
-        counter += 1
-
-    return unique_filename
-
 async def get_files(session: AsyncSession, user_id: int):
     stmt = select(File).where(File.user_id==user_id).order_by(File.date)
     result: Result = await session.execute(stmt)

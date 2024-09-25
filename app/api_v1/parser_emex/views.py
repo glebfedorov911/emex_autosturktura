@@ -19,8 +19,7 @@ from datetime import datetime
 from app.core.config import settings
 from app.core.models import db_helper
 from app.api_v1.auth.utils import get_payload
-from app.api_v1.files.depends import get_unique_filename
-from app.api_v1.utils.depends import edit_file 
+from app.api_v1.utils.depends import edit_file, get_unique_filename
 
 from . import crud
 from .parser import user_data, run

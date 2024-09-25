@@ -18,7 +18,7 @@ async def edit_with_nds(session: AsyncSession, user_id: int, file_id: int):
         if data.new_price is None:
             data.new_price = "-1"
         session.add(data)
-        await session.commit()
+    await session.commit()
     
     filename = await get_filename(file_id=file_id, user_id=user_id, session=session)
     try:

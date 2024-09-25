@@ -69,7 +69,7 @@ async def saving_to_table_data(user_id: int, session: AsyncSession, data: list, 
             logo=str(value[8]), delivery_time=str(value[9]), best_price=str(value[10]), quantity1=str(value[11]), user_id=user_id, file_id=file_id)
         parser = Parser(**parser_in.model_dump())
         session.add(parser)
-        await session.commit()
+    await session.commit()
 
     return "все успешно сохранено"
 
@@ -95,7 +95,7 @@ async def set_banned_proxy(proxy_servers: list, session: AsyncSession, user_id: 
         proxies.is_using = False
         proxies.when_banned = datetime.now()
         session.add(proxies)
-        await session.commit()
+    await session.commit()
 
 async def unbanned_proxy(session: AsyncSession, user_id: int):
     stmt = select(Proxy).where(Proxy.user_id==user_id).where(Proxy._is_banned==True)
@@ -107,7 +107,7 @@ async def unbanned_proxy(session: AsyncSession, user_id: int):
             proxy.is_using = True
             proxy.when_banned = None
             session.add(proxy)
-            await session.commit()
+    await session.commit()
 
 async def delete_proxy_banned(session: AsyncSession, user_id: int):
     stmt = select(Proxy).where(Proxy.user_id==user_id).where((Proxy.expired_at - func.now()) < timedelta(days=0))
@@ -116,7 +116,7 @@ async def delete_proxy_banned(session: AsyncSession, user_id: int):
     for proxy in proxies:
         proxy.is_using = False
         session.add(proxy)
-        await session.commit()
+    await session.commit()
 
 async def set_parsing(session: AsyncSession, status: bool, user_id: int):
     stmt = select(User).where(User.id==user_id)

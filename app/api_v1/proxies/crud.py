@@ -64,7 +64,7 @@ async def add_proxy_to_database(user_id: int, count: int, session: AsyncSession)
         
         new_proxy = Proxy(**proxy_add.model_dump())
         session.add(new_proxy)
-        await session.commit()
+    await session.commit()
 
     return await get_proxies_group(user_id=user_id, session=session)
     # return await get_proxies(user_id=user_id, session=session)
@@ -133,6 +133,6 @@ async def delete_proxy(date: str, user_id: int, session: AsyncSession):
     proxies = result.scalars().all()
     for proxy in proxies:
         await session.delete(proxy)
-        await session.commit()
+    await session.commit()
     
     return await get_proxies_group(user_id=user_id, session=session)

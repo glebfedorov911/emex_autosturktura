@@ -1,8 +1,8 @@
-"""edit one field in file table
+"""init
 
-Revision ID: 4d69fc3f9782
+Revision ID: 39d6615aae95
 Revises: 
-Create Date: 2024-09-20 13:54:10.806222
+Create Date: 2024-09-25 20:13:25.792593
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '4d69fc3f9782'
+revision: str = '39d6615aae95'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -58,7 +58,7 @@ def upgrade() -> None:
     )
     op.create_table('proxys',
     sa.Column('expired_at', sa.DateTime(), nullable=False),
-    sa.Column('id_proxy', sa.String(), nullable=False),
+    sa.Column('id_proxy', sa.String(), nullable=True),
     sa.Column('login', sa.String(), nullable=False),
     sa.Column('password', sa.String(), nullable=False),
     sa.Column('ip_with_port', sa.String(), nullable=False),

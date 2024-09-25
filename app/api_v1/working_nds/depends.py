@@ -135,7 +135,7 @@ async def to_file(filename: str, parser_data: list, session: AsyncSession):
             for data in parser_data:
                 data.new_price = None
                 session.add(data)
-                await session.commit()
+            await session.commit()
 
         
 

@@ -19,7 +19,8 @@ class DBSettings(BaseModel):
 
 class Proxy(BaseModel):
     API_KEY: str = os.getenv("API_TOKEN")
-    URL: str = "https://api.dashboard.proxy.market"
+    URL: str = "https://proxy6.net/api/"
+    path_for_upload: str = BASE_DIR / "forProxy"
 
 class Auth(BaseModel):
     private_key: Path = BASE_DIR / "certs" / "jwt-private.pem"
@@ -49,3 +50,6 @@ settings = Settings()
 
 if not os.path.exists(settings.upload.path_for_upload):
     os.makedirs(settings.upload.path_for_upload)
+
+if not os.path.exists(settings.proxy.path_for_upload):
+    os.makedirs(settings.proxy.path_for_upload)

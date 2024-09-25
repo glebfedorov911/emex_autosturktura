@@ -6,9 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.models import db_helper
 from app.core.config import settings
 from app.api_v1.auth.utils import get_payload
-
 from . import crud
-from .depends import get_unique_filename, check_same, check_has_last_file_after_parsing
+from .depends import check_same, check_has_last_file_after_parsing
+from app.api_v1.utils.depends import get_unique_filename, get_shablon as gs
 
 import os
 
@@ -91,6 +91,4 @@ async def get_files(session: AsyncSession = Depends(db_helper.session_depends), 
 
 @router.get("/get_shablon")
 async def get_shablon():
-    filename = "shablon.xlsx"
-    shablon_location = os.path.join(settings.upload.path_for_upload, filename)
-    return FileResponse(path=shablon_location, filename=filename)
+    return gs(settings.upload.path_for_upload)

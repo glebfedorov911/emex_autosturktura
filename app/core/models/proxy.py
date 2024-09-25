@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 class Proxy(Base):
     expired_at: Mapped[datetime]
-    id_proxy: Mapped[str]
+    id_proxy: Mapped[str] = mapped_column(nullable=True)
     login: Mapped[str]
     password: Mapped[str]
     ip_with_port: Mapped[str]

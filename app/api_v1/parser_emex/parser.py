@@ -95,6 +95,10 @@ async def main(brands, user_id):
                 )
                 page = await browser.new_page(user_agent=random.choice(USERAGENTS))
 
+                page.set_extra_http_headers({
+                    "My-Contacts": "Гадыев Ринат, +79160273854"
+                })
+
                 try:
                     await page.goto(url, timeout=4444)
                 except:

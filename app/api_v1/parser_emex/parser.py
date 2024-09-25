@@ -95,7 +95,7 @@ async def main(brands, user_id):
                 )
                 page = await browser.new_page(user_agent=random.choice(USERAGENTS))
 
-                page.set_extra_http_headers({
+                await page.set_extra_http_headers({
                     "My-Contacts": "Гадыев Ринат, +79160273854"
                 })
 

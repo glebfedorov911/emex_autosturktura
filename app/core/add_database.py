@@ -1439,6 +1439,16 @@ data_add = {
             "user_id": id_simpleuser_fullname,
             "is_using": True,
         },
+        {
+            "expired_at": "24-11-24 23:08:00", #тестовое
+            "id_proxy": "40",
+            "login": "LSZ1Xb",
+            "password": "heLL19",
+            "ip_with_port": "http://45.143.247.157:8000",
+            "_is_banned": False,
+            "user_id": id_admin_fullname,
+            "is_using": True,
+        },
     ),
 }
 

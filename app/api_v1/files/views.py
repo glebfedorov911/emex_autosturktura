@@ -91,4 +91,4 @@ async def get_files(session: AsyncSession = Depends(db_helper.session_depends), 
 
 @router.get("/get_shablon")
 async def get_shablon():
-    return gs(settings.upload.path_for_upload)
+    return await gs(settings.upload.path_for_upload)

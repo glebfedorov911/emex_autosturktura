@@ -76,7 +76,7 @@ def validate_data_proxy_saving(proxy, user_id):
     proxy_save = ProxySchemas(expired_at=proxy[0], login=proxy[2], password=proxy[3], ip_with_port=proxy_http, user_id=user_id)
     if not (str(proxy[1]) == 'nan'):
         proxy_save.id_proxy = str(proxy[1])
-        proxy_for_save = Proxy(**proxy_save.model_dump())
+    proxy_for_save = Proxy(**proxy_save.model_dump())
 
     return proxy_for_save
 
@@ -102,9 +102,7 @@ async def add_proxy(pre: dict, session: AsyncSession, user_id: int):
     proxies = pre["list"]
     for id_proxy in proxies:
         proxy = proxies[id_proxy]
-        proxy_for_save = validate_data_proxy_saving([
-            proxy["date_end"], proxy["id"], proxy["user"], proxy["pass"], proxy["host"], proxy["port"]
-        ], user_id=user_id)
+        proxy_for_save = validate_data_proxy_saving([proxy["date_end"], proxy["id"], proxy["user"], proxy["pass"], proxy["host"], proxy["port"]], user_id=user_id)
 
         session.add(proxy_for_save)
     await session.commit()

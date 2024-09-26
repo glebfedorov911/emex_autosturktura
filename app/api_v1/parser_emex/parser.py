@@ -85,6 +85,7 @@ async def main(brands, user_id):
         url = f"https://emex.ru/api/search/search?make={create_params_for_url(brand[2])}&detailNum={brand[0]}&locationId={PICKUP_POINT}&showAll=true&longitude=37.8613&latitude=55.7434"
         async with async_playwright() as p:
             try:
+                print("url_now: ", url)
                 browser = await p.chromium.launch(
                     headless=True,
                     proxy={
@@ -460,7 +461,7 @@ async def main(brands, user_id):
                             result.append(0)
                     user_data[user_id]["excel_result"].append(result)
             except Exception as e:
-                # print(e)
+                print(e)
                 brands.append(brand)
                 atms += 1
                 # if atms % 5 == 0:

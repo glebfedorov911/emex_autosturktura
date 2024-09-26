@@ -467,7 +467,7 @@ async def main(brands, user_id):
                 atms += 1
                 # if atms % 5 == 0:
                 if proxy != ["http://test:8888", "user1", "pass1"]:
-                    user_data[user_id]["ban_list"].add("@".join(proxy))
+                    user_data[user_id]["ban_list"].append("@".join(proxy))
                 if user_data[user_id]["proxies"] != []:
                     proxy = user_data[user_id]["proxies"].pop(0)
                     try:
@@ -476,7 +476,7 @@ async def main(brands, user_id):
                         proxy = [proxy[0], proxy[1], proxy[2]]
                 else:
                     proxy = ["http://test:8888", "user1", "pass1"]
-    if proxy != ["http://test:8888", "user1", "pass1"]:
+    if proxy != ["http://test:8888", "user1", "pass1"] and '@'.join(proxy) not in user_data[user_id]["ban_list"]:
         user_data[user_id]["proxies"].append(proxy)
 
 

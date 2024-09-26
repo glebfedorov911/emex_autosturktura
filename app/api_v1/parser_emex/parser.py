@@ -86,6 +86,7 @@ async def main(brands, user_id):
         async with async_playwright() as p:
             try:
                 print("url_now: ", url)
+                print(proxy, user_data[user_id]["count_proxies"], user_data[user_id]["ban_list"])
                 browser = await p.chromium.launch(
                     headless=True,
                     proxy={

@@ -73,6 +73,7 @@ async def main(brands, user_id):
     else:
         proxy = ["http://test:8888", "user1", "pass1"]
     atms = 0
+    total = 0
     for brand in brands:
         if all([ev.is_set() for ev in user_data[user_id]["events"]]):
             break
@@ -92,7 +93,7 @@ async def main(brands, user_id):
         async with async_playwright() as p:
             try:
                 print("url_now: ", url, '\n', proxy, user_data[user_id]["count_proxies"], '\n', user_data[user_id]["ban_list"])
-                print(len(user_data[user_id]["excel_result"]), len(brands))
+                print(len(user_data[user_id]["excel_result"]), user_data[user_id]["count_brands"], total, len(brands))
                 browser = await p.chromium.launch(
                     headless=True,
                     proxy={
@@ -375,6 +376,7 @@ async def main(brands, user_id):
                     ]
                     if LOGO:
                         result.append(0)
+                    total += 1
                     user_data[user_id]["excel_result"].append(result)
                 else:
 

@@ -244,15 +244,17 @@ async def start(
         user_data[payload.get("sub")] = {
             "threads": threads.copy(),
             "events": [Event() for _ in range(count_of_threadings)],
-            "proxies": proxies,
+            "proxies": list(set([(proxy.ip_with_port, proxy.login, proxy.password) for proxy in  proxies])),
             "filter": filter,
             "excel_result": [],
             "status": "PARSER_RUNNING",
-            "count_proxies": len(set(proxies)),
+            "count_proxies": len(set([(proxy.ip_with_port, proxy.login, proxy.password) for proxy in  proxies])),
             "ban_list": set(),
             "count_brands": 1,
             "filter_id": filter_id,
             "flag": False,
+            "is_using_testproxy": {},
+            "PROXIES": proxies,
             # "start_file": files,
         }
 

@@ -4,6 +4,7 @@ import asyncio
 import json
 import time
 import random
+import threading
 
 from .depends import *
 
@@ -48,6 +49,7 @@ async def main(brands, user_id):
     DATE = user_data[user_id]["filter"].date
     LOGO = user_data[user_id]["filter"].logo  # HXAW - пример лого None - Без лого
     PICKUP_POINT = user_data[user_id]["filter"].pickup_point
+    user_data[user_id]["is_using_testproxy"][threading.current_thread().name] = False 
     user_data[user_id]["columns"] = [
         "Артикул",
         "Наименование",
@@ -68,7 +70,10 @@ async def main(brands, user_id):
 
     if user_data[user_id]["proxies"] != []:
         proxy = user_data[user_id]["proxies"].pop(0)
-        proxy = [proxy.ip_with_port, proxy.login, proxy.password]
+        try:
+            proxy = [proxy.ip_with_port, proxy.login, proxy.password]
+        except:
+            proxy = [proxy[0], proxy[1], proxy[2]]
     else:
         proxy = ["http://test:8888", "user1", "pass1"]
     atms = 0
@@ -76,15 +81,13 @@ async def main(brands, user_id):
         if all([ev.is_set() for ev in user_data[user_id]["events"]]):
             break
 
-        if user_data[user_id]["count_proxies"] == len(user_data[user_id]["ban_list"]):
-            raise HTTPException(
-                status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-                detail="Закочнились прокси",
-            )
-            break
         url = f"https://emex.ru/api/search/search?make={create_params_for_url(brand[2])}&detailNum={brand[0]}&locationId={PICKUP_POINT}&showAll=true&longitude=37.8613&latitude=55.7434"
         async with async_playwright() as p:
             try:
+                print(f"-=-=-=-=-=-=-={threading.current_thread().name}=-=-=-=-=-=-=-")
+                print("url_now: ", url, '\n', proxy, user_data[user_id]["count_proxies"], '\n', user_data[user_id]["ban_list"])
+                print(len(user_data[user_id]["excel_result"]), user_data[user_id]["count_brands"], len(brands))
+                print(f"-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
                 browser = await p.chromium.launch(
                     headless=True,
                     proxy={
@@ -456,12 +459,37 @@ async def main(brands, user_id):
                             result.append(0)
                     user_data[user_id]["excel_result"].append(result)
             except Exception as e:
-                # print(e)
+                print(e)
                 brands.append(brand)
                 atms += 1
+
+                if user_data[user_id]["count_proxies"] == len(user_data[user_id]["ban_list"]):
+                    print(user_data[user_id]["count_proxies"], len(user_data[user_id]["ban_list"]))
+                    raise HTTPException(
+                        status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
+                        detail="Закочнились прокси",
+                    )
+                    break
+        
+                if all([user_data[user_id]["is_using_testproxy"][name_thr] for name_thr in user_data[user_id]["is_using_testproxy"]]):
+                    raise HTTPException(
+                        status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
+                        detail="Закочнились прокси",
+                    )
+
+                if sum([1 for proxy_check in user_data[user_id]["PROXIES"] if proxy_check in user_data[user_id]["ban_list"]]) == user_data[user_id]["count_proxies"] and user_data[user_id]["PROXIES"] != []:
+                    print(user_data[user_id]["count_proxies"], len(user_data[user_id]["ban_list"]))
+                    raise HTTPException(
+                        status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
+                        detail="Закочнились прокси",
+                    )
+                    break
                 # if atms % 5 == 0:
                 if proxy != ["http://test:8888", "user1", "pass1"]:
                     user_data[user_id]["ban_list"].add("@".join(proxy))
+                    user_data[user_id]["is_using_testproxy"][threading.current_thread().name] = False
+                else:
+                    user_data[user_id]["is_using_testproxy"][threading.current_thread().name] = True
                 if user_data[user_id]["proxies"] != []:
                     proxy = user_data[user_id]["proxies"].pop(0)
                     try:
@@ -472,6 +500,7 @@ async def main(brands, user_id):
                     proxy = ["http://test:8888", "user1", "pass1"]
     if proxy != ["http://test:8888", "user1", "pass1"]:
         user_data[user_id]["proxies"].append(proxy)
+    user_data[user_id]["is_using_testproxy"][threading.current_thread().name] = True
 
 
 def run(brands, user_id):

@@ -92,8 +92,10 @@ async def main(brands, user_id):
         url = f"https://emex.ru/api/search/search?make={create_params_for_url(brand[2])}&detailNum={brand[0]}&locationId={PICKUP_POINT}&showAll=true&longitude=37.8613&latitude=55.7434"
         async with async_playwright() as p:
             try:
+                print(f"-=-=-=-=-=-=-={threading.current_thread().name}=-=-=-=-=-=-=-")
                 print("url_now: ", url, '\n', proxy, user_data[user_id]["count_proxies"], '\n', user_data[user_id]["ban_list"])
                 print(len(user_data[user_id]["excel_result"]), user_data[user_id]["count_brands"], total, len(brands))
+                print(f"-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
                 browser = await p.chromium.launch(
                     headless=True,
                     proxy={

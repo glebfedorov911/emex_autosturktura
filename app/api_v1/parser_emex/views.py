@@ -278,6 +278,7 @@ async def start(
         df_to_list = df.values.tolist()
         brands= create(df_to_list)
         user_data[user_id]["count_brands"] = len(brands)
+        user_data[user_id]["brands"] = brands
 
         brands = split_file_for_thr(count_of_threadings, brands)
         user_data[user_id]["threads"] = user_data[user_id]["threads"][: len(brands)]

@@ -251,7 +251,7 @@ async def start(
             "filter": filter,
             "excel_result": [],
             "status": "PARSER_RUNNING",
-            "count_proxies": len(set([proxy.ip_with_port for proxy in proxies])),
+            "count_proxies": len(set([(proxy.ip_with_port, proxy.login, proxy.password) for proxy in proxies])),
             "ban_list": [],
             "count_brands": 1,
             "filter_id": filter_id,

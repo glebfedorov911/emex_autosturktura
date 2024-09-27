@@ -92,6 +92,7 @@ async def main(brands, user_id):
         async with async_playwright() as p:
             try:
                 print("url_now: ", url, '\n', proxy, user_data[user_id]["count_proxies"], '\n', user_data[user_id]["ban_list"])
+                print(len(user_data[user_id]["excel_result"], len(brands))
                 browser = await p.chromium.launch(
                     headless=True,
                     proxy={

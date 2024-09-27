@@ -1490,7 +1490,7 @@ data_add = {
             "is_using": True,
         },
         {
-            "expired_at": "24-11-24 23:08:00", #тестовое
+            "expired_at": "2024-11-24 23:08:00", #тестовое
             "id_proxy": "40",
             "login": "LSZ1Xb",
             "password": "heLL19",

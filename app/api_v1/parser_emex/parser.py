@@ -69,7 +69,7 @@ async def main(brands, user_id):
         user_data[user_id]["columns"].append("Цена с лого")
 
     if user_data[user_id]["proxies"] != []:
-        proxy = user_data[user_id]["proxies"].pop(0)
+        proxy = user_data[user_id]["proxies"].pop(random.randint(0, len(user_data[user_id]["proxies"])))
         proxy = [proxy.ip_with_port, proxy.login, proxy.password]
     else:
         proxy = ["http://test:8888", "user1", "pass1"]
@@ -472,6 +472,8 @@ async def main(brands, user_id):
                         else:
                             result.append(0)
                     user_data[user_id]["excel_result"].append(result)
+                if proxy != ["http://test:8888", "user1", "pass1"] and '@'.join(proxy) not in user_data[user_id]["ban_list"]:
+                    user_data[user_id]["proxies"].append(proxy)
             except Exception as e:
                 print(e)
                 brands.append(brand)

@@ -91,7 +91,7 @@ async def main(brands, user_id):
                 print("url_now: ", url, '\n', proxy, user_data[user_id]["count_proxies"], '\n', user_data[user_id]["ban_list"])
                 print(len(user_data[user_id]["excel_result"]), user_data[user_id]["count_brands"])
                 print(f"-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
-                browser = await p.webkit.launch(
+                browser = await p.chromium.launch(
                     headless=True,
                     proxy={
                         "server": proxy[0],

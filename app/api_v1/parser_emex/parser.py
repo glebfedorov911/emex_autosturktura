@@ -76,6 +76,11 @@ async def main(brands, user_id):
     atms = 0
     total = 0
     for brand in brands:
+        if user_data[user_id]["proxies"] != []:
+            proxy = user_data[user_id]["proxies"].pop(random.randint(0, len(user_data[user_id]["proxies"])))
+            proxy = [proxy.ip_with_port, proxy.login, proxy.password]
+        else:
+            proxy = ["http://test:8888", "user1", "pass1"]
         if all([ev.is_set() for ev in user_data[user_id]["events"]]):
             break
         if sum([1 for proxy_check in user_data[user_id]["PROXIES"] if proxy_check in user_data[user_id]["ban_list"]]) == user_data[user_id]["count_proxies"] and user_data[user_id]["PROXIES"] != []:

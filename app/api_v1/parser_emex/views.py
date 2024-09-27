@@ -280,16 +280,14 @@ async def start(
         user_data[user_id]["count_brands"] = len(brands)
         user_data[user_id]["brands"] = brands
 
-        brands = split_file_for_thr(count_of_threadings, brands)
-        user_data[user_id]["threads"] = user_data[user_id]["threads"][: len(brands)]
-        for index in range(len(brands)):
+        for index in range(count_of_threadings):
             if (
                 user_data[user_id]["threads"][index] is None
                 or not user_data[user_id]["threads"][index].is_alive()
             ):
                 user_data[user_id]["events"][index].clear()
                 user_data[user_id]["threads"][index] = Thread(
-                    target=run, args=(brands[index], user_id)
+                    target=run, args=(user_id)
                 )
                 user_data[user_id]["threads"][index].start()
                 messages.append(f"поток {index+1} запущен")

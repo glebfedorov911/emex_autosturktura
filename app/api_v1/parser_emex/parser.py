@@ -37,7 +37,7 @@ USERAGENTS = [
 ]
 
 
-async def main(brands, user_id):
+async def main(user_id):
     global user_data
 
     DEEP_FILTER = user_data[user_id]["filter"].deep_filter
@@ -90,6 +90,8 @@ async def main(brands, user_id):
                 print(f"-=-=-=-=-=-=-={threading.current_thread().name}=-=-=-=-=-=-=-")
                 print("url_now: ", url, '\n', proxy, user_data[user_id]["count_proxies"], '\n', user_data[user_id]["ban_list"])
                 print(len(user_data[user_id]["excel_result"]), user_data[user_id]["count_brands"])
+                print(user_data[user_id]["is_using_testproxy"])
+                print(len(user_data[user_id]["brands"]))
                 print(f"-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
                 browser = await p.chromium.launch(
                     headless=True,
@@ -507,5 +509,5 @@ async def main(brands, user_id):
     user_data[user_id]["is_using_testproxy"][threading.current_thread().name] = True
 
 
-def run(brands, user_id):
-    asyncio.run(main(brands, user_id))
+def run(user_id):
+    asyncio.run(main(user_id))

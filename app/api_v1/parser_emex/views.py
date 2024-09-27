@@ -19,7 +19,8 @@ from datetime import datetime
 from app.core.config import settings
 from app.core.models import db_helper
 from app.api_v1.auth.utils import get_payload
-from app.api_v1.utils.depends import edit_file, get_unique_filename
+from app.api_v1.files.depends import get_unique_filename
+from app.api_v1.utils.depends import edit_file 
 
 from . import crud
 from .parser import user_data, run
@@ -61,12 +62,11 @@ async def websocket_endpoint(
             "excel_result": [],
             "status": "Парсер не запущен",
             "count_proxies": 1,
-            "ban_list": [],
+            "ban_list": set(),
             "count_brands": 1,
             "threads": threads.copy(),
             "start_file": None,
             "flag": False,
-            "PROXIES": 1,
         }
     else:
         if not "threads" in user_data[payload.get("sub")]:
@@ -74,12 +74,11 @@ async def websocket_endpoint(
                 "excel_result": [],
                 "status": "PARSER_NOT_STARTED_DATA_SAVED",
                 "count_proxies": 1,
-                "ban_list": [],
+                "ban_list": set(),
                 "count_brands": 1,
                 "threads": threads.copy(),
                 "start_file": None,
                 "flag": True,
-                "PROXIES": 1,
             }
 
     await websocket.accept()
@@ -127,12 +126,11 @@ async def websocket_status_endpoint(
             "excel_result": [],
             "status": "Парсер не запущен",
             "count_proxies": 1,
-            "ban_list": [],
+            "ban_list": set(),
             "count_brands": 1,
             "threads": threads.copy(),
             "start_file": None,
             "flag": False,
-            "PROXIES": 1,
         }
     else:
         if not "threads" in user_data[payload.get("sub")]:
@@ -140,12 +138,11 @@ async def websocket_status_endpoint(
                 "excel_result": [],
                 "status": "PARSER_NOT_STARTED_DATA_SAVED",
                 "count_proxies": 1,
-                "ban_list": [],
+                "ban_list": set(),
                 "count_brands": 1,
                 "threads": threads.copy(),
                 "start_file": None,
                 "flag": True,
-                "PROXIES": 1,
             }
 
 
@@ -156,13 +153,13 @@ async def websocket_status_endpoint(
             # asyncio.sleep(10)
             await websocket.send_json({"Status": ud["status"]})
             if (
-                int(len(ud["excel_result"]) / ud["count_brands"] * 100) >= 100
+                int(len(ud["excel_result"]) / ud["count_brands"] * 100) == 100
                 and not ud["flag"]
             ):
                 ud["status"] = "PARSING_COMPLETED"
                 ud["flag"] = True
             elif (
-                int(len(ud["ban_list"]) / ud["count_proxies"] * 100) >= 100
+                int(len(ud["ban_list"]) / ud["count_proxies"] * 100) == 100
                 and not ud["flag"]
             ):
                 ud["status"] = "ALL_PROXIES_BANNED"
@@ -247,16 +244,17 @@ async def start(
         user_data[payload.get("sub")] = {
             "threads": threads.copy(),
             "events": [Event() for _ in range(count_of_threadings)],
-            "proxies": list(set(proxies)),
+            "proxies": list(set([(proxy.ip_with_port, proxy.login, proxy.password) for proxy in  proxies])),
             "filter": filter,
             "excel_result": [],
             "status": "PARSER_RUNNING",
-            "count_proxies": len(set([(proxy.ip_with_port, proxy.login, proxy.password) for proxy in proxies])),
-            "ban_list": [],
+            "count_proxies": len(set([(proxy.ip_with_port, proxy.login, proxy.password) for proxy in  proxies])),
+            "ban_list": set(),
             "count_brands": 1,
             "filter_id": filter_id,
             "flag": False,
-            "PROXIES": set(proxies),
+            "is_using_testproxy": {},
+            "PROXIES": proxies,
             # "start_file": files,
         }
 

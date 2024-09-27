@@ -66,6 +66,7 @@ async def websocket_endpoint(
             "threads": threads.copy(),
             "start_file": None,
             "flag": False,
+            "PROXIES": 1,
         }
     else:
         if not "threads" in user_data[payload.get("sub")]:
@@ -78,6 +79,7 @@ async def websocket_endpoint(
                 "threads": threads.copy(),
                 "start_file": None,
                 "flag": True,
+                "PROXIES": 1,
             }
 
     await websocket.accept()
@@ -130,6 +132,7 @@ async def websocket_status_endpoint(
             "threads": threads.copy(),
             "start_file": None,
             "flag": False,
+            "PROXIES": 1,
         }
     else:
         if not "threads" in user_data[payload.get("sub")]:
@@ -142,6 +145,7 @@ async def websocket_status_endpoint(
                 "threads": threads.copy(),
                 "start_file": None,
                 "flag": True,
+                "PROXIES": 1,
             }
 
 
@@ -243,7 +247,7 @@ async def start(
         user_data[payload.get("sub")] = {
             "threads": threads.copy(),
             "events": [Event() for _ in range(count_of_threadings)],
-            "proxies": proxies,
+            "proxies": list(set(proxies)),
             "filter": filter,
             "excel_result": [],
             "status": "PARSER_RUNNING",
@@ -252,6 +256,7 @@ async def start(
             "count_brands": 1,
             "filter_id": filter_id,
             "flag": False,
+            "PROXIES": set(proxies),
             # "start_file": files,
         }
 

@@ -39,6 +39,7 @@ USERAGENTS = [
 async def main(brands, user_id):
     global user_data
 
+    user_data[user_id]["all_done"] = []
     DEEP_FILTER = user_data[user_id]["filter"].deep_filter
     DEEP_ANALOG = user_data[user_id]["filter"].deep_analog
     ANALOG = user_data[user_id]["filter"].analog
@@ -75,6 +76,11 @@ async def main(brands, user_id):
     for brand in brands:
         if all([ev.is_set() for ev in user_data[user_id]["events"]]):
             break
+        if sum([1 for proxy_check in user_data[user_id]["PROXIES"] if proxy_check in user_data[user_id]["ban_list"]]) == user_data[user_id]["count_proxies"] and user_data[user_id]["PROXIES"] != []:
+            raise HTTPException(
+                status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
+                detail="Закочнились прокси",
+            )
 
         if user_data[user_id]["count_proxies"] == len(user_data[user_id]["ban_list"]):
             raise HTTPException(
@@ -85,8 +91,7 @@ async def main(brands, user_id):
         url = f"https://emex.ru/api/search/search?make={create_params_for_url(brand[2])}&detailNum={brand[0]}&locationId={PICKUP_POINT}&showAll=true&longitude=37.8613&latitude=55.7434"
         async with async_playwright() as p:
             try:
-                print("url_now: ", url)
-                print(proxy, user_data[user_id]["count_proxies"], user_data[user_id]["ban_list"])
+                print("url_now: ", url, '\n', proxy, user_data[user_id]["count_proxies"], '\n', user_data[user_id]["ban_list"])
                 browser = await p.chromium.launch(
                     headless=True,
                     proxy={
@@ -478,6 +483,10 @@ async def main(brands, user_id):
                     proxy = ["http://test:8888", "user1", "pass1"]
     if proxy != ["http://test:8888", "user1", "pass1"] and '@'.join(proxy) not in user_data[user_id]["ban_list"]:
         user_data[user_id]["proxies"].append(proxy)
+    user_data[user_id]["all_done"].append(1)
+    if sum(user_data[user_id]["all_done"]) == 6:
+        user_data[user_id]["count_brands"] = int(len(user_data[user_id]["excel_result"]))
+    
 
 
 def run(brands, user_id):

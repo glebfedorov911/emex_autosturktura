@@ -69,7 +69,7 @@ async def main(brands, user_id):
         user_data[user_id]["columns"].append("Цена с лого")
 
     if user_data[user_id]["proxies"] != []:
-        proxy = user_data[user_id]["proxies"].pop(random.randint(0, len(user_data[user_id]["proxies"])))
+        proxy = user_data[user_id]["proxies"].pop(random.randint(0, len(user_data[user_id]["proxies"])-1))
         try:
             proxy = [proxy.ip_with_port, proxy.login, proxy.password]
         except:
@@ -80,7 +80,7 @@ async def main(brands, user_id):
     total = 0
     for brand in brands:
         if user_data[user_id]["proxies"] != []:
-            proxy = user_data[user_id]["proxies"].pop(random.randint(0, len(user_data[user_id]["proxies"])))
+            proxy = user_data[user_id]["proxies"].pop(random.randint(0, len(user_data[user_id]["proxies"])-1))
             try:
                 proxy = [proxy.ip_with_port, proxy.login, proxy.password]
             except:
@@ -108,6 +108,7 @@ async def main(brands, user_id):
                 print("url_now: ", url, '\n', proxy, user_data[user_id]["count_proxies"], '\n', user_data[user_id]["ban_list"])
                 print(len(user_data[user_id]["excel_result"]), user_data[user_id]["count_brands"], total, len(brands))
                 print(f"-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
+                print(threading.current_thread().name, "я открываю браузер")
                 browser = await p.chromium.launch(
                     headless=True,
                     proxy={
@@ -115,7 +116,9 @@ async def main(brands, user_id):
                         "username": proxy[1],
                         "password": proxy[2],
                     },
+                    timeout=7777
                 )
+                print(threading.current_thread().name, "я открыл браузер")
                 page = await browser.new_page(user_agent=random.choice(USERAGENTS))
 
                 await page.set_extra_http_headers({
@@ -127,7 +130,9 @@ async def main(brands, user_id):
                 except:
                     await page.goto(url, timeout=4444)
 
+                print(threading.current_thread().name, "я гружу страницу")
                 pre = await (await page.query_selector("pre")).text_content()
+                print(threading.current_thread().name, "я загрузил страницу")
                 response = dict(json.loads(pre))
                 originals = []
                 if IS_BIGGER is None:

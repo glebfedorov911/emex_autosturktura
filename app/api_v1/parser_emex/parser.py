@@ -70,7 +70,10 @@ async def main(brands, user_id):
 
     if user_data[user_id]["proxies"] != []:
         proxy = user_data[user_id]["proxies"].pop(random.randint(0, len(user_data[user_id]["proxies"])))
-        proxy = [proxy.ip_with_port, proxy.login, proxy.password]
+        try:
+            proxy = [proxy.ip_with_port, proxy.login, proxy.password]
+        except:
+            proxy = [proxy[0], proxy[1], proxy[2]]
     else:
         proxy = ["http://test:8888", "user1", "pass1"]
     atms = 0
@@ -78,7 +81,10 @@ async def main(brands, user_id):
     for brand in brands:
         if user_data[user_id]["proxies"] != []:
             proxy = user_data[user_id]["proxies"].pop(random.randint(0, len(user_data[user_id]["proxies"])))
-            proxy = [proxy.ip_with_port, proxy.login, proxy.password]
+            try:
+                proxy = [proxy.ip_with_port, proxy.login, proxy.password]
+            except:
+                proxy = [proxy[0], proxy[1], proxy[2]]
         else:
             proxy = ["http://test:8888", "user1", "pass1"]
         if all([ev.is_set() for ev in user_data[user_id]["events"]]):

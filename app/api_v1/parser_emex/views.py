@@ -156,13 +156,13 @@ async def websocket_status_endpoint(
             # asyncio.sleep(10)
             await websocket.send_json({"Status": ud["status"]})
             if (
-                int(len(ud["excel_result"]) / ud["count_brands"] * 100) == 100
+                int(len(ud["excel_result"]) / ud["count_brands"] * 100) >= 100
                 and not ud["flag"]
             ):
                 ud["status"] = "PARSING_COMPLETED"
                 ud["flag"] = True
             elif (
-                int(len(ud["ban_list"]) / ud["count_proxies"] * 100) == 100
+                int(len(ud["ban_list"]) / ud["count_proxies"] * 100) >= 100
                 and not ud["flag"]
             ):
                 ud["status"] = "ALL_PROXIES_BANNED"

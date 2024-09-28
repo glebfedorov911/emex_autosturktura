@@ -93,6 +93,7 @@ async def websocket_endpoint(
                 # files = get_unique_filename(str(settings.upload.path_for_upload), files)
                 # ud["start_file"] = files
 
+            print(len(ud["excel_result"]), ud["count_brands"])
             await websocket.send_json(
                 {
                     "Percent_parsing_goods": int(
@@ -230,9 +231,9 @@ def start_parser(user_id):
             )
             thrs.append(user_data[user_id]["threads"][index])
             user_data[user_id]["threads"][index].start()
-        #     messages.append(f"поток {index+1} запущен")
-        # else:
-        #     messages.append(f"поток {index+1} уже запущен")
+            user_data[payload.get("sub")]["messages"].append(f"поток {index+1} запущен")
+        else:
+            user_data[payload.get("sub")]["messages"].append(f"поток {index+1} уже запущен")
 
     for thr in thrs:
         thr.join()
@@ -278,6 +279,7 @@ async def start(
             "flag": False,
             "is_using_testproxy": {},
             "PROXIES": proxies,
+            "messages": []
             # "start_file": files,
         }
 ##
@@ -307,7 +309,7 @@ async def start(
         process = multiprocessing.Process(target=start_parser, args=(user_id, ))
         process.start()
 
-        return JSONResponse(messages)
+        return JSONResponse(user_data[payload.get("sub")]["messages"])
 
 
 @router.get("/stop")

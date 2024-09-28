@@ -28,6 +28,7 @@ from .depends import *
 import asyncio
 import time
 import random
+import multiprocessing
 import pandas as pd
 
 # ДОПИСАТЬ СОХРАНЕНИЕ####
@@ -213,6 +214,29 @@ async def websocket_status_endpoint(
     except WebSocketDisconnect:
         await websocket.close()
 
+async def start_parser(user_id):
+    global user_data
+
+    thrs = []
+
+    for index in range(count_of_threadings):
+        if (
+            user_data[user_id]["threads"][index] is None
+            or not user_data[user_id]["threads"][index].is_alive()
+        ):
+            user_data[user_id]["events"][index].clear()
+            user_data[user_id]["threads"][index] = Thread(
+                target=run, args=(user_id, )
+            )
+            thrs.append(user_data[user_id]["threads"][index])
+            user_data[user_id]["threads"][index].start()
+            messages.append(f"поток {index+1} запущен")
+        else:
+            messages.append(f"поток {index+1} уже запущен")
+
+    for thr in thrs:
+        thr.join()
+
 
 @router.get("/start/{filter_id}")
 async def start(
@@ -279,25 +303,9 @@ async def start(
         brands= create(df_to_list)
         user_data[user_id]["count_brands"] = len(brands)
         user_data[user_id]["brands"] = brands
-        thrs = []
-
-        for index in range(count_of_threadings):
-            if (
-                user_data[user_id]["threads"][index] is None
-                or not user_data[user_id]["threads"][index].is_alive()
-            ):
-                user_data[user_id]["events"][index].clear()
-                user_data[user_id]["threads"][index] = Thread(
-                    target=run, args=(user_id, )
-                )
-                thrs.append(user_data[user_id]["threads"][index])
-                user_data[user_id]["threads"][index].start()
-                messages.append(f"поток {index+1} запущен")
-            else:
-                messages.append(f"поток {index+1} уже запущен")
-
-        for thr in thrs:
-            thr.join()
+        
+        process = multiprocessing.Process(target=start_parser, args(user_id, ))
+        process.start()
 
         return JSONResponse(messages)
 

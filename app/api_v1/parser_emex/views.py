@@ -22,7 +22,8 @@ from app.api_v1.auth.utils import get_payload
 from app.api_v1.utils.depends import edit_file, get_unique_filename
 
 from . import crud
-from .parser import user_data, run
+# from .parser import user_data, run
+from .parser_test import user_data, run
 from .depends import *
 
 import asyncio
@@ -35,7 +36,7 @@ import pandas as pd
 router = APIRouter(prefix="/new_parser", tags=["New Parser"])
 templates = Jinja2Templates(directory=settings.templates.templates_path)
 
-count_of_threadings = 6
+count_of_threadings = 4
 threads: list[Thread] = [None] * count_of_threadings
 
 
@@ -61,7 +62,7 @@ async def websocket_endpoint(
             "excel_result": [],
             "status": "Парсер не запущен",
             "count_proxies": 1,
-            "ban_list": set(),
+            "ban_list": [],
             "count_brands": 1,
             "threads": threads.copy(),
             "start_file": None,
@@ -73,7 +74,7 @@ async def websocket_endpoint(
                 "excel_result": [],
                 "status": "PARSER_NOT_STARTED_DATA_SAVED",
                 "count_proxies": 1,
-                "ban_list": set(),
+                "ban_list": [],
                 "count_brands": 1,
                 "threads": threads.copy(),
                 "start_file": None,
@@ -85,15 +86,15 @@ async def websocket_endpoint(
         while True:
             for i in range(count_of_threadings):
                 if user_data[payload.get("sub")]["status"] == "PARSER_RUNNING":
-                    try:
-                        if not user_data[payload.get("sub")]["threads"][i].is_alive() and user_data[payload.get("sub")]["proxies"] != []:
-                            user_data[user_id]["events"][i].clear()
-                            user_data[user_id]["threads"][i] = Thread(
-                                target=run, args=(user_id, )
+                    try:   
+                        if (not user_data[payload.get("sub")]["threads"][i].is_alive()) and user_data[payload.get("sub")]["proxies"] != []:
+                            user_data[payload.get("sub")]["events"][i].clear()
+                            user_data[payload.get("sub")]["threads"][i] = Thread(
+                                target=run, args=(payload.get("sub"), )
                             )
-                            user_data[user_id]["threads"][i].start()
-                    except:
-                        pass
+                            user_data[payload.get("sub")]["threads"][i].start()
+                    except Exception as e:
+                        print(e)
 
             ud = user_data[payload.get("sub")]
             if ud["count_proxies"] == 0:
@@ -137,7 +138,7 @@ async def websocket_status_endpoint(
             "excel_result": [],
             "status": "Парсер не запущен",
             "count_proxies": 1,
-            "ban_list": set(),
+            "ban_list": [],
             "count_brands": 1,
             "threads": threads.copy(),
             "start_file": None,
@@ -149,7 +150,7 @@ async def websocket_status_endpoint(
                 "excel_result": [],
                 "status": "PARSER_NOT_STARTED_DATA_SAVED",
                 "count_proxies": 1,
-                "ban_list": set(),
+                "ban_list": [],
                 "count_brands": 1,
                 "threads": threads.copy(),
                 "start_file": None,
@@ -164,7 +165,7 @@ async def websocket_status_endpoint(
             # asyncio.sleep(10)
             await websocket.send_json({"Status": ud["status"]})
             if (
-                int(len(ud["excel_result"]) / ud["count_brands"] * 100) == 99
+                int(len(ud["excel_result"]) / ud["count_brands"] * 100) == 100
                 and not ud["flag"]
             ):
                 ud["status"] = "PARSING_COMPLETED"
@@ -233,7 +234,7 @@ async def start(
     session: AsyncSession = Depends(db_helper.session_depends),
 ):
     global user_data
-    count_of_threadings = 6
+    count_of_threadings = 4
     
 
     messages = []
@@ -261,7 +262,7 @@ async def start(
             "excel_result": [],
             "status": "PARSER_RUNNING",
             "count_proxies": len(set([(proxy.ip_with_port, proxy.login, proxy.password) for proxy in  proxies])),
-            "ban_list": set(),
+            "ban_list": [],
             "count_brands": 1,
             "filter_id": filter_id,
             "flag": False,
@@ -270,7 +271,7 @@ async def start(
             # "start_file": files,
         }
 ##
-    if proxies == []:
+    if proxies == [] or len(proxies) < count_of_threadings:
         user_data[payload.get("sub")]["status"] = "Закончились прокси"
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,

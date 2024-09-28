@@ -13,10 +13,6 @@ from playwright.async_api import async_playwright
 
 user_data = {}
 
-# {"threads": threads.copy(), "events": [Event() for _ in range(count_of_threadings)],
-# "proxies": proxies, "filter": filter, "excel_result": [], "status": "Парсер не запущен",
-# "count_proxies": len(proxies), "ban_list": set()}
-
 USERAGENTS = [
     "Mediapartners-Google",
     "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0",
@@ -45,28 +41,12 @@ async def main(user_id):
     DEEP_FILTER = user_data[user_id]["filter"].deep_filter
     DEEP_ANALOG = user_data[user_id]["filter"].deep_analog
     ANALOG = user_data[user_id]["filter"].analog
-    IS_BIGGER = user_data[user_id][
-        "filter"
-    ].is_bigger  # True - больше False - меньше None - не указано
+    IS_BIGGER = user_data[user_id]["filter"].is_bigger 
     DATE = user_data[user_id]["filter"].date
-    LOGO = user_data[user_id]["filter"].logo  # HXAW - пример лого None - Без лого
+    LOGO = user_data[user_id]["filter"].logo 
     PICKUP_POINT = user_data[user_id]["filter"].pickup_point
-    user_data[user_id]["is_using_testproxy"][threading.current_thread().name] = None 
     user_data[user_id]["all_break"] = False
-    user_data[user_id]["columns"] = [
-        "Артикул",
-        "Наименование",
-        "Брэнд",
-        "Артикул",
-        "Кол-во",
-        "Цена",
-        "Партия",
-        "НДС",
-        "Лого",
-        "Доставка",
-        "Лучшая цена",
-        "Количество",
-    ]
+    user_data[user_id]["columns"] = ["Артикул", "Наименование", "Брэнд", "Артикул", "Кол-во", "Цена", "Партия", "НДС", "Лого", "Доставка", "Лучшая цена", "Количество",]
 
     if LOGO and "Цена с лого" not in user_data[user_id]["columns"]:
         user_data[user_id]["columns"].append("Цена с лого")
@@ -77,32 +57,30 @@ async def main(user_id):
             proxy = [proxy.ip_with_port, proxy.login, proxy.password]
         except:
             proxy = [proxy[0], proxy[1], proxy[2]]
-    else:
-        proxy = ["http://test:8888", "user1", "pass1"]
-    atms = 0
-    k = 0
+
     while True:
-        if len(user_data[user_id]["brands"]) == 0:
-            break
-        with user_locks[user_id]:
-            brand = user_data[user_id]["brands"].pop(0)
-        if all([ev.is_set() for ev in user_data[user_id]["events"]]):# or user_data[user_id]["all_break"]:
+        if len(user_data[user_id]["brands"]) == 0 or all([ev.is_set() for ev in user_data[user_id]["events"]]) or user_data[user_id]["all_break"]:
             break
 
+        with user_locks[user_id]:
+            brand = user_data[user_id]["brands"].pop(0)
+
         url = f"https://emex.ru/api/search/search?make={create_params_for_url(brand[2])}&detailNum={brand[0]}&locationId={PICKUP_POINT}&showAll=true&longitude=37.8613&latitude=55.7434"
+        
         async with async_playwright() as p:
             try:
-                print(f"-=-=-=-=-=-=-={threading.current_thread().name}=-=-=-=-=-=-=-")
-                print("url_now: ", url, '\n', proxy, user_data[user_id]["count_proxies"], '\n', user_data[user_id]["ban_list"])
-                print(len(user_data[user_id]["excel_result"]), user_data[user_id]["count_brands"])
-                print(user_data[user_id]["is_using_testproxy"])
-                print(len(user_data[user_id]["brands"]))
+                for_log = f"-=-=-=-=-=-=-={threading.current_thread().name}=-=-=-=-=-=-=-"
+                print(for_log)
+                print("URL сейчас:", url, '\n', proxy, user_data[user_id]["count_proxies"], '\n', user_data[user_id]["ban_list"])
+                print("Данных спаршено:", len(user_data[user_id]["excel_result"]), "данных всего:", user_data[user_id]["count_brands"])
+                print("Использование testproxy:", user_data[user_id]["is_using_testproxy"])
+                print("Обновление списка (длина):", len(user_data[user_id]["brands"]))
                 try:
-                    print(f"""0 | {user_data[user_id]["threads"][0]}: {user_data[user_id]["threads"][0].is_alive()} 1 | {user_data[user_id]["threads"][1]}: {user_data[user_id]["threads"][1].is_alive()} 2 | {user_data[user_id]["threads"][2]}: {user_data[user_id]["threads"][2].is_alive()}\n3 | {user_data[user_id]["threads"][3]}: {user_data[user_id]["threads"][3].is_alive()}""") #4: {user_data[user_id]["threads"][4].is_alive()} 5: {user_data[user_id]["threads"][5].is_alive()}""")
-                except:
-                    pass
-                print(f"-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
-                
+                    print(*[f"""{i} | {user_data[user_id]["threads"][i]}: {user_data[user_id]["threads"][i].is_alive()}""" for i in range(len(user_data[user_id]["threads"])) if user_data[user_id]["threads"][i] != None]) #4: {user_data[user_id]["threads"][4].is_alive()} 5: {user_data[user_id]["threads"][5].is_alive()}""")
+                except Exception as e:
+                    print("Ошибка в alive модуле", e)
+                print(f"-="*(len(for_log)//2))
+
                 for i in range(len(user_data[user_id]["threads"])):
                     if (not (user_data[user_id]["threads"][i] is None)):
                         if not user_data[user_id]["threads"][i].is_alive():
@@ -113,7 +91,7 @@ async def main(user_id):
                         if proxy:
                             with user_locks[user_id]:
                                 user_data[user_id]["proxies"].append(proxy)
-                    
+
                 browser = await p.chromium.launch(
                     headless=True,
                     proxy={
@@ -127,12 +105,14 @@ async def main(user_id):
 
                 try:
                     await page.goto(url, timeout=4444)
-                except:
+                except Exception as e:
+                    print("С первой попытки не удалось! Вторая загрузки страницы попытка...")
                     await page.goto(url, timeout=4444)
 
                 pre = await (await page.query_selector("pre")).text_content()
                 response = dict(json.loads(pre))
                 originals = []
+
                 if IS_BIGGER is None:
                     if "originals" in response["searchResult"]:
                         originals += [
@@ -150,24 +130,9 @@ async def main(user_id):
                             for goods in orig["offers"]
                         ]
                     else:
-                        result = [
-                            brand[0],
-                            brand[1],
-                            brand[2],
-                            brand[3],
-                            brand[4],
-                            brand[5],
-                            brand[6],
-                            brand[7],
-                            0,
-                            0,
-                            0,
-                            0,
-                        ]
+                        result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], 0, 0, 0, 0,]
                         if LOGO:
                             result.append(0)
-                        # continue
-
                     if "replacements" in response["searchResult"]:
                         originals += [
                             [
@@ -183,7 +148,7 @@ async def main(user_id):
                             for repl in response["searchResult"]["replacements"]
                             for goods in repl["offers"]
                         ]
-
+                    
                     if ANALOG and "analogs" in response["searchResult"]:
                         originals += [
                             [
@@ -252,23 +217,9 @@ async def main(user_id):
                                 for goods in orig["offers"]
                             ]
                     else:
-                        result = [
-                            brand[0],
-                            brand[1],
-                            brand[2],
-                            brand[3],
-                            brand[4],
-                            brand[5],
-                            brand[6],
-                            brand[7],
-                            0,
-                            0,
-                            0,
-                            0,
-                        ]
+                        result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], 0, 0, 0, 0,]
                         if LOGO:
                             result.append(0)
-                        # continue
 
                     if "replacements" in response["searchResult"]:
                         if IS_BIGGER:
@@ -319,7 +270,7 @@ async def main(user_id):
                                 for orig in response["searchResult"]["replacements"]
                                 for goods in orig["offers"]
                             ]
-
+                    
                     if ANALOG and "analogs" in response["searchResult"]:
                         if IS_BIGGER:
                             originals += [
@@ -377,26 +328,13 @@ async def main(user_id):
                     originals = [data for data in originals if data]
 
                 if originals == []:
-                    result = [
-                        brand[0],
-                        brand[1],
-                        brand[2],
-                        brand[3],
-                        brand[4],
-                        brand[5],
-                        brand[6],
-                        brand[7],
-                        0,
-                        0,
-                        0,
-                        0,
-                    ]
+                    result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], 0, 0, 0, 0,]
                     if LOGO:
                         result.append(0)
                     with user_locks[user_id]:
                         user_data[user_id]["excel_result"].append(result)
+                
                 else:
-
                     sorted_data_by_date = quick_sort(originals, 1)
                     # cut_data_by_date = sorted_data_by_date[:len(sorted_data_by_date)//2+1]
                     cut_data_by_date = sorted_data_by_date[:DEEP_FILTER]
@@ -419,6 +357,7 @@ async def main(user_id):
                             timeout=4444,
                         )
                     except:
+                        print("Вторая попытка загрузить страницу с лого...")
                         await page.goto(
                             f"https://emex.ru/api/search/rating?offerKey={best_data[0]}",
                             timeout=4444,
@@ -430,19 +369,7 @@ async def main(user_id):
                     response_with_logo = dict(json.loads(pre_with_logo))
                     price_logo = response_with_logo["priceLogo"]
 
-                    # result = [price_logo, *best_data[1:]]
-                    result = [
-                        brand[0],
-                        brand[1],
-                        brand[2],
-                        brand[3],
-                        brand[4],
-                        brand[5],
-                        brand[6],
-                        brand[7],
-                        price_logo,
-                        *best_data[1:],
-                    ]
+                    result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], price_logo, *best_data[1:],]
                     if LOGO:
                         best_data = None
                         sorted_by_price = quick_sort(originals, 2)[:20]
@@ -453,22 +380,11 @@ async def main(user_id):
                                     timeout=4444,
                                 )
                             except:
+                                print("Вторая попытка загрузить лого (фильтр с лого)...")
                                 await page.goto(
                                     f"https://emex.ru/api/search/rating?offerKey={data[0]}",
                                     timeout=4444,
                                 )
-
-                            # while atms <= 5:
-                            #     try:
-                            #         await page.goto(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=3333)
-                            #     except:
-                            #         atms += 1
-
-                            # print(brand, atms)
-                            # if atms >= 5:
-                            #     raise Exception
-                            # else:
-                            #     atms = 0
 
                             pre_with_logo = await (
                                 await page.query_selector("pre")
@@ -480,7 +396,6 @@ async def main(user_id):
                             if price_logo == LOGO:
                                 best_data = data
                                 break
-
                         if best_data:
                             result.append(int(best_data[2]))
                         else:
@@ -488,17 +403,13 @@ async def main(user_id):
                     with user_locks[user_id]:
                         user_data[user_id]["excel_result"].append(result)
             except Exception as e:
-                print(e)
+                print("-="*20)
+                print("Общее исключение\nОшибка:", e)
+                print("-="*20)
                 with user_locks[user_id]:
                     user_data[user_id]["brands"].append(brand)
-                atms += 1
+                    user_data[user_id]["ban_list"].append("@".join(proxy))
 
-                if proxy != ["http://test:8888", "user1", "pass1"]:
-                    with user_locks[user_id]:
-                        user_data[user_id]["ban_list"].add("@".join(proxy))
-                    user_data[user_id]["is_using_testproxy"][threading.current_thread().name] = False
-                else:
-                    user_data[user_id]["is_using_testproxy"][threading.current_thread().name] = True
                 if user_data[user_id]["proxies"] != []:
                     with user_locks[user_id]:
                         proxy = user_data[user_id]["proxies"].pop(0)
@@ -507,47 +418,17 @@ async def main(user_id):
                     except:
                         proxy = [proxy[0], proxy[1], proxy[2]]
                 else:
-                    proxy = ["http://test:8888", "user1", "pass1"]
-
-                if user_data[user_id]["count_proxies"] == len(user_data[user_id]["ban_list"]):
-                    print(user_data[user_id]["count_proxies"], len(user_data[user_id]["ban_list"]))
-                    raise HTTPException(
-                        status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-                        detail="Закочнились прокси",
-                    )
                     break
 
-                if user_data[user_id]["count_proxies"] == len(user_data[user_id]["ban_list"]) + list(user_data[user_id]["is_using_testproxy"].values()).count(False):
-                    user_data[user_id]["count_proxies"] = len(user_data[user_id]["ban_list"])
+                if len(user_data[user_id]["ban_list"])-4 <= user_data[user_id]["count_proxies"] <= len(user_data[user_id]["ban_list"])+4:
                     user_data[user_id]["all_break"] = True
                     raise HTTPException(
                         status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
                         detail="Закочнились прокси",
                     )
                     break
-
-                if all([user_data[user_id]["is_using_testproxy"][name_thr] for name_thr in user_data[user_id]["is_using_testproxy"] if user_data[user_id]["is_using_testproxy"][name_thr] != None]):
-                    user_data[user_id]["all_break"] = True
-                    raise HTTPException(
-                        status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-                        detail="Закочнились прокси",
-                    )
-                    break
-
-                if sum([1 for proxy_check in user_data[user_id]["PROXIES"] if proxy_check in user_data[user_id]["ban_list"]]) == user_data[user_id]["count_proxies"] and user_data[user_id]["PROXIES"] != []:
-                    print(user_data[user_id]["count_proxies"], len(user_data[user_id]["ban_list"]))
-                    user_data[user_id]["all_break"] = True
-                    raise HTTPException(
-                        status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-                        detail="Закочнились прокси",
-                    )
-                    break
-                # if atms % 5 == 0:
-    if proxy != ["http://test:8888", "user1", "pass1"]:
-        with user_locks[user_id]:
-            user_data[user_id]["proxies"].append(proxy)
-    user_data[user_id]["is_using_testproxy"][threading.current_thread().name] = True
-
+    with user_locks[user_id]:
+        user_data[user_id]["proxies"].append(proxy)
 
 def run(user_id):
     asyncio.run(main(user_id))

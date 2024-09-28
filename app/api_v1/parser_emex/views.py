@@ -116,7 +116,7 @@ async def websocket_endpoint(
                     # "Start_file": files,
                 }
             )
-            elif len(ud["excel_result"]) / ud["count_brands"] * 100 == 100:
+            if len(ud["excel_result"]) / ud["count_brands"] * 100 == 100:
                 await asyncio.sleep(10)
             await asyncio.sleep(3)
     except WebSocketDisconnect:

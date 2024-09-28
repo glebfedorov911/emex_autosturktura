@@ -255,11 +255,11 @@ async def start(
         user_data[payload.get("sub")] = {
             "threads": threads.copy(),
             "events": [Event() for _ in range(count_of_threadings)],
-            "proxies": list(set([(proxy.ip_with_port, proxy.login, proxy.password) for proxy in  proxies]))[:8],
+            "proxies": list(set([(proxy.ip_with_port, proxy.login, proxy.password) for proxy in  proxies])),
             "filter": filter,
             "excel_result": [],
             "status": "PARSER_RUNNING",
-            "count_proxies": 8, #len(set([(proxy.ip_with_port, proxy.login, proxy.password) for proxy in  proxies])),
+            "count_proxies": len(set([(proxy.ip_with_port, proxy.login, proxy.password) for proxy in  proxies])),
             "ban_list": set(),
             "count_brands": 1,
             "filter_id": filter_id,

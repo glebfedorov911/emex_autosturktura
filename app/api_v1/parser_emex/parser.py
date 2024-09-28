@@ -67,7 +67,6 @@ async def main(user_id):
         "Количество",
     ]
 
-    proxy = None
     if LOGO and "Цена с лого" not in user_data[user_id]["columns"]:
         user_data[user_id]["columns"].append("Цена с лого")
 
@@ -108,7 +107,6 @@ async def main(user_id):
                             with user_locks[user_id]:
                                 if proxy:
                                     user_data[user_id]["proxies"].append(proxy)
-                                proxy = None
                     else:
                         if proxy:
                             with user_locks[user_id]:

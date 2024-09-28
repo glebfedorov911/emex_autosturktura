@@ -304,7 +304,7 @@ async def start(
         user_data[user_id]["count_brands"] = len(brands)
         user_data[user_id]["brands"] = brands
         
-        process = multiprocessing.Process(target=start_parser, args(user_id, ))
+        process = multiprocessing.Process(target=start_parser, args=(user_id, ))
         process.start()
 
         return JSONResponse(messages)

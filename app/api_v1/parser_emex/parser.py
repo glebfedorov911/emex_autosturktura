@@ -515,13 +515,13 @@ async def main(user_id):
                     )
                     break
 
-                # if user_data[user_id]["count_proxies"] == len(user_data[user_id]["ban_list"]) + list(user_data[user_id]["is_using_testproxy"].values()).count(False):
-                #     user_data[user_id]["count_proxies"] = len(user_data[user_id]["ban_list"])
-                #     raise HTTPException(
-                #         status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-                #         detail="Закочнились прокси",
-                #     )
-                #     break
+                if user_data[user_id]["count_proxies"] == len(user_data[user_id]["ban_list"]) + list(user_data[user_id]["is_using_testproxy"].values()).count(False):
+                    user_data[user_id]["count_proxies"] = len(user_data[user_id]["ban_list"])
+                    raise HTTPException(
+                        status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
+                        detail="Закочнились прокси",
+                    )
+                    break
 
                 if all([user_data[user_id]["is_using_testproxy"][name_thr] for name_thr in user_data[user_id]["is_using_testproxy"]]):
                     raise HTTPException(

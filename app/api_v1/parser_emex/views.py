@@ -84,15 +84,16 @@ async def websocket_endpoint(
     try:
         while True:
             for i in range(count_of_threadings):
-                try:
-                    if not user_data[payload.get("sub")]["threads"][i].is_alive() and user_data[payload.get("sub")]["proxies"] != []:
-                        user_data[user_id]["events"][i].clear()
-                        user_data[user_id]["threads"][i] = Thread(
-                            target=run, args=(user_id, )
-                        )
-                        user_data[user_id]["threads"][i].start()
-                except:
-                    pass
+                if user_data[payload.get("sub")]["status"] == "PARSER_RUNNING":
+                    try:
+                        if not user_data[payload.get("sub")]["threads"][i].is_alive() and user_data[payload.get("sub")]["proxies"] != []:
+                            user_data[user_id]["events"][i].clear()
+                            user_data[user_id]["threads"][i] = Thread(
+                                target=run, args=(user_id, )
+                            )
+                            user_data[user_id]["threads"][i].start()
+                    except:
+                        pass
 
             ud = user_data[payload.get("sub")]
             if ud["count_proxies"] == 0:
@@ -163,7 +164,7 @@ async def websocket_status_endpoint(
             # asyncio.sleep(10)
             await websocket.send_json({"Status": ud["status"]})
             if (
-                int(len(ud["excel_result"]) / ud["count_brands"] * 100) == 100
+                int(len(ud["excel_result"]) / ud["count_brands"] * 100) == 99
                 and not ud["flag"]
             ):
                 ud["status"] = "PARSING_COMPLETED"

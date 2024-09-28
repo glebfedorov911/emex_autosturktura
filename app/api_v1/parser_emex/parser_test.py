@@ -35,7 +35,7 @@ USERAGENTS = [
 user_locks = {}
 
 async def main(user_id):
-    global user_data, user_lock
+    global user_data, user_locks
     user_locks[user_id] = threading.Lock()
 
     DEEP_FILTER = user_data[user_id]["filter"].deep_filter
@@ -53,7 +53,7 @@ async def main(user_id):
 
     while user_data[user_id]["status"] == "PARSER_RUNNING":
         if user_data[user_id]["proxies"] != []:
-            with user_lock[user_id]:
+            with user_locks[user_id]:
                 proxy = user_data[user_id]["proxies"].pop(random.randint(0, len(user_data[user_id]["proxies"])-1))
         try:
             proxy = [proxy.ip_with_port, proxy.login, proxy.password]
@@ -403,7 +403,7 @@ async def main(user_id):
                             result.append(0)
                     with user_locks[user_id]:
                         user_data[user_id]["excel_result"].append(result)
-                with user_lock[user_id]:
+                with user_locks[user_id]:
                     user_data[user_id]["proxies"].append(proxy)
             except Exception as e:
                 print("-="*20)

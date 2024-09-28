@@ -279,6 +279,8 @@ async def start(
         brands= create(df_to_list)
         user_data[user_id]["count_brands"] = len(brands)
         user_data[user_id]["brands"] = brands
+        if user_data[user_id]["count_proxies"] < count_of_threadings:
+            count_of_threadings = user_data[user_id]["count_proxies"]
 
         for index in range(count_of_threadings):
             if (

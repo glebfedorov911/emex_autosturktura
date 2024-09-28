@@ -501,7 +501,7 @@ async def main(user_id):
                     )
                     break
 
-                if user_data[user_id]["count_proxies"] == len(user_data[user_id]["ban_list"]) + user_data[user_id]["is_using_testproxy"].count(False):
+                if user_data[user_id]["count_proxies"] == len(user_data[user_id]["ban_list"]) + user_data[user_id]["is_using_testproxy"].values().count(False):
                     user_data[user_id]["count_proxies"] = len(user_data[user_id]["ban_list"])
                     raise HTTPException(
                         status_code=status.HTTP_405_METHOD_NOT_ALLOWED,

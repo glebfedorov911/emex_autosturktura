@@ -214,7 +214,7 @@ async def websocket_status_endpoint(
     except WebSocketDisconnect:
         await websocket.close()
 
-async def start_parser(user_id):
+def start_parser(user_id):
     global user_data
 
     thrs = []

@@ -420,7 +420,8 @@ async def main(user_id):
                 else:
                     break
 
-                if len(user_data[user_id]["ban_list"])-4 <= user_data[user_id]["count_proxies"] <= len(user_data[user_id]["ban_list"])+4:
+                if len(user_data[user_id]["ban_list"])-user_data[user_id]["count_of_threadings"] <= user_data[user_id]["count_proxies"] <= len(user_data[user_id]["ban_list"])+user_data[user_id]["count_of_threadings"]:
+                    user_data[user_id]["count_proxies"] = len(user_data[user_id]["ban_list"])
                     user_data[user_id]["all_break"] = True
                     raise HTTPException(
                         status_code=status.HTTP_405_METHOD_NOT_ALLOWED,

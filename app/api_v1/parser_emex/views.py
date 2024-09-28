@@ -36,7 +36,7 @@ import pandas as pd
 router = APIRouter(prefix="/new_parser", tags=["New Parser"])
 templates = Jinja2Templates(directory=settings.templates.templates_path)
 
-count_of_threadings = 4
+count_of_threadings = 6
 threads: list[Thread] = [None] * count_of_threadings
 
 
@@ -234,7 +234,6 @@ async def start(
     session: AsyncSession = Depends(db_helper.session_depends),
 ):
     global user_data
-    count_of_threadings = 4
     
 
     messages = []
@@ -268,6 +267,7 @@ async def start(
             "flag": False,
             "is_using_testproxy": {},
             "PROXIES": proxies,
+            "count_of_threadings": count_of_threadings,
             # "start_file": files,
         }
 ##
@@ -291,10 +291,8 @@ async def start(
         df = df.apply(lambda col: col.astype(object))
         df_to_list = df.values.tolist()
         brands= create(df_to_list)
-        user_data[user_id]["count_brands"] = len(brands)
+        user_data[user_id]["count_brands"] = len(brands)-count_of_threadings
         user_data[user_id]["brands"] = brands
-        if user_data[user_id]["count_proxies"] < count_of_threadings:
-            count_of_threadings = user_data[user_id]["count_proxies"]
 
         for index in range(count_of_threadings):
             if (

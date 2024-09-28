@@ -36,9 +36,11 @@ USERAGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36",
 ]
 
+user_locks = {}
 
 async def main(user_id):
-    global user_data
+    global user_data, user_lock
+    user_locks[user_id] = threading.Lock()
 
     DEEP_FILTER = user_data[user_id]["filter"].deep_filter
     DEEP_ANALOG = user_data[user_id]["filter"].deep_analog
@@ -80,7 +82,8 @@ async def main(user_id):
     while True:
         if len(user_data[user_id]["brands"]) == 0:
             break
-        brand = user_data[user_id]["brands"].pop(0)
+        with user_locks[user_id]:
+            brand = user_data[user_id]["brands"].pop(0)
         if all([ev.is_set() for ev in user_data[user_id]["events"]]):
             break
 
@@ -372,7 +375,8 @@ async def main(user_id):
                     ]
                     if LOGO:
                         result.append(0)
-                    user_data[user_id]["excel_result"].append(result)
+                    with user_locks[user_id]:
+                        user_data[user_id]["excel_result"].append(result)
                 else:
 
                     sorted_data_by_date = quick_sort(originals, 1)
@@ -463,19 +467,23 @@ async def main(user_id):
                             result.append(int(best_data[2]))
                         else:
                             result.append(0)
-                    user_data[user_id]["excel_result"].append(result)
+                    with user_locks[user_id]:
+                        user_data[user_id]["excel_result"].append(result)
             except Exception as e:
                 print(e)
-                user_data[user_id]["brands"].append(brand)
+                with user_locks[user_id]:
+                    user_data[user_id]["brands"].append(brand)
                 atms += 1
 
                 if proxy != ["http://test:8888", "user1", "pass1"]:
-                    user_data[user_id]["ban_list"].add("@".join(proxy))
+                    with user_locks[user_id]:
+                        user_data[user_id]["ban_list"].add("@".join(proxy))
                     user_data[user_id]["is_using_testproxy"][threading.current_thread().name] = False
                 else:
                     user_data[user_id]["is_using_testproxy"][threading.current_thread().name] = True
                 if user_data[user_id]["proxies"] != []:
-                    proxy = user_data[user_id]["proxies"].pop(0)
+                    with user_locks[user_id]:
+                        proxy = user_data[user_id]["proxies"].pop(0)
                     try:
                         proxy = [proxy.ip_with_port, proxy.login, proxy.password]
                     except:
@@ -506,7 +514,7 @@ async def main(user_id):
                     break
                 # if atms % 5 == 0:
     if proxy != ["http://test:8888", "user1", "pass1"]:
-        user_data[user_id]["proxies"].append(proxy)
+            user_data[user_id]["proxies"].append(proxy)
     user_data[user_id]["is_using_testproxy"][threading.current_thread().name] = True
 
 

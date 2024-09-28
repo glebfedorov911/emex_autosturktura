@@ -28,7 +28,6 @@ from .depends import *
 import asyncio
 import time
 import random
-import multiprocessing
 import pandas as pd
 
 # ДОПИСАТЬ СОХРАНЕНИЕ####
@@ -93,7 +92,6 @@ async def websocket_endpoint(
                 # files = get_unique_filename(str(settings.upload.path_for_upload), files)
                 # ud["start_file"] = files
 
-            print(len(ud["excel_result"]), ud["count_brands"])
             await websocket.send_json(
                 {
                     "Percent_parsing_goods": int(
@@ -215,29 +213,6 @@ async def websocket_status_endpoint(
     except WebSocketDisconnect:
         await websocket.close()
 
-def start_parser(user_id):
-    global user_data
-
-    thrs = []
-
-    for index in range(count_of_threadings):
-        if (
-            user_data[user_id]["threads"][index] is None
-            or not user_data[user_id]["threads"][index].is_alive()
-        ):
-            user_data[user_id]["events"][index].clear()
-            user_data[user_id]["threads"][index] = Thread(
-                target=run, args=(user_id, )
-            )
-            thrs.append(user_data[user_id]["threads"][index])
-            user_data[user_id]["threads"][index].start()
-            user_data[user_id]["messages"].append(f"поток {index+1} запущен")
-        else:
-            user_data[user_id]["messages"].append(f"поток {index+1} уже запущен")
-
-    for thr in thrs:
-        thr.join()
-
 
 @router.get("/start/{filter_id}")
 async def start(
@@ -279,7 +254,6 @@ async def start(
             "flag": False,
             "is_using_testproxy": {},
             "PROXIES": proxies,
-            "messages": []
             # "start_file": files,
         }
 ##
@@ -305,11 +279,22 @@ async def start(
         brands= create(df_to_list)
         user_data[user_id]["count_brands"] = len(brands)
         user_data[user_id]["brands"] = brands
-        
-        process = multiprocessing.Process(target=start_parser, args=(user_id, ))
-        process.start()
 
-        return JSONResponse(user_data[payload.get("sub")]["messages"])
+        for index in range(count_of_threadings):
+            if (
+                user_data[user_id]["threads"][index] is None
+                or not user_data[user_id]["threads"][index].is_alive()
+            ):
+                user_data[user_id]["events"][index].clear()
+                user_data[user_id]["threads"][index] = Thread(
+                    target=run, args=(user_id, )
+                )
+                user_data[user_id]["threads"][index].start()
+                messages.append(f"поток {index+1} запущен")
+            else:
+                messages.append(f"поток {index+1} уже запущен")
+
+        return JSONResponse(messages)
 
 
 @router.get("/stop")

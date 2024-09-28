@@ -58,7 +58,7 @@ async def main(user_id):
         except:
             proxy = [proxy[0], proxy[1], proxy[2]]
 
-    while True:
+    while user_data[user_id]["status"] == "PARSER_RUNNING":
         if len(user_data[user_id]["brands"]) == 0 or all([ev.is_set() for ev in user_data[user_id]["events"]]) or user_data[user_id]["all_break"]:
             break
 

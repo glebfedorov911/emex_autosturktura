@@ -230,9 +230,9 @@ def start_parser(user_id):
             )
             thrs.append(user_data[user_id]["threads"][index])
             user_data[user_id]["threads"][index].start()
-            messages.append(f"поток {index+1} запущен")
-        else:
-            messages.append(f"поток {index+1} уже запущен")
+        #     messages.append(f"поток {index+1} запущен")
+        # else:
+        #     messages.append(f"поток {index+1} уже запущен")
 
     for thr in thrs:
         thr.join()

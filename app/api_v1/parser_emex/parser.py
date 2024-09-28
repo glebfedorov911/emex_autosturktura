@@ -67,6 +67,7 @@ async def main(user_id):
         "Количество",
     ]
 
+    proxy = None
     if LOGO and "Цена с лого" not in user_data[user_id]["columns"]:
         user_data[user_id]["columns"].append("Цена с лого")
 
@@ -95,8 +96,24 @@ async def main(user_id):
                 print(len(user_data[user_id]["excel_result"]), user_data[user_id]["count_brands"])
                 print(user_data[user_id]["is_using_testproxy"])
                 print(len(user_data[user_id]["brands"]))
-                print(f"""0: {user_data[user_id]["threads"][0].is_alive()} 1: {user_data[user_id]["threads"][1].is_alive()} 2: {user_data[user_id]["threads"][2].is_alive()}\n3: {user_data[user_id]["threads"][3].is_alive()} 4: {user_data[user_id]["threads"][4].is_alive()} 5: {user_data[user_id]["threads"][5].is_alive()}""")
+                try:
+                    print(f"""0: {user_data[user_id]["threads"][0].is_alive()} 1: {user_data[user_id]["threads"][1].is_alive()} 2: {user_data[user_id]["threads"][2].is_alive()}\n3: {user_data[user_id]["threads"][3].is_alive()} 4: {user_data[user_id]["threads"][4].is_alive()} 5: {user_data[user_id]["threads"][5].is_alive()}""")
+                except:
+                    pass
                 print(f"-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
+                
+                for i in range(len(user_data[user_id]["threads"])):
+                    if (not (user_data[user_id]["threads"][i] is None)):
+                        if not user_data[user_id]["threads"][i].is_alive():
+                            with user_locks[user_id]:
+                                if proxy:
+                                    user_data[user_id]["proxies"].append(proxy)
+                                proxy = None
+                    else:
+                        if proxy:
+                            with user_locks[user_id]:
+                                user_data[user_id]["proxies"].append(proxy)
+                    
                 browser = await p.chromium.launch(
                     headless=True,
                     proxy={
@@ -500,13 +517,13 @@ async def main(user_id):
                     )
                     break
 
-                if user_data[user_id]["count_proxies"] == len(user_data[user_id]["ban_list"]) + list(user_data[user_id]["is_using_testproxy"].values()).count(False):
-                    user_data[user_id]["count_proxies"] = len(user_data[user_id]["ban_list"])
-                    raise HTTPException(
-                        status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-                        detail="Закочнились прокси",
-                    )
-                    break
+                # if user_data[user_id]["count_proxies"] == len(user_data[user_id]["ban_list"]) + list(user_data[user_id]["is_using_testproxy"].values()).count(False):
+                #     user_data[user_id]["count_proxies"] = len(user_data[user_id]["ban_list"])
+                #     raise HTTPException(
+                #         status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
+                #         detail="Закочнились прокси",
+                #     )
+                #     break
 
                 if all([user_data[user_id]["is_using_testproxy"][name_thr] for name_thr in user_data[user_id]["is_using_testproxy"]]):
                     raise HTTPException(
@@ -524,6 +541,7 @@ async def main(user_id):
                     break
                 # if atms % 5 == 0:
     if proxy != ["http://test:8888", "user1", "pass1"]:
+        with user_locks[user_id]:
             user_data[user_id]["proxies"].append(proxy)
     user_data[user_id]["is_using_testproxy"][threading.current_thread().name] = True
 

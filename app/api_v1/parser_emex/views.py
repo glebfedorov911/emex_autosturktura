@@ -279,6 +279,7 @@ async def start(
         brands= create(df_to_list)
         user_data[user_id]["count_brands"] = len(brands)
         user_data[user_id]["brands"] = brands
+        thrs = []
 
         for index in range(count_of_threadings):
             if (
@@ -289,10 +290,14 @@ async def start(
                 user_data[user_id]["threads"][index] = Thread(
                     target=run, args=(user_id, )
                 )
+                thrs.append(user_data[user_id]["threads"][index])
                 user_data[user_id]["threads"][index].start()
                 messages.append(f"поток {index+1} запущен")
             else:
                 messages.append(f"поток {index+1} уже запущен")
+
+        for thr in thrs:
+            thr.join()
 
         return JSONResponse(messages)
 

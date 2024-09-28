@@ -221,6 +221,7 @@ async def start(
     session: AsyncSession = Depends(db_helper.session_depends),
 ):
     global user_data
+    count_of_threadings = 6
     
 
     messages = []

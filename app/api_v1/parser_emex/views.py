@@ -84,12 +84,15 @@ async def websocket_endpoint(
     try:
         while True:
             for i in range(count_of_threadings):
-                if not user_data[payload.get("sub")][i].is_alive() and user_data[payload.get("sub")]["proxies"] != []:
-                    user_data[user_id]["events"][i].clear()
-                    user_data[user_id]["threads"][i] = Thread(
-                        target=run, args=(user_id, )
-                    )
-                    user_data[user_id]["threads"][i].start()
+                try:
+                    if not user_data[payload.get("sub")]["threads"][i].is_alive() and user_data[payload.get("sub")]["proxies"] != []:
+                        user_data[user_id]["events"][i].clear()
+                        user_data[user_id]["threads"][i] = Thread(
+                            target=run, args=(user_id, )
+                        )
+                        user_data[user_id]["threads"][i].start()
+                except:
+                    pass
 
             ud = user_data[payload.get("sub")]
             if ud["count_proxies"] == 0:

@@ -95,8 +95,8 @@ async def main(user_id):
                 print(len(user_data[user_id]["excel_result"]), user_data[user_id]["count_brands"])
                 print(user_data[user_id]["is_using_testproxy"])
                 print(len(user_data[user_id]["brands"]))
-                print(f"""0: {user_data[user_id]["thread"][0].is_alive()} 1: {user_data[user_id]["thread"][1].is_alive()} 2: {user_data[user_id]["thread"][2].is_alive()}\n
-                3: {user_data[user_id]["thread"][3].is_alive()} 4: {user_data[user_id]["thread"][4].is_alive()} 5: {user_data[user_id]["thread"][5].is_alive()}""")
+                print(f"""0: {user_data[user_id]["threads"][0].is_alive()} 1: {user_data[user_id]["threads"][1].is_alive()} 2: {user_data[user_id]["threads"][2].is_alive()}\n
+                3: {user_data[user_id]["threads"][3].is_alive()} 4: {user_data[user_id]["threads"][4].is_alive()} 5: {user_data[user_id]["threads"][5].is_alive()}""")
                 print(f"-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
                 browser = await p.chromium.launch(
                     headless=True,

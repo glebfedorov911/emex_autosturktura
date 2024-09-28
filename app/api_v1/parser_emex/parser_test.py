@@ -51,14 +51,15 @@ async def main(user_id):
     if LOGO and "Цена с лого" not in user_data[user_id]["columns"]:
         user_data[user_id]["columns"].append("Цена с лого")
 
-    if user_data[user_id]["proxies"] != []:
-        proxy = user_data[user_id]["proxies"].pop(0)
+    while user_data[user_id]["status"] == "PARSER_RUNNING":
+        if user_data[user_id]["proxies"] != []:
+            with user_lock[user_id]:
+                proxy = user_data[user_id]["proxies"].pop(random.randint(0, len(user_data[user_id]["proxies"])-1))
         try:
             proxy = [proxy.ip_with_port, proxy.login, proxy.password]
         except:
             proxy = [proxy[0], proxy[1], proxy[2]]
 
-    while user_data[user_id]["status"] == "PARSER_RUNNING":
         if len(user_data[user_id]["brands"]) == 0 or all([ev.is_set() for ev in user_data[user_id]["events"]]) or user_data[user_id]["all_break"]:
             break
 
@@ -402,6 +403,8 @@ async def main(user_id):
                             result.append(0)
                     with user_locks[user_id]:
                         user_data[user_id]["excel_result"].append(result)
+                with user_lock[user_id]:
+                    user_data[user_id]["proxies"].append(proxy)
             except Exception as e:
                 print("-="*20)
                 print("Общее исключение\nОшибка:", e)

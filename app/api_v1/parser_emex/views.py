@@ -116,6 +116,8 @@ async def websocket_endpoint(
                     # "Start_file": files,
                 }
             )
+            elif len(ud["excel_result"]) / ud["count_brands"] * 100 == 100:
+                await asyncio.sleep(10)
             await asyncio.sleep(3)
     except WebSocketDisconnect:
         await websocket.close()
@@ -168,6 +170,7 @@ async def websocket_status_endpoint(
                 int(len(ud["excel_result"]) / ud["count_brands"] * 100) == 100
                 and not ud["flag"]
             ):
+                await asyncio.sleep(10)
                 ud["status"] = "PARSING_COMPLETED"
                 ud["flag"] = True
             elif (

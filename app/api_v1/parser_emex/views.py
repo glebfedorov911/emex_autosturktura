@@ -193,7 +193,10 @@ async def websocket_status_endpoint(
             if ud["status"] in (
                 "ALL_PROXIES_BANNED",
                 "PARSING_COMPLETED",
-            ):
+            ):  
+                for i in range(count_of_threadings):
+                    user_data[payload.get("sub")]["events"][i].clear()
+                user_data[payload.get("sub")]["all_break"] = True
                 file_name_last = (await crud.get_last_upload_files(user_id=payload.get("sub"), session=session)).before_parsing_filename
                 result_file_name = f"{file_name_last.split('.')[0]}_после_парсинга_{random.randint(1, 10000000000000000)}.xlsx"
 

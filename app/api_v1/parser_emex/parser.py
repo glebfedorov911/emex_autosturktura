@@ -49,7 +49,7 @@ async def main(user_id):
     DATE = user_data[user_id]["filter"].date
     LOGO = user_data[user_id]["filter"].logo  # HXAW - пример лого None - Без лого
     PICKUP_POINT = user_data[user_id]["filter"].pickup_point
-    user_data[user_id]["is_using_testproxy"][threading.current_thread().name] = False 
+    user_data[user_id]["is_using_testproxy"][threading.current_thread().name] = True 
     user_data[user_id]["columns"] = [
         "Артикул",
         "Наименование",
@@ -469,6 +469,20 @@ async def main(user_id):
                 user_data[user_id]["brands"].append(brand)
                 atms += 1
 
+                if proxy != ["http://test:8888", "user1", "pass1"]:
+                    user_data[user_id]["ban_list"].add("@".join(proxy))
+                    user_data[user_id]["is_using_testproxy"][threading.current_thread().name] = False
+                else:
+                    user_data[user_id]["is_using_testproxy"][threading.current_thread().name] = True
+                if user_data[user_id]["proxies"] != []:
+                    proxy = user_data[user_id]["proxies"].pop(0)
+                    try:
+                        proxy = [proxy.ip_with_port, proxy.login, proxy.password]
+                    except:
+                        proxy = [proxy[0], proxy[1], proxy[2]]
+                else:
+                    proxy = ["http://test:8888", "user1", "pass1"]
+
                 if user_data[user_id]["count_proxies"] == len(user_data[user_id]["ban_list"]):
                     print(user_data[user_id]["count_proxies"], len(user_data[user_id]["ban_list"]))
                     raise HTTPException(
@@ -491,19 +505,6 @@ async def main(user_id):
                     )
                     break
                 # if atms % 5 == 0:
-                if proxy != ["http://test:8888", "user1", "pass1"]:
-                    user_data[user_id]["ban_list"].add("@".join(proxy))
-                    user_data[user_id]["is_using_testproxy"][threading.current_thread().name] = False
-                else:
-                    user_data[user_id]["is_using_testproxy"][threading.current_thread().name] = True
-                if user_data[user_id]["proxies"] != []:
-                    proxy = user_data[user_id]["proxies"].pop(0)
-                    try:
-                        proxy = [proxy.ip_with_port, proxy.login, proxy.password]
-                    except:
-                        proxy = [proxy[0], proxy[1], proxy[2]]
-                else:
-                    proxy = ["http://test:8888", "user1", "pass1"]
     if proxy != ["http://test:8888", "user1", "pass1"]:
         user_data[user_id]["proxies"].append(proxy)
     user_data[user_id]["is_using_testproxy"][threading.current_thread().name] = True

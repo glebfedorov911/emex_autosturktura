@@ -231,9 +231,9 @@ def start_parser(user_id):
             )
             thrs.append(user_data[user_id]["threads"][index])
             user_data[user_id]["threads"][index].start()
-            user_data[payload.get("sub")]["messages"].append(f"поток {index+1} запущен")
+            user_data[user_id]["messages"].append(f"поток {index+1} запущен")
         else:
-            user_data[payload.get("sub")]["messages"].append(f"поток {index+1} уже запущен")
+            user_data[user_id]["messages"].append(f"поток {index+1} уже запущен")
 
     for thr in thrs:
         thr.join()

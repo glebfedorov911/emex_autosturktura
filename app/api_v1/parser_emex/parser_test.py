@@ -109,7 +109,7 @@ async def main(user_id):
                                 user_data[user_id]["proxies"].append(proxy)
 
                 browser = await p.chromium.launch(
-                    headless=False,
+                    headless=True,
                     proxy={
                         "server": proxy[0],
                         "username": proxy[1],

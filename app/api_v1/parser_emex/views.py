@@ -84,6 +84,7 @@ async def websocket_endpoint(
     await websocket.accept()
     try:
         while True:
+            print(user_data[payload.get("sub")]["excel_result"])
             for i in range(count_of_threadings):
                 if user_data[payload.get("sub")]["status"] == "PARSER_RUNNING":
                     try:   

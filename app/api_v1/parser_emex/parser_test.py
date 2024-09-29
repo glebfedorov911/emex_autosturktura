@@ -86,17 +86,17 @@ async def main(user_id):
         
         async with async_playwright() as p:
             try:
-                # for_log = f"-=-=-=-=-=-=-={threading.current_thread().name}=-=-=-=-=-=-=-"
-                # print(for_log)
-                # print("URL сейчас:", url, '\n', proxy, user_data[user_id]["count_proxies"], '\n', user_data[user_id]["ban_list"])
-                # print("Данных спаршено:", len(user_data[user_id]["excel_result"]), "данных всего:", user_data[user_id]["count_brands"])
-                # print("Использование testproxy:", user_data[user_id]["is_using_testproxy"])
-                # print("Обновление списка (длина):", len(user_data[user_id]["brands"]))
-                # try:
-                #     print(*[f"""{i} | {user_data[user_id]["threads"][i]}: {user_data[user_id]["threads"][i].is_alive()}""" for i in range(len(user_data[user_id]["threads"])) if user_data[user_id]["threads"][i] != None]) #4: {user_data[user_id]["threads"][4].is_alive()} 5: {user_data[user_id]["threads"][5].is_alive()}""")
-                # except Exception as e:
-                #     print("Ошибка в alive модуле", e)
-                # print(f"-="*(len(for_log)//2))
+                for_log = f"-=-=-=-=-=-=-={threading.current_thread().name}=-=-=-=-=-=-=-"
+                print(for_log)
+                print("URL сейчас:", url, '\n', proxy, user_data[user_id]["count_proxies"], '\n', user_data[user_id]["ban_list"])
+                print("Данных спаршено:", len(user_data[user_id]["excel_result"]), "данных всего:", user_data[user_id]["count_brands"])
+                print("Использование testproxy:", user_data[user_id]["is_using_testproxy"])
+                print("Обновление списка (длина):", len(user_data[user_id]["brands"]))
+                try:
+                    print(*[f"""{i} | {user_data[user_id]["threads"][i]}: {user_data[user_id]["threads"][i].is_alive()}""" for i in range(len(user_data[user_id]["threads"])) if user_data[user_id]["threads"][i] != None]) #4: {user_data[user_id]["threads"][4].is_alive()} 5: {user_data[user_id]["threads"][5].is_alive()}""")
+                except Exception as e:
+                    print("Ошибка в alive модуле", e)
+                print(f"-="*(len(for_log)//2))
 
                 for i in range(len(user_data[user_id]["threads"])):
                     if (not (user_data[user_id]["threads"][i] is None)):

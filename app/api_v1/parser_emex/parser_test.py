@@ -426,8 +426,7 @@ async def main(user_id):
                 print("-="*20)
                 with user_locks[user_id]:
                     user_data[user_id]["brands"].append(brand)
-                    if not "@".join(proxy) in user_data[user_id]["ban_list"]:
-                        user_data[user_id]["ban_list"].append("@".join(proxy))
+                    user_data[user_id]["ban_list"].append("@".join(proxy))
 
                 if user_data[user_id]["proxies"] != []:
                     with user_locks[user_id]:

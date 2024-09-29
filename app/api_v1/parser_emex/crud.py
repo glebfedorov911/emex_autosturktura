@@ -90,7 +90,7 @@ async def set_banned_proxy(proxy_servers: list, session: AsyncSession, user_id: 
         stmt = select(Proxy).where(Proxy.ip_with_port == proxy.split("@")[0]).where(Proxy.user_id==user_id).where(Proxy._is_banned==False)
         result: Result = await session.execute(stmt)
         proxies = result.scalars().all()
-        if pr in proxies:
+        for pr in proxies:
             pr._is_banned = True
             pr.is_using = False
             pr.when_banned = datetime.now()

@@ -46,6 +46,7 @@ async def main(user_id):
     LOGO = user_data[user_id]["filter"].logo 
     PICKUP_POINT = user_data[user_id]["filter"].pickup_point
     browser = None
+    proxy = None
     user_data[user_id]["all_break"] = False
     user_data[user_id]["columns"] = ["Артикул", "Наименование", "Брэнд", "Артикул", "Кол-во", "Цена", "Партия", "НДС", "Лого", "Доставка", "Лучшая цена", "Количество",]
 
@@ -86,7 +87,7 @@ async def main(user_id):
             try:
                 for_log = f"-=-=-=-=-=-=-={threading.current_thread().name}=-=-=-=-=-=-=-"
                 print(for_log)
-                print("URL сейчас:", url, '\n', proxy, user_data[user_id]["count_proxies"], '\n', user_data[user_id]["ban_list"])
+                print("URL сейчас:", url, '\n', proxy, user_data[user_id]["count_proxies"], '\n', "Количество в бане:", len(user_data[user_id]["ban_list"]))
                 print("Данных спаршено:", len(user_data[user_id]["excel_result"]), "данных всего:", user_data[user_id]["count_brands"])
                 print("Использование testproxy:", user_data[user_id]["is_using_testproxy"])
                 print("Обновление списка (длина):", len(user_data[user_id]["brands"]))
@@ -108,7 +109,7 @@ async def main(user_id):
                                 user_data[user_id]["proxies"].append(proxy)
 
                 browser = await p.chromium.launch(
-                    headless=True,
+                    headless=False,
                     proxy={
                         "server": proxy[0],
                         "username": proxy[1],
@@ -425,7 +426,8 @@ async def main(user_id):
                 print("-="*20)
                 with user_locks[user_id]:
                     user_data[user_id]["brands"].append(brand)
-                    user_data[user_id]["ban_list"].append("@".join(proxy))
+                    if not "@".join(proxy) in user_data[user_id]["ban_list"]:
+                        user_data[user_id]["ban_list"].append("@".join(proxy))
 
                 if user_data[user_id]["proxies"] != []:
                     with user_locks[user_id]:
@@ -436,7 +438,7 @@ async def main(user_id):
                         proxy = [proxy[0], proxy[1], proxy[2]]
                 else:
                     break
-
+                #30     42
                 if user_data[user_id]["count_proxies"]-user_data[user_id]["count_of_threadings"] < len(user_data[user_id]["ban_list"]) < user_data[user_id]["count_proxies"]+user_data[user_id]["count_of_threadings"]:
                     user_data[user_id]["count_proxies"] = len(user_data[user_id]["ban_list"])
                     user_data[user_id]["all_break"] = True
@@ -446,7 +448,8 @@ async def main(user_id):
                     )
                     break
     with user_locks[user_id]:
-        user_data[user_id]["proxies"].append(proxy)
+        if proxy:
+            user_data[user_id]["proxies"].append(proxy)
 
 def run(user_id):
     asyncio.run(main(user_id))

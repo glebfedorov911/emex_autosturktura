@@ -57,10 +57,9 @@ async def main(user_id):
             with user_locks[user_id]:
                 proxy = user_data[user_id]["proxies"].pop(random.randint(0, len(user_data[user_id]["proxies"])-1))
         
-        with user_locks[user_id]:
-            if user_data[user_id]["all_break"]:
-                user_data[user_id]["status"] = "Парсер не запущен"
-                return
+        if user_data[user_id]["all_break"]:
+            user_data[user_id]["status"] = "Парсер не запущен"
+            return
 
         for stop in user_data[user_id]["stop"]:
             if stop:
@@ -74,10 +73,9 @@ async def main(user_id):
         except:
             proxy = [proxy[0], proxy[1], proxy[2]]
 
-        with user_locks[user_id]:
-            if len(user_data[user_id]["brands"]) == 0 or all([ev.is_set() for ev in user_data[user_id]["events"]]) or user_data[user_id]["all_break"]:
-                user_data[user_id]["status"] = "Парсер не запущен"
-                return
+        if len(user_data[user_id]["brands"]) == 0 or all([ev.is_set() for ev in user_data[user_id]["events"]]) or user_data[user_id]["all_break"]:
+            user_data[user_id]["status"] = "Парсер не запущен"
+            return
 
         with user_locks[user_id]:
             brand = user_data[user_id]["brands"].pop(0)

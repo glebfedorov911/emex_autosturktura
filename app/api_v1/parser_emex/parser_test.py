@@ -437,7 +437,7 @@ async def main(user_id):
                 else:
                     break
 
-                if len(user_data[user_id]["ban_list"])-user_data[user_id]["count_of_threadings"] < user_data[user_id]["count_proxies"] < len(user_data[user_id]["ban_list"])+user_data[user_id]["count_of_threadings"]:
+                if user_data[user_id]["count_proxies"]-user_data[user_id]["count_of_threadings"] < len(user_data[user_id]["ban_list"]) < user_data[user_id]["count_proxies"]+user_data[user_id]["count_of_threadings"]:
                     user_data[user_id]["count_proxies"] = len(user_data[user_id]["ban_list"])
                     user_data[user_id]["all_break"] = True
                     raise HTTPException(

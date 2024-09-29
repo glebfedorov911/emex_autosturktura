@@ -117,7 +117,9 @@ async def websocket_endpoint(
                 }
             )
             if len(ud["excel_result"]) / ud["count_brands"] * 100 == 100:
+                print("сохранение, ждем 10 секунд")
                 await asyncio.sleep(10)
+                print("дождались")
             await asyncio.sleep(3)
     except WebSocketDisconnect:
         await websocket.close()
@@ -170,7 +172,9 @@ async def websocket_status_endpoint(
                 int(len(ud["excel_result"]) / ud["count_brands"] * 100) == 100
                 and not ud["flag"]
             ):
+                print("ожидаем еще")
                 await asyncio.sleep(10)
+                print("дождались еще")
                 ud["status"] = "PARSING_COMPLETED"
                 ud["flag"] = True
             elif (
@@ -197,8 +201,12 @@ async def websocket_status_endpoint(
                 "ALL_PROXIES_BANNED",
                 "PARSING_COMPLETED",
             ):  
-                for i in range(count_of_threadings):
-                    user_data[payload.get("sub")]["events"][i].clear()
+                try:
+                    for i in range(count_of_threadings):
+                        user_data[payload.get("sub")]["events"][i].clear()
+                except:
+                    pass
+                print('сохранение')
                 user_data[payload.get("sub")]["all_break"] = True
                 file_name_last = (await crud.get_last_upload_files(user_id=payload.get("sub"), session=session)).before_parsing_filename
                 result_file_name = f"{file_name_last.split('.')[0]}_после_парсинга_{random.randint(1, 10000000000000000)}.xlsx"
@@ -223,6 +231,7 @@ async def websocket_status_endpoint(
                     proxy_servers=ud["ban_list"], session=session, user_id=payload.get("sub")
                 )
                 user_data[payload.get("sub")]["threads"] = [None] * count_of_threadings
+                print('сохранилось')
             if ud["status"] == "Парсер не запущен":
                 if payload.get("sub") in user_data:
                     user_data[payload.get("sub")]['ban_list'] = []

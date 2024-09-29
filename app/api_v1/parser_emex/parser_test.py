@@ -87,6 +87,7 @@ async def main(user_id):
             try:
                 for_log = f"-=-=-=-=-=-=-={threading.current_thread().name}=-=-=-=-=-=-=-"
                 print(for_log)
+                print(int(len(ud["excel_result"]) / ud["count_brands"] * 100))
                 print(user_data[user_id]["status"])
                 print("URL сейчас:", url, '\n', proxy, user_data[user_id]["count_proxies"], '\n', "Количество в бане:", len(user_data[user_id]["ban_list"]))
                 print("Данных спаршено:", len(user_data[user_id]["excel_result"]), "данных всего:", user_data[user_id]["count_brands"])

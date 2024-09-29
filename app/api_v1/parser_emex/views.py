@@ -282,6 +282,7 @@ async def start(
             "is_using_testproxy": {},
             "PROXIES": proxies,
             "count_of_threadings": count_of_threadings,
+            "stop": [False] * count_of_threadings,
             # "start_file": files,
         }
 ##
@@ -332,5 +333,6 @@ async def stop(payload = Depends(get_payload)):
     user_id = payload.get("sub")
     for index in range(count_of_threadings):
         user_data[user_id]["events"][index].set()
+        user_data[user_id]["stop"][index] = True
 
     return JSONResponse(content="Парсер останавливается")

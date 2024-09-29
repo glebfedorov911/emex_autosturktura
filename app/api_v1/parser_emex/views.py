@@ -123,6 +123,8 @@ async def websocket_endpoint(
             await asyncio.sleep(3)
     except WebSocketDisconnect:
         await websocket.close()
+    except Exception as e:
+        print(e)
 
 
 @router.websocket("/websocket_status/{access_token}")
@@ -240,6 +242,8 @@ async def websocket_status_endpoint(
             await asyncio.sleep(3)
     except WebSocketDisconnect:
         await websocket.close()
+    except Exception as e:
+        print(e)
 
 
 @router.get("/start/{filter_id}")

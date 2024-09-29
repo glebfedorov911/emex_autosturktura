@@ -116,7 +116,7 @@ async def websocket_endpoint(
                     # "Start_file": files,
                 }
             )
-            if len(ud["excel_result"]) / ud["count_brands"] * 100 == 100:
+            if len(ud["excel_result"]) / ud["count_brands"] * 100 == 100 or len(ud["ban_list"]) / ud["count_proxies"] * 100 == 100:
                 await asyncio.sleep(10)
 
             await asyncio.sleep(3)
@@ -181,6 +181,7 @@ async def websocket_status_endpoint(
                 int(len(ud["ban_list"]) / ud["count_proxies"] * 100) == 100
                 and not ud["flag"]
             ):
+                await asyncio.sleep(10)
                 ud["status"] = "ALL_PROXIES_BANNED"
                 ud["flag"] = True
             elif any([thread is None for thread in ud["threads"]]) or not any(

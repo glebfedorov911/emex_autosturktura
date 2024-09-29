@@ -173,10 +173,11 @@ async def websocket_status_endpoint(
                 int(len(ud["excel_result"]) / ud["count_brands"] * 100) == 100
                 and not ud["flag"]
             ):
-                print(user_data[payload.get("sub")]["excel_result"])
+                print(len(user_data[payload.get("sub")]["excel_result"]))
                 await asyncio.sleep(10)
                 ud["status"] = "PARSING_COMPLETED"
                 ud["flag"] = True
+                print("after waiting", len(user_data[payload.get("sub")]["excel_result"]))
             elif (
                 int(len(ud["ban_list"]) / ud["count_proxies"] * 100) == 100
                 and not ud["flag"]
@@ -207,6 +208,7 @@ async def websocket_status_endpoint(
                         user_data[payload.get("sub")]["events"][i].clear()
                 except:
                     pass
+                print("jfdsjfdsjfsdjfsdj")
                 user_data[payload.get("sub")]["all_break"] = True
                 file_name_last = (await crud.get_last_upload_files(user_id=payload.get("sub"), session=session)).before_parsing_filename
                 result_file_name = f"{file_name_last.split('.')[0]}_после_парсинга_{random.randint(1, 10000000000000000)}.xlsx"
@@ -275,11 +277,11 @@ async def start(
         user_data[payload.get("sub")] = {
             "threads": threads.copy(),
             "events": [Event() for _ in range(count_of_threadings)],
-            "proxies": list(set([(proxy.ip_with_port, proxy.login, proxy.password) for proxy in  proxies])),
+            "proxies": [(proxy.ip_with_port, proxy.login, proxy.password) for proxy in  proxies],
             "filter": filter,
             "excel_result": [],
             "status": "PARSER_RUNNING",
-            "count_proxies": len(set([(proxy.ip_with_port, proxy.login, proxy.password) for proxy in  proxies])),
+            "count_proxies": len([(proxy.ip_with_port, proxy.login, proxy.password) for proxy in  proxies]),
             "ban_list": [],
             "count_brands": 1,
             "filter_id": filter_id,

@@ -84,7 +84,6 @@ async def websocket_endpoint(
     await websocket.accept()
     try:
         while True:
-            print(user_data[payload.get("sub")]["excel_result"])
             for i in range(count_of_threadings):
                 if user_data[payload.get("sub")]["status"] == "PARSER_RUNNING":
                     try:   
@@ -171,6 +170,7 @@ async def websocket_status_endpoint(
                 int(len(ud["excel_result"]) / ud["count_brands"] * 100) == 100
                 and not ud["flag"]
             ):
+                print(user_data[payload.get("sub")]["excel_result"])
                 ud["status"] = "PARSING_COMPLETED"
                 ud["flag"] = True
             elif (
@@ -202,11 +202,10 @@ async def websocket_status_endpoint(
                         user_data[payload.get("sub")]["events"][i].clear()
                 except:
                     pass
-                print('сохранение')
                 user_data[payload.get("sub")]["all_break"] = True
                 file_name_last = (await crud.get_last_upload_files(user_id=payload.get("sub"), session=session)).before_parsing_filename
                 result_file_name = f"{file_name_last.split('.')[0]}_после_парсинга_{random.randint(1, 10000000000000000)}.xlsx"
-
+                print('1')
                 df = pd.DataFrame(ud["excel_result"], columns=user_data[payload.get("sub")]['columns'])
                 await crud.add_final_file_to_table(
                     user_id=payload.get("sub"),
@@ -218,6 +217,7 @@ async def websocket_status_endpoint(
                     str(settings.upload.path_for_upload) + "/" + result_file_name,
                     index=False,
                 )
+                print('2')
                 await edit_file(str(settings.upload.path_for_upload) + "/" + result_file_name, ["K", "J", "L", "M", "F"])
                 await crud.saving_to_table_data(
                     user_id=payload.get("sub"), session=session, data=ud["excel_result"], filename=result_file_name
@@ -226,6 +226,7 @@ async def websocket_status_endpoint(
                 await crud.set_banned_proxy(
                     proxy_servers=ud["ban_list"], session=session, user_id=payload.get("sub")
                 )
+                print('3')
                 user_data[payload.get("sub")]["threads"] = [None] * count_of_threadings
                 print('сохранилось')
             if ud["status"] == "Парсер не запущен":

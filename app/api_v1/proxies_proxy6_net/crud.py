@@ -109,7 +109,7 @@ async def add_proxy(pre: dict, session: AsyncSession, user_id: int):
 
 async def buy_proxy(session: AsyncSession, user_id: int, count: int, duration: int):
     API_KEY = settings.proxy.API_KEY
-    url = f"{settings.proxy.URL}{API_KEY}/buy?count={count}&period={duration}&country=ru&version=4"
+    url = f"{settings.proxy.URL}{API_KEY}/buy?count={count}&period={duration}&country=ru&version=3"
     resp = requests.get(url)
     pre = json.loads(resp.text)
     if resp.status_code == 200 and pre['status'] == 'yes':

@@ -104,18 +104,25 @@ async def main(user_id):
                         if not user_data[user_id]["threads"][i].is_alive():
                             with user_locks[user_id]:
                                 if proxy:
-                                    user_data[user_id]["proxies"].append(proxy)
+                                    with user_locks[user_id]:
+                                        user_data[user_id]["proxies"].append(proxy)
+                                        user_data[user_id]["brands"].append(brand)
+                                    proxy = None
+                                    continue
                     else:
                         if proxy:
                             with user_locks[user_id]:
                                 user_data[user_id]["proxies"].append(proxy)
+                                user_data[user_id]["brands"].append(brand)
+                            proxy = None
+                            continue
 
                 browser = await p.chromium.launch(
-                    headless=True,
+                    headless=False,
                     proxy={
-                        "server": proxy[0],
-                        "username": proxy[1],
-                        "password": proxy[2],
+                        "server": "http://p1.mangoproxy.com:2333", #proxy[0],
+                        "username": "n66063054a6f17c192a006d-zone-custom-region-ru", #proxy[1],
+                        "password": "b151e67bc2b9462683bdab5eb1ff4acc", #proxy[2],
                     },
                     timeout=7777
                 )
@@ -451,6 +458,8 @@ async def main(user_id):
     with user_locks[user_id]:
         if proxy:
             user_data[user_id]["proxies"].append(proxy)
+    if browser:
+        await browser.close()
 
 def run(user_id):
     asyncio.run(main(user_id))

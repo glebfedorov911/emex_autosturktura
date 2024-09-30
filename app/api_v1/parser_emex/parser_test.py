@@ -118,7 +118,7 @@ async def main(user_id):
                             continue
 
                 browser = await p.chromium.launch(
-                    headless=False,
+                    headless=True,
                     proxy={
                         "server": "http://p1.mangoproxy.com:2333", #proxy[0],
                         "username": "n66063054a6f17c192a006d-zone-custom-region-ru", #proxy[1],

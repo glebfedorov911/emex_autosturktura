@@ -105,7 +105,10 @@ async def websocket_endpoint(
                 # files = f'{payload.get("username")}_дляпарсинг.xlsx'
                 # files = get_unique_filename(str(settings.upload.path_for_upload), files)
                 # ud["start_file"] = files
-
+            if ud["count_proxies"] == 0:
+                ud["count_proxies"] = 1
+            if ud["count_brands"] == 0:
+                ud["count_brands"] = 1
             await websocket.send_json(
                 {
                     "Percent_parsing_goods": int(

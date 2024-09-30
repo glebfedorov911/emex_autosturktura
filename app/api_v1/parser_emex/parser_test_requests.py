@@ -94,6 +94,8 @@ async def main(user_id):
         try:
             for_log = f"-=-=-=-=-=-=-={threading.current_thread().name}=-=-=-=-=-=-=-"
             print(for_log)
+            if user_data[user_id]["count_brands"] == 0:
+                user_data[user_id]["count_brands"] = 1
             print(int(len(user_data[user_id]["excel_result"]) / user_data[user_id]["count_brands"] * 100))
             print(user_data[user_id]["status"])
             # print("URL сейчас:", url, '\n', proxy, user_data[user_id]["count_proxies"], '\n', "Количество в бане:", len(user_data[user_id]["ban_list"]))

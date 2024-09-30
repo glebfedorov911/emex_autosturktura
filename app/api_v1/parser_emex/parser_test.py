@@ -435,26 +435,26 @@ async def main(user_id):
                 print("-="*20)
                 with user_locks[user_id]:
                     user_data[user_id]["brands"].append(brand)
-                    user_data[user_id]["ban_list"].append("@".join(proxy))
+                    # user_data[user_id]["ban_list"].append("@".join(proxy))
 
-                if user_data[user_id]["proxies"] != []:
-                    with user_locks[user_id]:
-                        proxy = user_data[user_id]["proxies"].pop(0)
-                    try:
-                        proxy = [proxy.ip_with_port, proxy.login, proxy.password]
-                    except:
-                        proxy = [proxy[0], proxy[1], proxy[2]]
-                else:
-                    break
-                #30     42
-                if user_data[user_id]["count_proxies"]-user_data[user_id]["count_of_threadings"] < len(user_data[user_id]["ban_list"]) < user_data[user_id]["count_proxies"]+user_data[user_id]["count_of_threadings"]:
-                    user_data[user_id]["count_proxies"] = len(user_data[user_id]["ban_list"])
-                    user_data[user_id]["all_break"] = True
-                    raise HTTPException(
-                        status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-                        detail="Закочнились прокси",
-                    )
-                    break
+                # if user_data[user_id]["proxies"] != []:
+                #     with user_locks[user_id]:
+                #         proxy = user_data[user_id]["proxies"].pop(0)
+                #     try:
+                #         proxy = [proxy.ip_with_port, proxy.login, proxy.password]
+                #     except:
+                #         proxy = [proxy[0], proxy[1], proxy[2]]
+                # else:
+                #     break
+                # #30     42
+                # if user_data[user_id]["count_proxies"]-user_data[user_id]["count_of_threadings"] < len(user_data[user_id]["ban_list"]) < user_data[user_id]["count_proxies"]+user_data[user_id]["count_of_threadings"]:
+                #     user_data[user_id]["count_proxies"] = len(user_data[user_id]["ban_list"])
+                #     user_data[user_id]["all_break"] = True
+                #     raise HTTPException(
+                #         status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
+                #         detail="Закочнились прокси",
+                #     )
+                #     break
     with user_locks[user_id]:
         if proxy:
             user_data[user_id]["proxies"].append(proxy)

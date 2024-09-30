@@ -46,7 +46,7 @@ async def main(user_id):
     LOGO = user_data[user_id]["filter"].logo 
     PICKUP_POINT = user_data[user_id]["filter"].pickup_point
     browser = None
-    proxy = None
+    # proxy = None
     user_data[user_id]["all_break"] = False
     user_data[user_id]["columns"] = ["Артикул", "Наименование", "Брэнд", "Артикул", "Кол-во", "Цена", "Партия", "НДС", "Лого", "Доставка", "Лучшая цена", "Количество",]
 
@@ -54,9 +54,9 @@ async def main(user_id):
         user_data[user_id]["columns"].append("Цена с лого")
 
     while user_data[user_id]["status"] == "PARSER_RUNNING":
-        if user_data[user_id]["proxies"] != []:
-            with user_locks[user_id]:
-                proxy = user_data[user_id]["proxies"].pop(random.randint(0, len(user_data[user_id]["proxies"])-1))
+        # if user_data[user_id]["proxies"] != []:
+            # with user_locks[user_id]:
+                # proxy = user_data[user_id]["proxies"].pop(random.randint(0, len(user_data[user_id]["proxies"])-1))
         
         if user_data[user_id]["all_break"]:
             user_data[user_id]["status"] = "Парсер не запущен"
@@ -69,10 +69,10 @@ async def main(user_id):
                     await browser.close()
                 return
         
-        try:
-            proxy = [proxy.ip_with_port, proxy.login, proxy.password]
-        except:
-            proxy = [proxy[0], proxy[1], proxy[2]]
+        # try:
+        #     proxy = [proxy.ip_with_port, proxy.login, proxy.password]
+        # except:
+        #     proxy = [proxy[0], proxy[1], proxy[2]]
 
         if len(user_data[user_id]["brands"]) == 0 or all([ev.is_set() for ev in user_data[user_id]["events"]]) or user_data[user_id]["all_break"]:
             user_data[user_id]["status"] = "Парсер не запущен"
@@ -89,9 +89,9 @@ async def main(user_id):
                 print(for_log)
                 print(int(len(user_data[user_id]["excel_result"]) / user_data[user_id]["count_brands"] * 100))
                 print(user_data[user_id]["status"])
-                print("URL сейчас:", url, '\n', proxy, user_data[user_id]["count_proxies"], '\n', "Количество в бане:", len(user_data[user_id]["ban_list"]))
+                # print("URL сейчас:", url, '\n', proxy, user_data[user_id]["count_proxies"], '\n', "Количество в бане:", len(user_data[user_id]["ban_list"]))
+                print("URL сейчас:", url, '\n', user_data[user_id]["count_proxies"], '\n', "Количество в бане:", len(user_data[user_id]["ban_list"]))
                 print("Данных спаршено:", len(user_data[user_id]["excel_result"]), "данных всего:", user_data[user_id]["count_brands"])
-                print("Использование testproxy:", user_data[user_id]["is_using_testproxy"])
                 print("Обновление списка (длина):", len(user_data[user_id]["brands"]))
                 try:
                     print(*[f"""{i} | {user_data[user_id]["threads"][i]}: {user_data[user_id]["threads"][i].is_alive()}""" for i in range(len(user_data[user_id]["threads"])) if user_data[user_id]["threads"][i] != None]) #4: {user_data[user_id]["threads"][4].is_alive()} 5: {user_data[user_id]["threads"][5].is_alive()}""")
@@ -99,23 +99,23 @@ async def main(user_id):
                     print("Ошибка в alive модуле", e)
                 print(f"-="*(len(for_log)//2))
 
-                for i in range(len(user_data[user_id]["threads"])):
-                    if (not (user_data[user_id]["threads"][i] is None)):
-                        if not user_data[user_id]["threads"][i].is_alive():
-                            with user_locks[user_id]:
-                                if proxy:
-                                    with user_locks[user_id]:
-                                        user_data[user_id]["proxies"].append(proxy)
-                                        user_data[user_id]["brands"].append(brand)
-                                    proxy = None
-                                    continue
-                    else:
-                        if proxy:
-                            with user_locks[user_id]:
-                                user_data[user_id]["proxies"].append(proxy)
-                                user_data[user_id]["brands"].append(brand)
-                            proxy = None
-                            continue
+                # for i in range(len(user_data[user_id]["threads"])):
+                #     if (not (user_data[user_id]["threads"][i] is None)):
+                #         if not user_data[user_id]["threads"][i].is_alive():
+                #             with user_locks[user_id]:
+                #                 if proxy:
+                #                     with user_locks[user_id]:
+                #                         user_data[user_id]["proxies"].append(proxy)
+                #                         user_data[user_id]["brands"].append(brand)
+                #                     proxy = None
+                #                     continue
+                #     else:
+                #         if proxy:
+                #             with user_locks[user_id]:
+                #                 user_data[user_id]["proxies"].append(proxy)
+                #                 user_data[user_id]["brands"].append(brand)
+                #             proxy = None
+                #             continue
 
                 browser = await p.chromium.launch(
                     headless=True,
@@ -427,8 +427,8 @@ async def main(user_id):
                             result.append(0)
                     with user_locks[user_id]:
                         user_data[user_id]["excel_result"].append(result)
-                with user_locks[user_id]:
-                    user_data[user_id]["proxies"].append(proxy)
+                # with user_locks[user_id]:
+                #     user_data[user_id]["proxies"].append(proxy)
             except Exception as e:
                 print("-="*20)
                 print("Общее исключение\nОшибка:", e)
@@ -455,9 +455,9 @@ async def main(user_id):
                 #         detail="Закочнились прокси",
                 #     )
                 #     break
-    with user_locks[user_id]:
-        if proxy:
-            user_data[user_id]["proxies"].append(proxy)
+    # with user_locks[user_id]:
+    #     if proxy:
+    #         user_data[user_id]["proxies"].append(proxy)
     if browser:
         await browser.close()
 

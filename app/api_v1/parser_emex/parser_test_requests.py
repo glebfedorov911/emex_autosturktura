@@ -375,7 +375,6 @@ async def main(user_id):
                         ]
 
                 originals = [data for data in originals if data]
-
             if originals == []:
                 result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], 0, 0, 0, 0,]
                 if LOGO:
@@ -420,6 +419,7 @@ async def main(user_id):
                 async with aiohttp.ClientSession() as session:
                     async with session.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", proxy=proxies, headers=headers) as resp:
                         response_with_logo = await resp.json()
+                
                 # pre_with_logo = await (
                 #     await page.query_selector("pre")
                 # ).text_content()
@@ -445,7 +445,7 @@ async def main(user_id):
 
                         # req = requests.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", proxies=proxies)
                         async with aiohttp.ClientSession() as session:
-                            async with session.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", proxy=proxies, headers=headers) as resp:
+                            async with session.get(f"https://emex.ru/api/search/rating?offerKey={data[0]}", proxy=proxies, headers=headers) as resp:
                                 response_with_logo = await resp.json()
                         # pre_with_logo = await (
                         #     await page.query_selector("pre")

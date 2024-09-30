@@ -23,7 +23,8 @@ from app.api_v1.utils.depends import edit_file, get_unique_filename
 
 from . import crud
 # from .parser import user_data, run
-from .parser_test import user_data, run
+# from .parser_test import user_data, run
+from .parser_test_requests import user_data, run
 from .depends import *
 
 import asyncio
@@ -36,7 +37,7 @@ import pandas as pd
 router = APIRouter(prefix="/new_parser", tags=["New Parser"])
 templates = Jinja2Templates(directory=settings.templates.templates_path)
 
-count_of_threadings = 9
+count_of_threadings = 16
 threads: list[Thread] = [None] * count_of_threadings
 
 
@@ -87,7 +88,7 @@ async def websocket_endpoint(
             for i in range(count_of_threadings):
                 if user_data[payload.get("sub")]["status"] == "PARSER_RUNNING":
                     try:   
-                        if (not user_data[payload.get("sub")]["threads"][i].is_alive()) and user_data[payload.get("sub")]["proxies"] != []:
+                        if (not user_data[payload.get("sub")]["threads"][i].is_alive()):
                             user_data[payload.get("sub")]["events"][i].clear()
                             user_data[payload.get("sub")]["threads"][i] = Thread(
                                 target=run, args=(payload.get("sub"), )

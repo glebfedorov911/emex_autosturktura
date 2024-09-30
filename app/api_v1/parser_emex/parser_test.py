@@ -4,6 +4,7 @@ import asyncio
 import json
 import time
 import random
+import requests
 import threading
 
 from .depends import *
@@ -80,6 +81,10 @@ async def main(user_id):
 
         with user_locks[user_id]:
             brand = user_data[user_id]["brands"].pop(0)
+        if user_locks[user_id].locked():
+            print(f"1. Поток {threading.current_thread().name} ожидает разблокировки")
+        else:
+            print(f"1. Поток {threading.current_thread().name} не блокирован")
 
         url = f"https://emex.ru/api/search/search?make={create_params_for_url(brand[2])}&detailNum={brand[0]}&locationId={PICKUP_POINT}&showAll=true&longitude=37.8613&latitude=55.7434"
         
@@ -93,6 +98,7 @@ async def main(user_id):
                 print("URL сейчас:", url, '\n', user_data[user_id]["count_proxies"], '\n', "Количество в бане:", len(user_data[user_id]["ban_list"]))
                 print("Данных спаршено:", len(user_data[user_id]["excel_result"]), "данных всего:", user_data[user_id]["count_brands"])
                 print("Обновление списка (длина):", len(user_data[user_id]["brands"]))
+                print("Потоки", threading.enumerate())
                 try:
                     print(*[f"""{i} | {user_data[user_id]["threads"][i]}: {user_data[user_id]["threads"][i].is_alive()}""" for i in range(len(user_data[user_id]["threads"])) if user_data[user_id]["threads"][i] != None]) #4: {user_data[user_id]["threads"][4].is_alive()} 5: {user_data[user_id]["threads"][5].is_alive()}""")
                 except Exception as e:
@@ -118,7 +124,7 @@ async def main(user_id):
                 #             continue
 
                 browser = await p.chromium.launch(
-                    headless=True,
+                    headless=False,
                     proxy={
                         "server": "http://p1.mangoproxy.com:2333", #proxy[0],
                         "username": "n66063054a6f17c192a006d-zone-custom-region-ru", #proxy[1],
@@ -358,6 +364,10 @@ async def main(user_id):
                         result.append(0)
                     with user_locks[user_id]:
                         user_data[user_id]["excel_result"].append(result)
+                    if user_locks[user_id].locked():
+                        print(f"2. Поток {threading.current_thread().name} ожидает разблокировки")
+                    else:
+                        print(f"2. Поток {threading.current_thread().name} не блокирован")
                 
                 else:
                     sorted_data_by_date = quick_sort(originals, 1)
@@ -427,6 +437,10 @@ async def main(user_id):
                             result.append(0)
                     with user_locks[user_id]:
                         user_data[user_id]["excel_result"].append(result)
+                    if user_locks[user_id].locked():
+                        print(f"3. Поток {threading.current_thread().name} ожидает разблокировки")
+                    else:
+                        print(f"3. Поток {threading.current_thread().name} не блокирован")
                 # with user_locks[user_id]:
                 #     user_data[user_id]["proxies"].append(proxy)
             except Exception as e:
@@ -435,6 +449,10 @@ async def main(user_id):
                 print("-="*20)
                 with user_locks[user_id]:
                     user_data[user_id]["brands"].append(brand)
+                if user_locks[user_id].locked():
+                    print(f"4. Поток {threading.current_thread().name} ожидает разблокировки")
+                else:
+                    print(f"4. Поток {threading.current_thread().name} не блокирован")
                     # user_data[user_id]["ban_list"].append("@".join(proxy))
 
                 # if user_data[user_id]["proxies"] != []:

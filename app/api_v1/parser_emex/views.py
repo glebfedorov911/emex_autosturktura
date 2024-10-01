@@ -37,7 +37,7 @@ import pandas as pd
 router = APIRouter(prefix="/new_parser", tags=["New Parser"])
 templates = Jinja2Templates(directory=settings.templates.templates_path)
 
-count_of_threadings = 256
+count_of_threadings = 16
 threads: list[Thread] = [None] * count_of_threadings
 
 

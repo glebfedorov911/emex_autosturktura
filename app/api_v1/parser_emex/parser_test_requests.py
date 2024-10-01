@@ -139,9 +139,14 @@ async def main(user_id):
 
             proxies = 'http://n66063054a6f17c192a006d-zone-custom-region-ru:b151e67bc2b9462683bdab5eb1ff4acc@p1.mangoproxy.com:2333'
             # browser = requests.get(url, proxies=proxies, headers=headers)
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url, proxy=proxies, headers=headers) as resp:
-                    response = await resp.json()
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(url, proxy=proxies, timeout=2.5, headers=headers) as resp:
+                        response = await resp.json()
+            except:
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(url, proxy=proxies, timeout=2.5, headers=headers) as resp:
+                        response = await resp.json()
 
             # browser = await p.chromium.launch(
             #     headless=False,
@@ -418,10 +423,15 @@ async def main(user_id):
                 #     )
                 # req = requests.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", proxies=proxies)
 
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", proxy=proxies, headers=headers) as resp:
-                        response_with_logo = await resp.json()
-                
+                try:
+                    async with aiohttp.ClientSession() as session:
+                        async with session.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=2.5, proxy=proxies, headers=headers) as resp:
+                            response_with_logo = await resp.json()
+                except:
+                    async with aiohttp.ClientSession() as session:
+                        async with session.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=2.5, proxy=proxies, headers=headers) as resp:
+                            response_with_logo = await resp.json()
+                    
                 # pre_with_logo = await (
                 #     await page.query_selector("pre")
                 # ).text_content()

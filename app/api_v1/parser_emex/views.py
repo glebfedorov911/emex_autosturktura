@@ -271,6 +271,7 @@ async def start(
         files = (
             await crud.get_last_upload_files(user_id=user_id, session=session)
         ).before_parsing_filename
+        print(files, "JFJFSDJFJDSJSFDJFJ")
     except:
         raise HTTPException(
             status_code=status.HTTP_405_METHOD_NOT_ALLOWED,

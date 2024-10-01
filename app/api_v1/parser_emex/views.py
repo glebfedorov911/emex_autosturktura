@@ -268,10 +268,10 @@ async def start(
         session=session, user_id=payload.get("sub"), filter_id=filter_id
     )
     try:
+        print(files, "JFJFSDJFJDSJSFDJFJ")
         files = (
             await crud.get_last_upload_files(user_id=user_id, session=session)
         ).before_parsing_filename
-        print(files, "JFJFSDJFJDSJSFDJFJ")
     except Exception as e:
         print(e)
         raise HTTPException(

@@ -37,7 +37,7 @@ import pandas as pd
 router = APIRouter(prefix="/new_parser", tags=["New Parser"])
 templates = Jinja2Templates(directory=settings.templates.templates_path)
 
-count_of_threadings = 16
+count_of_threadings = 32
 threads: list[Thread] = [None] * count_of_threadings
 
 
@@ -120,7 +120,7 @@ async def websocket_endpoint(
                     # "Start_file": files,
                 }
             )
-            if len(ud["excel_result"]) / ud["count_brands"] * 100 == 100 or len(ud["ban_list"]) / ud["count_proxies"] * 100 == 100:
+            if len(ud["excel_result"]) / ud["count_brands"] * 100 >= 100 or len(ud["ban_list"]) / ud["count_proxies"] * 100 >= 100:
                 await asyncio.sleep(20)
 
             await asyncio.sleep(3)
@@ -322,7 +322,7 @@ async def start(
         df = df.apply(lambda col: col.astype(object))
         df_to_list = df.values.tolist()
         brands= create(df_to_list)
-        user_data[user_id]["count_brands"] = len(brands)-count_of_threadings
+        user_data[user_id]["count_brands"] = len(brands)
         user_data[user_id]["brands"] = brands
 
         for index in range(count_of_threadings):

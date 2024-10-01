@@ -7,11 +7,14 @@ import random
 import requests
 import aiohttp
 import threading
+import os
 
 from .depends import *
 
 from playwright.async_api import async_playwright
+from dotenv import load_dotenv
 
+load_dotenv()
 
 user_data = {}
 
@@ -96,7 +99,7 @@ async def main(user_id):
                 print("Ошибка в alive модуле", e)
             print(f"-="*(len(for_log)//2))
 
-            proxies = 'http://n66063054a6f17c192a006d-zone-custom-region-ru:b151e67bc2b9462683bdab5eb1ff4acc@p1.mangoproxy.com:2333'
+            proxies = os.getenv("PROXY")
             try:
                 async with aiohttp.ClientSession() as session:
                     async with session.get(url, proxy=proxies, timeout=2.5, headers=headers) as resp:

@@ -48,7 +48,6 @@ async def main(user_id):
     LOGO = user_data[user_id]["filter"].logo 
     PICKUP_POINT = user_data[user_id]["filter"].pickup_point
     browser = None
-    # proxy = None
     user_data[user_id]["all_break"] = False
     user_data[user_id]["columns"] = ["Артикул", "Наименование", "Брэнд", "Артикул", "Кол-во", "Цена", "Партия", "НДС", "Лого", "Доставка", "Лучшая цена", "Количество",]
 
@@ -57,10 +56,7 @@ async def main(user_id):
 
     while user_data[user_id]["status"] == "PARSER_RUNNING":
         headers = {'User-Agent': random.choice(USERAGENTS)}
-        # if user_data[user_id]["proxies"] != []:
-            # with user_locks[user_id]:
-                # proxy = user_data[user_id]["proxies"].pop(random.randint(0, len(user_data[user_id]["proxies"])-1))
-        
+
         if user_data[user_id]["all_break"]:
             user_data[user_id]["status"] = "Парсер не запущен"
             return
@@ -68,15 +64,8 @@ async def main(user_id):
         for stop in user_data[user_id]["stop"]:
             if stop:
                 print("Остановка парсера началась!")
-                # if browser:
-                #     await browser.close()
                 return
         
-        # try:
-        #     proxy = [proxy.ip_with_port, proxy.login, proxy.password]
-        # except:
-        #     proxy = [proxy[0], proxy[1], proxy[2]]
-
         if len(user_data[user_id]["brands"]) == 0 or all([ev.is_set() for ev in user_data[user_id]["events"]]) or user_data[user_id]["all_break"]:
             user_data[user_id]["status"] = "Парсер не запущен"
             return
@@ -90,7 +79,6 @@ async def main(user_id):
 
         url = f"https://emex.ru/api/search/search?make={create_params_for_url(brand[2])}&detailNum={brand[0]}&locationId={PICKUP_POINT}&showAll=true&longitude=37.8613&latitude=55.7434"
         
-        # async with async_playwright() as p:
         try:
             for_log = f"-=-=-=-=-=-=-={threading.current_thread().name}=-=-=-=-=-=-=-"
             print(for_log)
@@ -98,7 +86,6 @@ async def main(user_id):
                 user_data[user_id]["count_brands"] = 1
             print(int(len(user_data[user_id]["excel_result"]) / user_data[user_id]["count_brands"] * 100))
             print(user_data[user_id]["status"])
-            # print("URL сейчас:", url, '\n', proxy, user_data[user_id]["count_proxies"], '\n', "Количество в бане:", len(user_data[user_id]["ban_list"]))
             print("URL сейчас:", url, '\n', user_data[user_id]["count_proxies"], '\n', "Количество в бане:", len(user_data[user_id]["ban_list"]))
             print("Данных спаршено:", len(user_data[user_id]["excel_result"]), "данных всего:", user_data[user_id]["count_brands"])
             print("Обновление списка (длина):", len(user_data[user_id]["brands"]))
@@ -109,64 +96,15 @@ async def main(user_id):
                 print("Ошибка в alive модуле", e)
             print(f"-="*(len(for_log)//2))
 
-            # for i in range(len(user_data[user_id]["threads"])):
-            #     if (not (user_data[user_id]["threads"][i] is None)):
-            #         if not user_data[user_id]["threads"][i].is_alive():
-            #             with user_locks[user_id]:
-            #                 if proxy:
-            #                     with user_locks[user_id]:
-            #                         user_data[user_id]["proxies"].append(proxy)
-            #                         user_data[user_id]["brands"].append(brand)
-            #                     proxy = None
-            #                     continue
-            #     else:
-            #         if proxy:
-            #             with user_locks[user_id]:
-            #                 user_data[user_id]["proxies"].append(proxy)
-            #                 user_data[user_id]["brands"].append(brand)
-            #             proxy = None
-            #             continue
-
-            # proxies = {
-            #     'http': 'http://n66063054a6f17c192a006d-zone-custom-region-ru:b151e67bc2b9462683bdab5eb1ff4acc@p1.mangoproxy.com:2333',
-            #     # 'https': 'https://n66063054a6f17c192a006d-zone-custom-region-ru:b151e67bc2b9462683bdab5eb1ff4acc@p1.mangoproxy.com:2333'
-            # }
-
-            # proxies = {
-            # "http': http://n66063054a6f17c192a006d-zone-custom-region-ru:b151e67bc2b9462683bdab5eb1ff4acc@p1.mangoproxy.com:2333',
-            # "https': http://n66063054a6f17c192a006d-zone-custom-region-ru:b151e67bc2b9462683bdab5eb1ff4acc@p1.mangoproxy.com:2333',
-            # }
-
             proxies = 'http://n66063054a6f17c192a006d-zone-custom-region-ru:b151e67bc2b9462683bdab5eb1ff4acc@p1.mangoproxy.com:2333'
-            # browser = requests.get(url, proxies=proxies, headers=headers)
             try:
                 async with aiohttp.ClientSession() as session:
                     async with session.get(url, proxy=proxies, timeout=2.5, headers=headers) as resp:
                         response = await resp.json()
-            except:
+            except Exception as e:
                 async with aiohttp.ClientSession() as session:
                     async with session.get(url, proxy=proxies, timeout=2.5, headers=headers) as resp:
                         response = await resp.json()
-
-            # browser = await p.chromium.launch(
-            #     headless=False,
-            #     proxy={
-            #         "server": "http://p1.mangoproxy.com:2333", #proxy[0],
-            #         "username": "n66063054a6f17c192a006d-zone-custom-region-ru", #proxy[1],
-            #         "password": "b151e67bc2b9462683bdab5eb1ff4acc", #proxy[2],
-            #     },
-            #     timeout=7777
-            # )
-            # page = await browser.new_page(user_agent=random.choice(USERAGENTS))
-
-            # try:
-            #     await page.goto(url, timeout=4444)
-            # except Exception as e:
-            #     print("С первой попытки не удалось! Вторая загрузки страницы попытка...")
-            #     await page.goto(url, timeout=4444)
-
-            # pre = await (await page.query_selector("pre")).text_content()
-            # response = dict(json.loads(browser.text))
             originals = []
 
             if IS_BIGGER is None:
@@ -410,19 +348,6 @@ async def main(user_id):
                     except:
                         pass
 
-                # try:
-                #     await page.goto(
-                #         f"https://emex.ru/api/search/rating?offerKey={best_data[0]}",
-                #         timeout=4444,
-                #     )
-                # except:
-                #     print("Вторая попытка загрузить страницу с лого...")
-                #     await page.goto(
-                #         f"https://emex.ru/api/search/rating?offerKey={best_data[0]}",
-                #         timeout=4444,
-                #     )
-                # req = requests.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", proxies=proxies)
-
                 try:
                     async with aiohttp.ClientSession() as session:
                         async with session.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=2.5, proxy=proxies, headers=headers) as resp:
@@ -432,10 +357,6 @@ async def main(user_id):
                         async with session.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=2.5, proxy=proxies, headers=headers) as resp:
                             response_with_logo = await resp.json()
                     
-                # pre_with_logo = await (
-                #     await page.query_selector("pre")
-                # ).text_content()
-                # response_with_logo = dict(json.loads(req.text))
                 price_logo = response_with_logo["priceLogo"]
 
                 result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], price_logo, *best_data[1:],]
@@ -443,19 +364,6 @@ async def main(user_id):
                     best_data = None
                     sorted_by_price = quick_sort(originals, 2)[:20]
                     for data in sorted_by_price:
-                        # try:
-                        #     await page.goto(
-                        #         f"https://emex.ru/api/search/rating?offerKey={data[0]}",
-                        #         timeout=4444,
-                        #     )
-                        # except:
-                        #     print("Вторая попытка загрузить лого (фильтр с лого)...")
-                        #     await page.goto(
-                        #         f"https://emex.ru/api/search/rating?offerKey={data[0]}",
-                        #         timeout=4444,
-                        #     )
-
-                        # req = requests.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", proxies=proxies)
                         try:
                             async with aiohttp.ClientSession() as session:
                                 async with session.get(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=2.5, proxy=proxies, headers=headers) as resp:
@@ -464,10 +372,6 @@ async def main(user_id):
                             async with aiohttp.ClientSession() as session:
                                 async with session.get(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=2.5, proxy=proxies, headers=headers) as resp:
                                     response_with_logo = await resp.json()
-                        # pre_with_logo = await (
-                        #     await page.query_selector("pre")
-                        # ).text_content()
-                        # response_with_logo = dict(json.loads(req.text))
                         price_logo = response_with_logo["priceLogo"]
 
                         data[0] = price_logo
@@ -484,9 +388,11 @@ async def main(user_id):
                     print(f"3. Поток {threading.current_thread().name} ожидает разблокировки")
                 else:
                     print(f"3. Поток {threading.current_thread().name} не блокирован")
-            # with user_locks[user_id]:
-            #     user_data[user_id]["proxies"].append(proxy)
         except Exception as e:
+            msg = "message='Proxy Authentication Required'"
+            if msg in repr(e):
+                raise ProxyException("Proxy Authentication Required")
+
             print("-="*20)
             print("Общее исключение\nОшибка:", e)
             print("-="*20)
@@ -496,64 +402,15 @@ async def main(user_id):
                 print(f"4. Поток {threading.current_thread().name} ожидает разблокировки")
             else:
                 print(f"4. Поток {threading.current_thread().name} не блокирован")
-                # user_data[user_id]["ban_list"].append("@".join(proxy))
-
-            # if user_data[user_id]["proxies"] != []:
-            #     with user_locks[user_id]:
-            #         proxy = user_data[user_id]["proxies"].pop(0)
-            #     try:
-            #         proxy = [proxy.ip_with_port, proxy.login, proxy.password]
-            #     except:
-            #         proxy = [proxy[0], proxy[1], proxy[2]]
-            # else:
-            #     break
-            # #30     42
-            # if user_data[user_id]["count_proxies"]-user_data[user_id]["count_of_threadings"] < len(user_data[user_id]["ban_list"]) < user_data[user_id]["count_proxies"]+user_data[user_id]["count_of_threadings"]:
-            #     user_data[user_id]["count_proxies"] = len(user_data[user_id]["ban_list"])
-            #     user_data[user_id]["all_break"] = True
-            #     raise HTTPException(
-            #         status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-            #         detail="Закочнились прокси",
-            #     )
-            #     break
-# with user_locks[user_id]:
-#     if proxy:
-#         user_data[user_id]["proxies"].append(proxy)
-# if browser:
-#     await browser.close()
+        except ZeroDivisionError:
+            print("fsdkjdsfjfsd")
+        except ProxyException as e:
+            user_data[user_id]["status"] = "ALL_PROXIES_BANNED"
+            print("Трафик кончился")
+            for index in range(count_of_threadings):
+                user_data[user_id]["events"][index].set()
+                user_data[user_id]["stop"][index] = True
+            break
 
 def run(user_id):
     asyncio.run(main(user_id))
-
-# # import requests
-# # import json 
-
-
-# # url = f"https://emex.ru/api/search/search?make=FUCHS&detailNum=0004721003&locationId=38760&showAll=true&longitude=37.8613&latitude=55.7434"
-        
-# # proxies = {
-# #     'http': 'http://n66063054a6f17c192a006d-zone-custom-region-ru:b151e67bc2b9462683bdab5eb1ff4acc@p1.mangoproxy.com:2333',
-# #     # 'https': 'https://n66063054a6f17c192a006d-zone-custom-region-ru:b151e67bc2b9462683bdab5eb1ff4acc@p1.mangoproxy.com:2333'
-# # }
-# # browser = requests.get(url, timeout=4, proxies=proxies)
-# # response = dict(json.loads(browser.text))
-# # print(response)#FUCHS	0004721003
-
-
-
-# import aiohttp
-# import asyncio
-
-# url = f"https://emex.ru/api/search/search?make=FUCHS&detailNum=0004721003&locationId=38760&showAll=true&longitude=37.8613&latitude=55.7434"
-# proxies = 'http://n66063054a6f17c192a006d-zone-custom-region-ru:b151e67bc2b9462683bdab5eb1ff4acc@p1.mangoproxy.com:2333'
-# response = ''
-# async def fetch():
-#     global response
-#     async with aiohttp.ClientSession() as session:
-#             async with session.get(url, proxy=proxies) as resp:
-#                 rest = await resp.json()
-
-#     print(rest)
-
-# if __name__ == "__main__":
-#     asyncio.run(fetch())

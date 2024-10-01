@@ -74,3 +74,7 @@ async def check_after_parsing_file(session: AsyncSession, user_id: int):
     result: Result = await session.execute(stmt)
     # print(result.scalars().all()[-1].after_parsing_filename)
     return result.scalars().all()[-1].after_parsing_filename is None
+
+class ProxyException(Exception):
+    def __init__(self, message):
+        super().__init__(message)

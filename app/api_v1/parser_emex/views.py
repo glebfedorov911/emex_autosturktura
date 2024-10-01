@@ -272,7 +272,8 @@ async def start(
             await crud.get_last_upload_files(user_id=user_id, session=session)
         ).before_parsing_filename
         print(files, "JFJFSDJFJDSJSFDJFJ")
-    except:
+    except Exception as e:
+        print(e)
         raise HTTPException(
             status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
             detail="Файл уже был спаршен"

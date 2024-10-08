@@ -177,11 +177,12 @@ async def websocket_status_endpoint(
                 int(len(ud["excel_result"]) / ud["count_brands"] * 100) >= 100
                 and not ud["flag"]
             ):
-                print(len(user_data[payload.get("sub")]["excel_result"]))
+                # print(len(user_data[payload.get("sub")]["excel_result"]))
                 # await asyncio.sleep(20)
                 ud["status"] = "PARSING_COMPLETED"
                 ud["flag"] = True
-                print("after waiting", len(user_data[payload.get("sub")]["excel_result"]))
+                ud["saving"] = True
+                # print("after waiting", len(user_data[payload.get("sub")]["excel_result"]))
             elif (
                 int(len(ud["ban_list"]) / ud["count_proxies"] * 100) >= 100
                 and not ud["flag"]
@@ -189,19 +190,22 @@ async def websocket_status_endpoint(
                 # await asyncio.sleep(20)
                 ud["status"] = "ALL_PROXIES_BANNED"
                 ud["flag"] = True
+                ud["saving"] = True
             elif any([thread is None for thread in ud["threads"]]) or not any(
                 [thread.is_alive() for thread in ud["threads"]]
-            ):
-                ud["status"] = "Парсер не запущен"
-                if ud["flag"]:
-                    ud["status"] = "PARSER_NOT_STARTED_DATA_SAVED"
-                    ud["excel_result"] = []
-                    ud["ban_list"] = []
-                if await check_after_parsing_file(session=session, user_id=payload.get("sub")) and ud["flag"]:
-                    ud["flag"] = False
+            ):  
+                if not "saving" in ud:
                     ud["status"] = "Парсер не запущен"
+                    if ud["flag"]:
+                        ud["status"] = "PARSER_NOT_STARTED_DATA_SAVED"
+                        ud["excel_result"] = []
+                        ud["ban_list"] = []
+                    if await check_after_parsing_file(session=session, user_id=payload.get("sub")) and ud["flag"]:
+                        ud["flag"] = False
+                        ud["status"] = "Парсер не запущен"
             else:
                 ud["status"] = "PARSER_RUNNING"
+                ud["saving"] = True
             
             if ud["status"] in (
                 "ALL_PROXIES_BANNED",
@@ -212,11 +216,11 @@ async def websocket_status_endpoint(
                         user_data[payload.get("sub")]["events"][i].clear()
                 except:
                     pass
-                print("jfdsjfdsjfsdjfsdj")
+                # print("jfdsjfdsjfsdjfsdj")
                 user_data[payload.get("sub")]["all_break"] = True
                 file_name_last = (await crud.get_last_upload_files(user_id=payload.get("sub"), session=session)).before_parsing_filename
                 result_file_name = f"{file_name_last.split('.')[0]}_после_парсинга_{random.randint(1, 10000000000000000)}.xlsx"
-                print('1')
+                # print('1')
                 df = pd.DataFrame(ud["excel_result"], columns=user_data[payload.get("sub")]['columns'])
                 await crud.add_final_file_to_table(
                     user_id=payload.get("sub"),
@@ -228,7 +232,7 @@ async def websocket_status_endpoint(
                     str(settings.upload.path_for_upload) + "/" + result_file_name,
                     index=False,
                 )
-                print('2')
+                # print('2')
                 await edit_file(str(settings.upload.path_for_upload) + "/" + result_file_name, ["K", "J", "L", "M", "F"])
                 await crud.saving_to_table_data(
                     user_id=payload.get("sub"), session=session, data=ud["excel_result"], filename=result_file_name
@@ -237,9 +241,10 @@ async def websocket_status_endpoint(
                 await crud.set_banned_proxy(
                     proxy_servers=ud["ban_list"], session=session, user_id=payload.get("sub")
                 )
-                print('3')
+                # print('3')
                 user_data[payload.get("sub")]["threads"] = [None] * count_of_threadings
-                print('сохранилось')
+                # print('сохранилось')
+                del user_data[payload.get("sub")]["saving"]
             if ud["status"] == "Парсер не запущен":
                 if payload.get("sub") in user_data:
                     user_data[payload.get("sub")]['ban_list'] = []
@@ -268,9 +273,9 @@ async def start(
         session=session, user_id=payload.get("sub"), filter_id=filter_id
     )
     try:
-        print((
-            await crud.get_last_upload_files(user_id=user_id, session=session)
-        ), "JFJFSDJFJDSJSFDJFJ")
+        # print((
+        #     await crud.get_last_upload_files(user_id=user_id, session=session)
+        # ), "JFJFSDJFJDSJSFDJFJ")
         files = (
             await crud.get_last_upload_files(user_id=user_id, session=session)
         ).before_parsing_filename

@@ -181,7 +181,6 @@ async def websocket_status_endpoint(
                 # await asyncio.sleep(20)
                 ud["status"] = "PARSING_COMPLETED"
                 ud["flag"] = True
-                ud["saving"] = True
                 # print("after waiting", len(user_data[payload.get("sub")]["excel_result"]))
             elif (
                 int(len(ud["ban_list"]) / ud["count_proxies"] * 100) >= 100
@@ -190,7 +189,6 @@ async def websocket_status_endpoint(
                 # await asyncio.sleep(20)
                 ud["status"] = "ALL_PROXIES_BANNED"
                 ud["flag"] = True
-                ud["saving"] = True
             elif any([thread is None for thread in ud["threads"]]) or not any(
                 [thread.is_alive() for thread in ud["threads"]]
             ):  

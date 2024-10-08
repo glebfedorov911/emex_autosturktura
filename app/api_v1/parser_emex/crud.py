@@ -40,8 +40,6 @@ async def get_last_upload_files(user_id: int, session: AsyncSession):
     stmt = select(File).where(File.user_id==user_id)
     result: Result = await session.execute(stmt)
     files = result.scalars().all()
-    print(files, 37377383)
-    print(files[-1], 28283838)
     if files == []:
         # raise HTTPException(
         #     status_code=status.HTTP_404_NOT_FOUND,

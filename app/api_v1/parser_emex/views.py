@@ -31,6 +31,8 @@ import asyncio
 import time
 import random
 import pandas as pd
+import threading
+
 
 # ДОПИСАТЬ СОХРАНЕНИЕ####
 
@@ -95,6 +97,7 @@ async def websocket_endpoint(
                             )
                             user_data[payload.get("sub")]["threads"][i].start()
                     except Exception as e:
+                        print("-="*20)
                         print(e)
 
             ud = user_data[payload.get("sub")]
@@ -127,6 +130,7 @@ async def websocket_endpoint(
     except WebSocketDisconnect:
         await websocket.close()
     except Exception as e:
+        print("-="*20)
         print(e)
 
 
@@ -173,6 +177,7 @@ async def websocket_status_endpoint(
             ud = user_data[payload.get("sub")]
             # asyncio.sleep(10)
             await websocket.send_json({"Status": ud["status"]})
+            print(int(len(ud["excel_result"]) / ud["count_brands"] * 100), len(ud["excel_result"]))
             if (
                 int(len(ud["excel_result"]) / ud["count_brands"] * 100) >= 100
                 and not ud["flag"]
@@ -196,8 +201,9 @@ async def websocket_status_endpoint(
                     ud["status"] = "Парсер не запущен"
                     if ud["flag"]:
                         ud["status"] = "PARSER_NOT_STARTED_DATA_SAVED"
-                        ud["excel_result"] = []
-                        ud["ban_list"] = []
+                        # ud["excel_result"] = []
+                        # ud["ban_list"] = []
+                        print("я был тут")
                     if await check_after_parsing_file(session=session, user_id=payload.get("sub")) and ud["flag"]:
                         ud["flag"] = False
                         ud["status"] = "Парсер не запущен"
@@ -207,51 +213,79 @@ async def websocket_status_endpoint(
             
             if ud["status"] in (
                 "ALL_PROXIES_BANNED",
-                "PARSING_COMPLETED",
-            ):  
+                "PARSING_COMPLETED"
+            ): 
+                print("зашли в эту штуку") 
                 try:
                     for i in range(count_of_threadings):
                         user_data[payload.get("sub")]["events"][i].clear()
                 except:
                     pass
                 # print("jfdsjfdsjfsdjfsdj")
-                del user_data[payload.get("sub")]["saving"]
-                user_data[payload.get("sub")]["all_break"] = True
-                file_name_last = (await crud.get_last_upload_files(user_id=payload.get("sub"), session=session)).before_parsing_filename
-                result_file_name = f"{file_name_last.split('.')[0]}_после_парсинга_{random.randint(1, 10000000000000000)}.xlsx"
-                # print('1')
-                df = pd.DataFrame(ud["excel_result"], columns=user_data[payload.get("sub")]['columns'])
-                await crud.add_final_file_to_table(
-                    user_id=payload.get("sub"),
-                    session=session,
-                    result_name=result_file_name,
-                    filter_id_global=ud["filter_id"],
-                )
-                df.to_excel(
-                    str(settings.upload.path_for_upload) + "/" + result_file_name,
-                    index=False,
-                )
-                # print('2')
-                await edit_file(str(settings.upload.path_for_upload) + "/" + result_file_name, ["K", "J", "L", "M", "F"])
-                await crud.saving_to_table_data(
-                    user_id=payload.get("sub"), session=session, data=ud["excel_result"], filename=result_file_name
-                )
-                await crud.set_parsing(session=session, status=False, user_id=payload.get("sub"))
-                await crud.set_banned_proxy(
-                    proxy_servers=ud["ban_list"], session=session, user_id=payload.get("sub")
-                )
-                # print('3')
-                user_data[payload.get("sub")]["threads"] = [None] * count_of_threadings
-                # print('сохранилось')
-            if ud["status"] == "Парсер не запущен":
-                if payload.get("sub") in user_data:
+                try:
+                    print("зашли в try") 
+                    if "saving" in user_data[payload.get("sub")]:
+                        del user_data[payload.get("sub")]["saving"]
+                    user_data[payload.get("sub")]["all_break"] = True
+                    file_name_last = (await crud.get_last_upload_files(user_id=payload.get("sub"), session=session)).before_parsing_filename
+                    print("получили прошлый файл", file_name_last) 
+                    result_file_name = f"{file_name_last.split('.')[0]}_после_парсинга_{random.randint(1, 10000000000000000)}.xlsx"
+                    print("зашли в создали имя файла") 
+                    # print('1')
+                    df = pd.DataFrame(ud["excel_result"], columns=user_data[payload.get("sub")]['columns'])
+                    await crud.add_final_file_to_table(
+                        user_id=payload.get("sub"),
+                        session=session,
+                        result_name=result_file_name,
+                        filter_id_global=ud["filter_id"],
+                    )
+                    print("сохранили в бд") 
+                    df.to_excel(
+                        str(settings.upload.path_for_upload) + "/" + result_file_name,
+                        index=False,
+                    )
+                    # print('2')
+                    print("сохранили в excel") 
+                    await edit_file(str(settings.upload.path_for_upload) + "/" + result_file_name, ["K", "J", "L", "M", "F"])
+                    await crud.saving_to_table_data(
+                        user_id=payload.get("sub"), session=session, data=ud["excel_result"], filename=result_file_name
+                    )
+                    await crud.set_parsing(session=session, status=False, user_id=payload.get("sub"))
+                    await crud.set_banned_proxy(
+                        proxy_servers=ud["ban_list"], session=session, user_id=payload.get("sub")
+                    )
+                    print("сохранили данные") 
+                    # print('3')
+                    user_data[payload.get("sub")]["threads"] = [None] * count_of_threadings
+                    # print('сохранилось')
+                    print("финал")
                     user_data[payload.get("sub")]['ban_list'] = []
                     user_data[payload.get("sub")]['excel_result'] = []
+                except Exception as e:
+                    print('-='*20)
+                    print(e)
+            if ud["status"] == "Парсер не запущен":
+                print("и тут я был")
+                if "brands" in ud:
+                    if len(ud["brands"]) != 0:
+                        print(ud["brands"])
+                        cnt = len(ud["brands"]) if len(ud["brands"]) < count_of_threadings else count_of_threadings
+                        ud["status"] = "PARSER_RUNNING"
+                        for index in range(cnt):
+                            user_data[payload.get("sub")]["events"][index].clear()
+                            user_data[payload.get("sub")]["threads"][index] = Thread(
+                                target=run, args=(payload.get("sub"), )
+                            )
+                            user_data[payload.get("sub")]["threads"][index].start()
+            #         user_data[payload.get("sub")]['ban_list'] = []
+            #         user_data[payload.get("sub")]['excel_result'] = []
 
             await asyncio.sleep(3)
     except WebSocketDisconnect:
         await websocket.close()
     except Exception as e:
+        print("-="*20)
+        print("sfdlkksfdklsdf")
         print(e)
 
 
@@ -278,6 +312,7 @@ async def start(
             await crud.get_last_upload_files(user_id=user_id, session=session)
         ).before_parsing_filename
     except Exception as e:
+        print("-="*20)
         print(e)
         raise HTTPException(
             status_code=status.HTTP_405_METHOD_NOT_ALLOWED,

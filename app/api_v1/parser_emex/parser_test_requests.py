@@ -392,6 +392,8 @@ async def main(user_id):
                 else:
                     print(f"3. Поток {threading.current_thread().name} не блокирован")
         except Exception as e:
+            with user_locks[user_id]:
+                user_data[user_id]["brands"].append(brand)
             msg = "message='Proxy Authentication Required'"
             if msg in repr(e):
                 raise ProxyException("Proxy Authentication Required")
@@ -399,16 +401,13 @@ async def main(user_id):
             print("-="*20)
             print("Общее исключение\nОшибка:", e)
             print("-="*20)
-            with user_locks[user_id]:
-                user_data[user_id]["brands"].append(brand)
             if user_locks[user_id].locked():
                 print(f"4. Поток {threading.current_thread().name} ожидает разблокировки")
             else:
                 print(f"4. Поток {threading.current_thread().name} не блокирован")
-        except ZeroDivisionError:
-            print("fsdkjdsfjfsd")
         except ProxyException as e:
             user_data[user_id]["status"] = "ALL_PROXIES_BANNED"
+            user_data[user_id]["count_brands"] = len(ud["excel_result"])
             print("Трафик кончился")
             for index in range(count_of_threadings):
                 user_data[user_id]["events"][index].set()

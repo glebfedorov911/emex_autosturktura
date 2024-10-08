@@ -177,6 +177,7 @@ async def websocket_status_endpoint(
             ud = user_data[payload.get("sub")]
             # asyncio.sleep(10)
             await websocket.send_json({"Status": ud["status"]})
+            print(len(ud["excel_result"]), ud["status"])
             print(int(len(ud["excel_result"]) / ud["count_brands"] * 100), len(ud["excel_result"]))
             if (
                 int(len(ud["excel_result"]) / ud["count_brands"] * 100) >= 100
@@ -196,7 +197,7 @@ async def websocket_status_endpoint(
                 ud["flag"] = True
             elif any([thread is None for thread in ud["threads"]]) or not any(
                 [thread.is_alive() for thread in ud["threads"]]
-            ):  
+            ) and (int(len(ud["excel_result"]) / ud["count_brands"] * 100) == 0 and int(len(ud["ban_list"]) / ud["count_proxies"] * 100) == 0):  
                 if not "saving" in ud:
                     ud["status"] = "Парсер не запущен"
                     if ud["flag"]:
@@ -267,6 +268,7 @@ async def websocket_status_endpoint(
             if ud["status"] == "Парсер не запущен":
                 print("и тут я был")
                 if "brands" in ud:
+                    ud["status"] = "PARSING_COMPLETED"
                     if len(ud["brands"]) != 0:
                         print(ud["brands"])
                         cnt = len(ud["brands"]) if len(ud["brands"]) < count_of_threadings else count_of_threadings
@@ -277,8 +279,14 @@ async def websocket_status_endpoint(
                                 target=run, args=(payload.get("sub"), )
                             )
                             user_data[payload.get("sub")]["threads"][index].start()
-            #         user_data[payload.get("sub")]['ban_list'] = []
-            #         user_data[payload.get("sub")]['excel_result'] = []
+                if "stop" in ud:
+                    for stop in user_data[payload.get("sub")]["stop"]:
+                        if user_data[payload.get("sub")]["stop"]:
+                            ud["status"] = "Парсер не запущен"
+                            user_data[payload.get("sub")]["all_break"] = True
+                            user_data[payload.get("sub")]['ban_list'] = []
+                            user_data[payload.get("sub")]['excel_result'] = []
+                            ud["brands"] = []
 
             await asyncio.sleep(3)
     except WebSocketDisconnect:

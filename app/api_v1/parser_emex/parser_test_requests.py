@@ -67,6 +67,7 @@ async def main(user_id):
         for stop in user_data[user_id]["stop"]:
             if stop:
                 print("Остановка парсера началась!")
+                user_data[user_id]["status"] = "Парсер не запущен"
                 return
         
         if len(user_data[user_id]["brands"]) == 0 or all([ev.is_set() for ev in user_data[user_id]["events"]]) or user_data[user_id]["all_break"]:

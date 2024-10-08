@@ -215,6 +215,7 @@ async def websocket_status_endpoint(
                 except:
                     pass
                 # print("jfdsjfdsjfsdjfsdj")
+                del user_data[payload.get("sub")]["saving"]
                 user_data[payload.get("sub")]["all_break"] = True
                 file_name_last = (await crud.get_last_upload_files(user_id=payload.get("sub"), session=session)).before_parsing_filename
                 result_file_name = f"{file_name_last.split('.')[0]}_после_парсинга_{random.randint(1, 10000000000000000)}.xlsx"
@@ -242,7 +243,6 @@ async def websocket_status_endpoint(
                 # print('3')
                 user_data[payload.get("sub")]["threads"] = [None] * count_of_threadings
                 # print('сохранилось')
-                del user_data[payload.get("sub")]["saving"]
             if ud["status"] == "Парсер не запущен":
                 if payload.get("sub") in user_data:
                     user_data[payload.get("sub")]['ban_list'] = []

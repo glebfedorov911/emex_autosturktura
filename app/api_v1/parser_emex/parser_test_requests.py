@@ -353,13 +353,14 @@ async def main(user_id):
 
                 try:
                     async with aiohttp.ClientSession() as session:
-                        async with session.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=2.5, proxy=proxies, headers=headers) as resp:
+                        async with session.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=3, proxy=proxies, headers=headers) as resp:
                             response_with_logo = await resp.json()
                 except:
                     async with aiohttp.ClientSession() as session:
-                        async with session.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=2.5, proxy=proxies, headers=headers) as resp:
+                        async with session.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=3, proxy=proxies, headers=headers) as resp:
                             response_with_logo = await resp.json()
-                    
+                await asyncio.sleep(0.2)    
+                
                 price_logo = response_with_logo["priceLogo"]
 
                 result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], price_logo, *best_data[1:],]

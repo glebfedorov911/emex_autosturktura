@@ -60,15 +60,18 @@ async def main(user_id):
     while user_data[user_id]["status"] == "PARSER_RUNNING":
         headers = {'User-Agent': random.choice(USERAGENTS)}
 
-        if user_data[user_id]["all_break"]:
-            user_data[user_id]["status"] = "Парсер не запущен"
-            return
-
         for stop in user_data[user_id]["stop"]:
             if stop:
                 print("Остановка парсера началась!")
                 user_data[user_id]["status"] = "Парсер не запущен"
+                user_data[user_id]["excel_result"] = []
+                user_data[user_id]["brands"] = []
+                user_data[user_id]["ban_list"] = []
                 return
+
+        if user_data[user_id]["all_break"]:
+            user_data[user_id]["status"] = "Парсер не запущен"
+            return
         
         if len(user_data[user_id]["brands"]) == 0 or all([ev.is_set() for ev in user_data[user_id]["events"]]) or user_data[user_id]["all_break"]:
             user_data[user_id]["status"] = "Парсер не запущен"

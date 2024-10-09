@@ -125,7 +125,7 @@ if id_admin_fullname:
     fil = [{
             "deep_filter": "11",
             "deep_analog": "10",
-            "analog": False,
+            "analog": False, "replacement": False,
             "is_bigger": False,
             "date": "10",
             "logo": "RMFZ",
@@ -136,7 +136,7 @@ if id_admin_fullname:
         {
             "deep_filter": "11",
             "deep_analog": "10",
-            "analog": False,
+            "analog": False, "replacement": False,
             "is_bigger": False,
             "date": "10",
             "logo": "RMFZ",
@@ -147,12 +147,34 @@ if id_admin_fullname:
         {
             "deep_filter": "10",
             "deep_analog": "10",
-            "analog": False,
+            "analog": False, "replacement": False,
             "is_bigger": True,
             "date": "5",
             "logo": "HXAW",
             "user_id": id_admin_fullname,
             "title": "string1",
+            "pickup_point": "38760",
+        },
+        {
+            "deep_filter": "10",
+            "deep_analog": "10",
+            "analog": False, "replacement": True,
+            "is_bigger": True,
+            "date": "5",
+            "logo": None,
+            "user_id": id_admin_fullname,
+            "title": "new",
+            "pickup_point": "38760",
+        },
+        {
+            "deep_filter": "10",
+            "deep_analog": "10",
+            "analog": False, "replacement": False,
+            "is_bigger": True,
+            "date": "5",
+            "logo": None,
+            "user_id": id_admin_fullname,
+            "title": "new2",
             "pickup_point": "38760",
         }]
 
@@ -164,7 +186,7 @@ if id_newuser_fullname:
         {
             "deep_filter": "50",
             "deep_analog": "25",
-            "analog": False,
+            "analog": False, "replacement": False,
             "is_bigger": False,
             "date": "25",
             "logo": "MARO",
@@ -175,7 +197,7 @@ if id_newuser_fullname:
         {
             "deep_filter": "11",
             "deep_analog": "23",
-            "analog": False,
+            "analog": False, "replacement": False,
             "is_bigger": True,
             "date": "5",
             "logo": "OEOL",
@@ -186,7 +208,7 @@ if id_newuser_fullname:
         {
             "deep_filter": "11",
             "deep_analog": "10",
-            "analog": False,
+            "analog": False, "replacement": False,
             "is_bigger": False,
             "date": "10",
             "logo": "OEOL",
@@ -215,7 +237,7 @@ if id_simpleuser_fullname:
         {
             "deep_filter": "10",
             "deep_analog": "25",
-            "analog": False,
+            "analog": False, "replacement": False,
             "is_bigger": False,
             "date": "25",
             "logo": "RXGF",
@@ -226,7 +248,7 @@ if id_simpleuser_fullname:
         {
             "deep_filter": "12",
             "deep_analog": "1",
-            "analog": False,
+            "analog": False, "replacement": False,
             "logo": "RXGF",
             "user_id": id_simpleuser_fullname,
             "title": "string5",
@@ -235,7 +257,7 @@ if id_simpleuser_fullname:
         {
             "deep_filter": "33",
             "deep_analog": "31",
-            "analog": False,
+            "analog": False, "replacement": False,
             "logo": "RXGF",
             "user_id": id_simpleuser_fullname,
             "title": "string6",

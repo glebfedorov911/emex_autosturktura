@@ -46,6 +46,7 @@ async def main(user_id):
     DEEP_FILTER = user_data[user_id]["filter"].deep_filter
     DEEP_ANALOG = user_data[user_id]["filter"].deep_analog
     ANALOG = user_data[user_id]["filter"].analog
+    REPLACEMENT = user_data[user_id]["filter"].replacement
     IS_BIGGER = user_data[user_id]["filter"].is_bigger 
     DATE = user_data[user_id]["filter"].date
     LOGO = user_data[user_id]["filter"].logo 
@@ -134,7 +135,7 @@ async def main(user_id):
                     result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], 0, 0, 0, 0,]
                     if LOGO:
                         result.append(0)
-                if "replacements" in response["searchResult"]:
+                if REPLACEMENT and "replacements" in response["searchResult"]:
                     originals += [
                         [
                             goods["offerKey"],
@@ -222,7 +223,7 @@ async def main(user_id):
                     if LOGO:
                         result.append(0)
 
-                if "replacements" in response["searchResult"]:
+                if REPLACEMENT and "replacements" in response["searchResult"]:
                     if IS_BIGGER:
                         originals += [
                             (

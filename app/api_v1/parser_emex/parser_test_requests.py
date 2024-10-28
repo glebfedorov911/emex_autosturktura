@@ -405,7 +405,7 @@ async def main(user_id):
                 raise ProxyException("Proxy Authentication Required")
 
             print("-="*20)
-            print("Общее исключение\nОшибка:", e)
+            print("Общее исключение\nОшибка:", e, brand)
             print("-="*20)
             if user_locks[user_id].locked():
                 print(f"4. Поток {threading.current_thread().name} ожидает разблокировки")

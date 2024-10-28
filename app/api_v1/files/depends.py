@@ -24,12 +24,14 @@ def zero_files(files):
             detail="Файлов нет у данного пользователя"
         )
 
+
 def check_same(file):
     try:
         RIGHT_DATA = [i for i in pd.read_excel("app/upload_file/shablon.xlsx").values.tolist() if "Артикул" in i][0]
-        RIGHT_DATA = [i for i in RIGHT_DATA if str(i) != "nan"]
-        df = [i for i in pd.read_excel(file).values.tolist() if "Артикул" in i][0]
-        df = [i for i in df if str(i) != "nan"]
+        file_upload_user = [list(map(str, row)) for row in pd.read_excel(file).values.tolist()]
+        head = file_upload_user[3]
+        rows_with_data = file_upload_user[4:]
+        return head == RIGHT_DATA and all([len(i) - i.count('nan') == len(RIGHT_DATA)-1 for i in rows_with_data])
     except:
         return False
 

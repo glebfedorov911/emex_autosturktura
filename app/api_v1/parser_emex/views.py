@@ -22,8 +22,6 @@ from app.api_v1.auth.utils import get_payload
 from app.api_v1.utils.depends import edit_file, get_unique_filename
 
 from . import crud
-# from .parser import user_data, run
-# from .parser_test import user_data, run
 from .parser_test_requests import user_data, run
 from .depends import *
 
@@ -58,30 +56,24 @@ async def websocket_endpoint(
 
     payload = await check_payload(access_token=access_token)
 
-    # files = f'{payload.get("username")}_дляпарсинг.xlsx'
-    # files = get_unique_filename(str(settings.upload.path_for_upload), files)
     if not payload.get("sub") in user_data:
         user_data[payload.get("sub")] = {
             "excel_result": [],
             "status": "Парсер не запущен",
-            "count_proxies": 1,
-            "ban_list": [],
             "count_brands": 1,
             "threads": threads.copy(),
-            "start_file": None,
             "flag": False,
+            "counter_parsered": 0,
         }
     else:
         if not "threads" in user_data[payload.get("sub")]:
             user_data[payload.get("sub")] = {
                 "excel_result": [],
                 "status": "PARSER_NOT_STARTED_DATA_SAVED",
-                "count_proxies": 1,
-                "ban_list": [],
                 "count_brands": 1,
                 "threads": threads.copy(),
-                "start_file": None,
                 "flag": True,
+                "counter_parsered": 0,
             }
 
     await websocket.accept()
@@ -101,30 +93,15 @@ async def websocket_endpoint(
                         print(e)
 
             ud = user_data[payload.get("sub")]
-            if ud["count_proxies"] == 0:
-                ud["count_proxies"] = 1
-                ud["status"] = "Закончились прокси"
-            # if ud["start_file"] is None:
-                # files = f'{payload.get("username")}_дляпарсинг.xlsx'
-                # files = get_unique_filename(str(settings.upload.path_for_upload), files)
-                # ud["start_file"] = files
-            if ud["count_proxies"] == 0:
-                ud["count_proxies"] = 1
             if ud["count_brands"] == 0:
                 ud["count_brands"] = 1
             await websocket.send_json(
                 {
                     "Percent_parsing_goods": int(
-                        len(ud["excel_result"]) / ud["count_brands"] * 100
+                        ud["counter_parsered"] / ud["count_brands"] * 100
                     ),
-                    "Percent_banned_list": int(
-                        len(ud["ban_list"]) / ud["count_proxies"] * 100
-                    ),
-                    # "Start_file": files,
                 }
             )
-            # if len(ud["excel_result"]) / ud["count_brands"] * 100 >= 100 or len(ud["ban_list"]) / ud["count_proxies"] * 100 >= 100:
-            #     await asyncio.sleep(20)
 
             await asyncio.sleep(3)
     except WebSocketDisconnect:
@@ -144,30 +121,24 @@ async def websocket_status_endpoint(
     
     payload = await check_payload(access_token=access_token)
     
-    await crud.unbanned_proxy(session=session, user_id=payload.get("sub"))
-    await crud.delete_proxy_banned(session=session, user_id=payload.get("sub"))
     if not payload.get("sub") in user_data:
         user_data[payload.get("sub")] = {
             "excel_result": [],
             "status": "Парсер не запущен",
-            "count_proxies": 1,
-            "ban_list": [],
             "count_brands": 1,
             "threads": threads.copy(),
-            "start_file": None,
             "flag": False,
+            "counter_parsered": 0,
         }
     else:
         if not "threads" in user_data[payload.get("sub")]:
             user_data[payload.get("sub")] = {
                 "excel_result": [],
                 "status": "PARSER_NOT_STARTED_DATA_SAVED",
-                "count_proxies": 1,
-                "ban_list": [],
                 "count_brands": 1,
                 "threads": threads.copy(),
-                "start_file": None,
                 "flag": True,
+                "counter_parsered": 0,
             }
 
 
@@ -177,33 +148,21 @@ async def websocket_status_endpoint(
             ud = user_data[payload.get("sub")]
             # asyncio.sleep(10)
             await websocket.send_json({"Status": ud["status"]})
-            print(len(ud["excel_result"]), ud["status"])
-            print(int(len(ud["excel_result"]) / ud["count_brands"] * 100), len(ud["excel_result"]))
+            print(ud["counter_parsered"], ud["status"])
+            print(int(ud["counter_parsered"] / ud["count_brands"] * 100), ud["counter_parsered"])
             if (
-                int(len(ud["excel_result"]) / ud["count_brands"] * 100) >= 100
+                int(ud["counter_parsered"] / ud["count_brands"] * 100) >= 100
                 and not ud["flag"]
             ):
-                # print(len(user_data[payload.get("sub")]["excel_result"]))
-                # await asyncio.sleep(20)
                 ud["status"] = "PARSING_COMPLETED"
-                ud["flag"] = True
-                # print("after waiting", len(user_data[payload.get("sub")]["excel_result"]))
-            elif (
-                int(len(ud["ban_list"]) / ud["count_proxies"] * 100) >= 100
-                and not ud["flag"]
-            ):
-                # await asyncio.sleep(20)
-                ud["status"] = "ALL_PROXIES_BANNED"
                 ud["flag"] = True
             elif any([thread is None for thread in ud["threads"]]) or not any(
                 [thread.is_alive() for thread in ud["threads"]]
-            ) and (int(len(ud["excel_result"]) / ud["count_brands"] * 100) == 0 and int(len(ud["ban_list"]) / ud["count_proxies"] * 100) == 0):  
+            ) and (int(ud["counter_parsered"] / ud["count_brands"] * 100) == 0):  
                 if not "saving" in ud:
                     ud["status"] = "Парсер не запущен"
                     if ud["flag"]:
                         ud["status"] = "PARSER_NOT_STARTED_DATA_SAVED"
-                        # ud["excel_result"] = []
-                        # ud["ban_list"] = []
                         print("я был тут")
                     if await check_after_parsing_file(session=session, user_id=payload.get("sub")) and ud["flag"]:
                         ud["flag"] = False
@@ -252,9 +211,6 @@ async def websocket_status_endpoint(
                         user_id=payload.get("sub"), session=session, data=ud["excel_result"], filename=result_file_name
                     )
                     await crud.set_parsing(session=session, status=False, user_id=payload.get("sub"))
-                    await crud.set_banned_proxy(
-                        proxy_servers=ud["ban_list"], session=session, user_id=payload.get("sub")
-                    )
                     print("сохранили данные") 
                     # print('3')
                     user_data[payload.get("sub")]["threads"] = [None] * count_of_threadings
@@ -262,6 +218,7 @@ async def websocket_status_endpoint(
                     print("финал")
                     user_data[payload.get("sub")]['ban_list'] = []
                     user_data[payload.get("sub")]['excel_result'] = []
+                    user_data[payload.get("sub")]['counter_parsered'] = 0
                 except Exception as e:
                     print('-='*20)
                     print(e)
@@ -286,6 +243,7 @@ async def websocket_status_endpoint(
                             user_data[payload.get("sub")]["all_break"] = True
                             user_data[payload.get("sub")]['ban_list'] = []
                             user_data[payload.get("sub")]['excel_result'] = []
+                            user_data[payload.get("sub")]['counter_parsered'] = 0
                             ud["brands"] = []
 
             await asyncio.sleep(3)
@@ -308,7 +266,6 @@ async def start(
 
     messages = []
     user_id = payload.get("sub")
-    proxies = await crud.get_proxies(session=session, user_id=payload.get("sub"))
     filter = await crud.get_filter(
         session=session, user_id=payload.get("sub"), filter_id=filter_id
     )
@@ -331,29 +288,17 @@ async def start(
         user_data[payload.get("sub")] = {
             "threads": threads.copy(),
             "events": [Event() for _ in range(count_of_threadings)],
-            "proxies": [(proxy.ip_with_port, proxy.login, proxy.password) for proxy in  proxies],
             "filter": filter,
             "excel_result": [],
             "status": "PARSER_RUNNING",
-            "count_proxies": len([(proxy.ip_with_port, proxy.login, proxy.password) for proxy in  proxies]),
             "ban_list": [],
             "count_brands": 1,
             "filter_id": filter_id,
             "flag": False,
-            "is_using_testproxy": {},
-            "PROXIES": proxies,
             "count_of_threadings": count_of_threadings,
             "stop": [False] * count_of_threadings,
-            # "start_file": files,
+            'counter_parsered': 0,
         }
-##
-    # if proxies == [] or len(proxies) < count_of_threadings:
-    #     user_data[payload.get("sub")]["status"] = "Закончились прокси"
-    #     raise HTTPException(
-    #         status_code=status.HTTP_409_CONFLICT,
-    #         detail="прокси закончились"
-    #     )
-    # elif files is None:
     if files is None:
         user_data[payload.get("sub")]["status"] = "Данный файл уже спаршен либо не загружен"
         return JSONResponse("Данный файл уже спаршен")

@@ -35,8 +35,6 @@ def check_same(file):
     except:
         return False
 
-    return list(df) == RIGHT_DATA 
-
 def check_has_last_file_after_parsing(last_file):
     if last_file.after_parsing_filename is None:
         raise HTTPException(

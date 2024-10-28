@@ -53,7 +53,8 @@ async def main(user_id):
     PICKUP_POINT = user_data[user_id]["filter"].pickup_point
     browser = None
     user_data[user_id]["all_break"] = False
-    user_data[user_id]["columns"] = ["Артикул", "Наименование", "Брэнд", "Артикул", "Кол-во", "Цена", "Партия", "НДС", "Лого", "Доставка", "Лучшая цена", "Количество",]
+    # user_data[user_id]["columns"] = ["Артикул", "Наименование", "Брэнд", "Артикул", "Кол-во", "Цена", "Партия", "НДС", "Лого", "Доставка", "Лучшая цена", "Количество",]
+    user_data[user_id]["columns"] = ["Код товара", "Артикул", "Наименование", "Брэнд", "Артикул", "Кол-во", "Цена", "Цена ABCP", "Партия", "Лого", "Доставка", "Лучшая цена", "Количество",]
 
     if LOGO and "Цена с лого" not in user_data[user_id]["columns"]:
         user_data[user_id]["columns"].append("Цена с лого")
@@ -66,6 +67,7 @@ async def main(user_id):
                 print("Остановка парсера началась!")
                 user_data[user_id]["status"] = "Парсер не запущен"
                 user_data[user_id]["excel_result"] = []
+                user_data[user_id]["counter_parsered"] = 0
                 user_data[user_id]["brands"] = []
                 user_data[user_id]["ban_list"] = []
                 return
@@ -85,17 +87,17 @@ async def main(user_id):
         else:
             print(f"1. Поток {threading.current_thread().name} не блокирован")
 
-        url = f"https://emex.ru/api/search/search?make={create_params_for_url(brand[2])}&detailNum={brand[0]}&locationId={PICKUP_POINT}&showAll=true&longitude=37.8613&latitude=55.7434"
+        url = f"https://emex.ru/api/search/search?make={create_params_for_url(brand[3])}&detailNum={brand[1]}&locationId={PICKUP_POINT}&showAll=true&longitude=37.8613&latitude=55.7434"
         
         try:
             for_log = f"-=-=-=-=-=-=-={threading.current_thread().name}=-=-=-=-=-=-=-"
             print(for_log)
             if user_data[user_id]["count_brands"] == 0:
                 user_data[user_id]["count_brands"] = 1
-            print(int(len(user_data[user_id]["excel_result"]) / user_data[user_id]["count_brands"] * 100))
+            print(int(user_data[user_id]["counter_parsered"] / user_data[user_id]["count_brands"] * 100))
             print(user_data[user_id]["status"])
-            print("URL сейчас:", url, '\n', user_data[user_id]["count_proxies"], '\n', "Количество в бане:", len(user_data[user_id]["ban_list"]))
-            print("Данных спаршено:", len(user_data[user_id]["excel_result"]), "данных всего:", user_data[user_id]["count_brands"])
+            print("URL сейчас:", url)
+            print("Данных спаршено:", user_data[user_id]["counter_parsered"], "данных всего:", user_data[user_id]["count_brands"])
             print("Обновление списка (длина):", len(user_data[user_id]["brands"]))
             print("Потоки", threading.enumerate())
             try:
@@ -132,7 +134,7 @@ async def main(user_id):
                         for goods in orig["offers"]
                     ]
                 else:
-                    result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], 0, 0, 0, 0,]
+                    result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], brand[8], 0, 0, 0, 0,]
                     if LOGO:
                         result.append(0)
                 if REPLACEMENT and "replacements" in response["searchResult"]:
@@ -219,7 +221,7 @@ async def main(user_id):
                             for goods in orig["offers"]
                         ]
                 else:
-                    result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], 0, 0, 0, 0,]
+                    result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], brand[8], 0, 0, 0, 0,]
                     if LOGO:
                         result.append(0)
 
@@ -329,11 +331,12 @@ async def main(user_id):
 
                 originals = [data for data in originals if data]
             if originals == []:
-                result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], 0, 0, 0, 0,]
+                result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], brand[8], 0, 0, 0, 0,]
                 if LOGO:
                     result.append(0)
                 with user_locks[user_id]:
                     user_data[user_id]["excel_result"].append(result)
+                    user_data[user_id]["counter_parsered"] += 1
                 if user_locks[user_id].locked():
                     print(f"2. Поток {threading.current_thread().name} ожидает разблокировки")
                 else:
@@ -368,7 +371,7 @@ async def main(user_id):
                 
                 price_logo = response_with_logo["priceLogo"]
 
-                result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], price_logo, *best_data[1:],]
+                result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], brand[8], price_logo, *best_data[1:],]
                 if LOGO:
                     best_data = None
                     sorted_by_price = quick_sort(originals, 2)[:20]
@@ -393,6 +396,7 @@ async def main(user_id):
                         result.append(0)
                 with user_locks[user_id]:
                     user_data[user_id]["excel_result"].append(result)
+                    user_data[user_id]["counter_parsered"] += 1
                 if user_locks[user_id].locked():
                     print(f"3. Поток {threading.current_thread().name} ожидает разблокировки")
                 else:
@@ -413,7 +417,7 @@ async def main(user_id):
                 print(f"4. Поток {threading.current_thread().name} не блокирован")
         except ProxyException as e:
             user_data[user_id]["status"] = "ALL_PROXIES_BANNED"
-            user_data[user_id]["count_brands"] = len(ud["excel_result"])
+            user_data[user_id]["count_brands"] = user_data[user_id]["counter_parsered"]
             print("Трафик кончился")
             for index in range(count_of_threadings):
                 user_data[user_id]["events"][index].set()

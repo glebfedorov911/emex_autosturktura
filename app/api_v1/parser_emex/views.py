@@ -141,15 +141,14 @@ async def websocket_status_endpoint(
                 "counter_parsered": 0,
             }
 
-
+    skip = 0
     await websocket.accept()
     try:
         while True:
             ud = user_data[payload.get("sub")]
-            # asyncio.sleep(10)
             await websocket.send_json({"Status": ud["status"]})
-            print(ud["counter_parsered"], ud["status"])
-            print(int(ud["counter_parsered"] / ud["count_brands"] * 100), ud["counter_parsered"])
+            # print(ud["counter_parsered"], ud["status"])
+            # print(int(ud["counter_parsered"] / ud["count_brands"] * 100), ud["counter_parsered"])
             if (
                 int(ud["counter_parsered"] / ud["count_brands"] * 100) >= 100
                 and not ud["flag"]
@@ -170,6 +169,15 @@ async def websocket_status_endpoint(
             else:
                 ud["status"] = "PARSER_RUNNING"
                 ud["saving"] = True
+
+            if (limit := len(ud["excel_result"][skip:])) >= 350:
+                start = skip
+                skip += limit
+                print("СОХРАНЯЮ")
+                print("Данные для сохранения 1:", start, ':', skip, len(ud["excel_result"]), "ПРОЦЕНТЫ:", int(ud["counter_parsered"] / ud["count_brands"] * 100))
+                fileData = (await crud.get_last_upload_files(user_id=payload.get("sub"), session=session))
+                await crud.saving_to_table_data(user_id=payload.get("sub"), session=session, data=ud["excel_result"][start:skip], file_id=fileData.id)
+                print("Данные для сохранения 2:", start, ':', skip, len(ud["excel_result"]), "ПРОЦЕНТЫ:", int(ud["counter_parsered"] / ud["count_brands"] * 100))
             
             if ud["status"] in (
                 "ALL_PROXIES_BANNED",
@@ -189,7 +197,7 @@ async def websocket_status_endpoint(
                     fileData = (await crud.get_last_upload_files(user_id=payload.get("sub"), session=session))
                     await crud.add_final_file_to_table(user_id=payload.get("sub"), session=session, filter_id_global=user_data[payload.get("sub")]["filter_id"])
                     await crud.saving_to_table_data(
-                        user_id=payload.get("sub"), session=session, data=ud["excel_result"], file_id=fileData.id
+                        user_id=payload.get("sub"), session=session, data=ud["excel_result"][skip:], file_id=fileData.id
                     )
                     await crud.set_parsing(session=session, status=False, user_id=payload.get("sub"))
                     print("сохранили данные") 
@@ -198,6 +206,7 @@ async def websocket_status_endpoint(
                     user_data[payload.get("sub")]['status'] = "PARSER_NOT_STARTED_DATA_SAVED"
                     user_data[payload.get("sub")]['excel_result'] = []
                     user_data[payload.get("sub")]['counter_parsered'] = 0
+                    skip = 0
                 except Exception as e:
                     print('-='*20)
                     print(e)

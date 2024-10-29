@@ -64,7 +64,9 @@ async def websocket_endpoint(
             "threads": threads.copy(),
             "flag": False,
             "counter_parsered": 0,
-            "using_proxy": None
+            "using_proxy": None,
+            "start": 0,
+            "skip": 0,
         }
     else:
         if not "threads" in user_data[payload.get("sub")]:
@@ -75,7 +77,9 @@ async def websocket_endpoint(
                 "threads": threads.copy(),
                 "flag": True,
                 "counter_parsered": 0,
-                "using_proxy": None
+                "using_proxy": None,
+                "start": 0,
+                "skip": 0,
             }
 
     await websocket.accept()
@@ -131,7 +135,9 @@ async def websocket_status_endpoint(
             "threads": threads.copy(),
             "flag": False,
             "counter_parsered": 0,
-            "using_proxy": None
+            "using_proxy": None,
+            "start": 0,
+            "skip": 0,
         }
     else:
         if not "threads" in user_data[payload.get("sub")]:
@@ -142,10 +148,11 @@ async def websocket_status_endpoint(
                 "threads": threads.copy(),
                 "flag": True,
                 "counter_parsered": 0,
-                "using_proxy": None
+                "using_proxy": None,
+                "start": 0,
+                "skip": 0,
             }
 
-    skip = 0
     await websocket.accept()
     try:
         while True:
@@ -174,14 +181,14 @@ async def websocket_status_endpoint(
                 ud["status"] = "PARSER_RUNNING"
                 ud["saving"] = True
 
-            if (limit := len(ud["excel_result"][skip:])) >= 350:
-                start = skip
-                skip += limit
+            if (limit := len(ud["excel_result"][ud["skip"]:])) >= 350:
+                ud["start"] = ud["skip"]
+                ud["skip"] += limit
                 print("СОХРАНЯЮ")
-                print("Данные для сохранения 1:", start, ':', skip, len(ud["excel_result"]), "ПРОЦЕНТЫ:", int(ud["counter_parsered"] / ud["count_brands"] * 100))
+                print("Данные для сохранения 1:", ud["start"], ':', ud["skip"], len(ud["excel_result"]), "ПРОЦЕНТЫ:", int(ud["counter_parsered"] / ud["count_brands"] * 100))
                 fileData = (await crud.get_last_upload_files(user_id=payload.get("sub"), session=session))
                 await crud.saving_to_table_data(user_id=payload.get("sub"), session=session, data=ud["excel_result"][start:skip], file_id=fileData.id)
-                print("Данные для сохранения 2:", start, ':', skip, len(ud["excel_result"]), "ПРОЦЕНТЫ:", int(ud["counter_parsered"] / ud["count_brands"] * 100))
+                print("Данные для сохранения 2:", ud["start"], ':', ud["skip"], len(ud["excel_result"]), "ПРОЦЕНТЫ:", int(ud["counter_parsered"] / ud["count_brands"] * 100))
             
             if ud["status"] in (
                 "ALL_PROXIES_BANNED",
@@ -201,7 +208,7 @@ async def websocket_status_endpoint(
                     fileData = (await crud.get_last_upload_files(user_id=payload.get("sub"), session=session))
                     await crud.add_final_file_to_table(user_id=payload.get("sub"), session=session, filter_id_global=user_data[payload.get("sub")]["filter_id"])
                     await crud.saving_to_table_data(
-                        user_id=payload.get("sub"), session=session, data=ud["excel_result"][skip:], file_id=fileData.id
+                        user_id=payload.get("sub"), session=session, data=ud["excel_result"][ud["skip"]:], file_id=fileData.id
                     )
                     await crud.set_parsing(session=session, status=False, user_id=payload.get("sub"))
                     print("сохранили данные") 
@@ -210,7 +217,8 @@ async def websocket_status_endpoint(
                     user_data[payload.get("sub")]['status'] = "PARSER_NOT_STARTED_DATA_SAVED"
                     user_data[payload.get("sub")]['excel_result'] = []
                     user_data[payload.get("sub")]['counter_parsered'] = 0
-                    skip = 0
+                    ud["skip"] = 0
+                    ud["start"] = 0
                 except Exception as e:
                     print('-='*20)
                     print(e)
@@ -289,7 +297,9 @@ async def start(
             "count_of_threadings": count_of_threadings,
             "stop": [False] * count_of_threadings,
             'counter_parsered': 0,
-            "using_proxy": using_proxy
+            "using_proxy": using_proxy,
+            "start": 0,
+            "skip": 0,
         }
     if files is None:
         user_data[payload.get("sub")]["status"] = "Данный файл уже спаршен либо не загружен"

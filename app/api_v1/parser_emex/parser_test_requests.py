@@ -39,7 +39,7 @@ USERAGENTS = [
 
 user_locks = {}
 
-async def main(user_id):
+async def main(user_id, using_proxy):
     global user_data, user_locks
     user_locks[user_id] = threading.Lock()
 
@@ -106,7 +106,11 @@ async def main(user_id):
                 print("Ошибка в alive модуле", e)
             print(f"-="*(len(for_log)//2))
 
-            proxies = os.getenv("PROXY")
+            if using_proxy == "MANGO":
+                proxies = os.getenv("MANGOPROXY")
+            elif using_proxy == "BRIGHTDATA":
+                proxies = os.getenv("BRIGHTDATAPROXY")
+                
             try:
                 async with aiohttp.ClientSession() as session:
                     async with session.get(url, proxy=proxies, timeout=10, headers=headers) as resp:
@@ -424,5 +428,5 @@ async def main(user_id):
                 user_data[user_id]["stop"][index] = True
             break
 
-def run(user_id):
-    asyncio.run(main(user_id))
+def run(user_id, using_proxy):
+    asyncio.run(main(user_id, using_proxy))

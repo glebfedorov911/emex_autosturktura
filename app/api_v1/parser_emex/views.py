@@ -64,6 +64,7 @@ async def websocket_endpoint(
             "threads": threads.copy(),
             "flag": False,
             "counter_parsered": 0,
+            "using_proxy": None
         }
     else:
         if not "threads" in user_data[payload.get("sub")]:
@@ -74,6 +75,7 @@ async def websocket_endpoint(
                 "threads": threads.copy(),
                 "flag": True,
                 "counter_parsered": 0,
+                "using_proxy": None
             }
 
     await websocket.accept()
@@ -85,7 +87,7 @@ async def websocket_endpoint(
                         if (not user_data[payload.get("sub")]["threads"][i].is_alive()):
                             user_data[payload.get("sub")]["events"][i].clear()
                             user_data[payload.get("sub")]["threads"][i] = Thread(
-                                target=run, args=(payload.get("sub"), )
+                                target=run, args=(payload.get("sub"), user_data[payload.get("sub")]["using_proxy"])
                             )
                             user_data[payload.get("sub")]["threads"][i].start()
                     except Exception as e:
@@ -129,6 +131,7 @@ async def websocket_status_endpoint(
             "threads": threads.copy(),
             "flag": False,
             "counter_parsered": 0,
+            "using_proxy": None
         }
     else:
         if not "threads" in user_data[payload.get("sub")]:
@@ -139,6 +142,7 @@ async def websocket_status_endpoint(
                 "threads": threads.copy(),
                 "flag": True,
                 "counter_parsered": 0,
+                "using_proxy": None
             }
 
     skip = 0
@@ -221,7 +225,7 @@ async def websocket_status_endpoint(
                         for index in range(cnt):
                             user_data[payload.get("sub")]["events"][index].clear()
                             user_data[payload.get("sub")]["threads"][index] = Thread(
-                                target=run, args=(payload.get("sub"), )
+                                target=run, args=(payload.get("sub"), user_data[payload.get("sub")]["using_proxy"])
                             )
                             user_data[payload.get("sub")]["threads"][index].start()
                 if "stop" in ud:
@@ -246,6 +250,7 @@ async def websocket_status_endpoint(
 @router.get("/start/{filter_id}")
 async def start(
     filter_id: int,
+    using_proxy: str = "MANGO",
     payload = Depends(get_payload),
     session: AsyncSession = Depends(db_helper.session_depends),
 ):
@@ -258,9 +263,6 @@ async def start(
         session=session, user_id=payload.get("sub"), filter_id=filter_id
     )
     try:
-        # print((
-        #     await crud.get_last_upload_files(user_id=user_id, session=session)
-        # ), "JFJFSDJFJDSJSFDJFJ")
         files = (
             await crud.get_last_upload_files(user_id=user_id, session=session)
         )
@@ -287,6 +289,7 @@ async def start(
             "count_of_threadings": count_of_threadings,
             "stop": [False] * count_of_threadings,
             'counter_parsered': 0,
+            "using_proxy": using_proxy
         }
     if files is None:
         user_data[payload.get("sub")]["status"] = "Данный файл уже спаршен либо не загружен"
@@ -312,7 +315,7 @@ async def start(
             ):
                 user_data[user_id]["events"][index].clear()
                 user_data[user_id]["threads"][index] = Thread(
-                    target=run, args=(user_id, )
+                    target=run, args=(user_id, using_proxy, )
                 )
                 user_data[user_id]["threads"][index].start()
                 messages.append(f"поток {index+1} запущен")

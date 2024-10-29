@@ -187,7 +187,7 @@ async def websocket_status_endpoint(
                 print("СОХРАНЯЮ")
                 print("Данные для сохранения 1:", ud["start"], ':', ud["skip"], len(ud["excel_result"]), "ПРОЦЕНТЫ:", int(ud["counter_parsered"] / ud["count_brands"] * 100))
                 fileData = (await crud.get_last_upload_files(user_id=payload.get("sub"), session=session))
-                await crud.saving_to_table_data(user_id=payload.get("sub"), session=session, data=ud["excel_result"][start:skip], file_id=fileData.id)
+                await crud.saving_to_table_data(user_id=payload.get("sub"), session=session, data=ud["excel_result"][ud["start"]:ud["skip"]], file_id=fileData.id)
                 print("Данные для сохранения 2:", ud["start"], ':', ud["skip"], len(ud["excel_result"]), "ПРОЦЕНТЫ:", int(ud["counter_parsered"] / ud["count_brands"] * 100))
             
             if ud["status"] in (

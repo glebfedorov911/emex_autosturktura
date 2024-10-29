@@ -1,10 +1,13 @@
 from fastapi import HTTPException, status
+from fastapi.responses import FileResponse
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.engine import Result
 from sqlalchemy import select
 
 from app.core.models import File
+from app.core.config import settings
+from . import crud
 
 import os
 import pandas as pd
@@ -36,7 +39,7 @@ def check_same(file):
         return False
 
 def check_has_last_file_after_parsing(last_file):
-    if last_file.after_parsing_filename is None:
+    if not last_file.is_after_parsing:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Последний файл еще не спаршен"

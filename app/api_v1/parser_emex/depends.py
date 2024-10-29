@@ -66,8 +66,8 @@ async def check_payload(access_token):
 async def check_after_parsing_file(session: AsyncSession, user_id: int):
     stmt = select(File).where(File.user_id == user_id)
     result: Result = await session.execute(stmt)
-    # print(result.scalars().all()[-1].after_parsing_filename)
-    return result.scalars().all()[-1].after_parsing_filename is None
+    data = result.scalars().all()
+    return data[-1].is_after_parsing if data != [] else False
 
 class ProxyException(Exception):
     def __init__(self, message):

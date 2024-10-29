@@ -11,6 +11,7 @@ class ParserCreate(BaseModel):
     # price_with_logo: str | None = None
     # user_id: int
     # file_id: int
+    good_code: str
     article: str
     name: str
     brand: str
@@ -18,8 +19,9 @@ class ParserCreate(BaseModel):
     quantity: str
     price: str
     batch: str
-    nds: str
     best_price: str
+    best_price_without_nds: str
+    best_price_with_nds: str
     logo: str
     delivery_time: str
     new_price: str | None = None

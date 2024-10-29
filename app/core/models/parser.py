@@ -18,6 +18,7 @@ if TYPE_CHECKING:
 
 
 class Parser(Base):
+    good_code: Mapped[str]
     article: Mapped[str]
     name: Mapped[str]
     brand: Mapped[str]
@@ -25,12 +26,12 @@ class Parser(Base):
     quantity: Mapped[str]
     price: Mapped[str]
     batch: Mapped[str]
-    nds: Mapped[str]
     best_price: Mapped[str]
+    best_price_without_nds: Mapped[str]
+    best_price_with_nds: Mapped[str]
     logo: Mapped[str]
     delivery_time: Mapped[str]
     new_price: Mapped[str] = mapped_column(nullable=True, default=None)
-    after_vat_price: Mapped[str] = mapped_column(nullable=True, default=None)
     quantity1: Mapped[str]
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)
     user = relationship("User", back_populates="parsers")

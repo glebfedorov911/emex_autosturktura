@@ -15,7 +15,10 @@ if TYPE_CHECKING:
 
 class File(Base):
     before_parsing_filename: Mapped[str]
-    after_parsing_filename: Mapped[str] = mapped_column(nullable=True)
+    is_after_parsing: Mapped[bool] = mapped_column(nullable=True, default=False)
+    filename_after_parsing: Mapped[str] = mapped_column(nullable=True)
+    filename_after_parsing_without_nds: Mapped[str] = mapped_column(nullable=True)
+    filename_after_parsing_with_nds: Mapped[str] = mapped_column(nullable=True)
     date: Mapped[datetime] = mapped_column(default=datetime.now)
     finish_date: Mapped[datetime] = mapped_column(nullable=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)

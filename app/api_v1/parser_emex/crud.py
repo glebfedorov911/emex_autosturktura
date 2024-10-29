@@ -47,26 +47,43 @@ async def get_last_upload_files(user_id: int, session: AsyncSession):
         # )
         return None
 
-    if files[-1].after_parsing_filename != None or files[-1].after_parsing_filename != None:
+    if files[-1].is_after_parsing:
         # raise HTTPException(
         #     status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
         #     detail="Данный файл уже спаршен"
         # )
         return None
-
+    print('я дошел сюда')
     return files[-1]
 
-async def saving_to_table_data(user_id: int, session: AsyncSession, data: list, filename: str):
-    stmt = select(File.id).where(File.after_parsing_filename==filename)
-    result: Result = await session.execute(stmt)
-    file_id = result.scalar()
+def price_without_nds(best_price, price_site):
+    if best_price == 0:
+        return 0
+    price_company = int(float(price_site) * 1.07)
+    price_from_site = int(best_price)
+    return price_from_site - 1 if price_company < price_from_site else price_company
+
+def price_with_nds(best_price, price_site):
+    if best_price == 0:
+        return 0
+    price_company = int(float(price_site) * 1.27)
+    price_from_site = int(best_price)
+    return price_from_site - 1 if price_company < price_from_site else price_company
+
+async def saving_to_table_data(user_id: int, session: AsyncSession, data: list, file_id: int):
     for value in data:
-        if len(value) == 13:
-            parser_in = ParserCreate(article=str(value[0]), name=str(value[1]), brand=str(value[2]), article1=str(value[3]), quantity=str(value[4]), price=str(value[5]), batch=str(value[6]), nds=str(value[7]),
-            logo=str(value[8]), delivery_time=str(value[9]), best_price=str(value[10]), quantity1=str(value[11]), new_price=str(value[12]), user_id=user_id, file_id=file_id)
+        if len(value) == 14:
+            parser_in = ParserCreate(good_code=str(value[0]), article=str(value[1]), name=str(value[2]), brand=str(value[3]), article1=str(value[4]), quantity=str(value[5]), 
+                price=str(value[6]), batch=str(value[8]),
+                logo=str(value[9]), delivery_time=str(value[10]), best_price=str(value[11]), 
+                best_price_without_nds=str(price_without_nds(value[11], value[6])), best_price_with_nds=str(price_with_nds(value[11], value[6])), 
+                quantity1=str(value[12]), new_price=str(value[13]), user_id=user_id, file_id=file_id)
         else:
-            parser_in = ParserCreate(article=str(value[0]), name=str(value[1]), brand=str(value[2]), article1=str(value[3]), quantity=str(value[4]), price=str(value[5]), batch=str(value[6]), nds=str(value[7]),
-            logo=str(value[8]), delivery_time=str(value[9]), best_price=str(value[10]), quantity1=str(value[11]), user_id=user_id, file_id=file_id)
+            parser_in = ParserCreate(good_code=str(value[0]), article=str(value[1]), name=str(value[2]), brand=str(value[3]), article1=str(value[4]), quantity=str(value[5]), 
+                price=str(value[6]), batch=str(value[8]),
+                logo=str(value[9]), delivery_time=str(value[10]), best_price=str(value[11]), 
+                best_price_without_nds=str(price_without_nds(value[11], value[6])), best_price_with_nds=str(price_with_nds(value[11], value[6])), 
+                quantity1=str(value[12]), user_id=user_id, file_id=file_id)
         parser = Parser(**parser_in.model_dump())
         session.add(parser)
     await session.commit()
@@ -78,9 +95,12 @@ async def get_title_filter(session: AsyncSession, filter_id_global: int):
     result: Result = await session.execute(stmt)
     return result.scalars().all()[0]
 
-async def add_final_file_to_table(user_id: int, session: AsyncSession, result_name: str, filter_id_global: int):
+async def add_final_file_to_table(user_id: int, session: AsyncSession, filter_id_global: int):
     file = await get_last_upload_files(user_id=user_id, session=session)
-    file.after_parsing_filename = result_name
+    file.is_after_parsing = True
+    file.filename_after_parsing_with_nds = f"ПОСЛЕ_ПАРСИНГА_С_НДС_{file.before_parsing_filename}"
+    file.filename_after_parsing_without_nds = f"ПОСЛЕ_ПАРСИНГА_БЕЗ_НДС_{file.before_parsing_filename}"
+    file.filename_after_parsing = f"ПОСЛЕ_ПАРСИНГА_{file.before_parsing_filename}"
     file.finish_date = datetime.now()
     file.new_filter_id = await get_title_filter(session=session, filter_id_global=filter_id_global)
     await session.commit()

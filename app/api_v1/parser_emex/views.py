@@ -181,42 +181,21 @@ async def websocket_status_endpoint(
                         user_data[payload.get("sub")]["events"][i].clear()
                 except:
                     pass
-                # print("jfdsjfdsjfsdjfsdj")
                 try:
                     print("зашли в try") 
                     if "saving" in user_data[payload.get("sub")]:
                         del user_data[payload.get("sub")]["saving"]
                     user_data[payload.get("sub")]["all_break"] = True
-                    file_name_last = (await crud.get_last_upload_files(user_id=payload.get("sub"), session=session)).before_parsing_filename
-                    print("получили прошлый файл", file_name_last) 
-                    result_file_name = f"{file_name_last.split('.')[0]}_после_парсинга_{random.randint(1, 10000000000000000)}.xlsx"
-                    print("зашли в создали имя файла") 
-                    # print('1')
-                    df = pd.DataFrame(ud["excel_result"], columns=user_data[payload.get("sub")]['columns'])
-                    await crud.add_final_file_to_table(
-                        user_id=payload.get("sub"),
-                        session=session,
-                        result_name=result_file_name,
-                        filter_id_global=ud["filter_id"],
-                    )
-                    print("сохранили в бд") 
-                    df.to_excel(
-                        str(settings.upload.path_for_upload) + "/" + result_file_name,
-                        index=False,
-                    )
-                    # print('2')
-                    print("сохранили в excel") 
-                    await edit_file(str(settings.upload.path_for_upload) + "/" + result_file_name, ["K", "J", "L", "M", "F"])
+                    fileData = (await crud.get_last_upload_files(user_id=payload.get("sub"), session=session))
+                    await crud.add_final_file_to_table(user_id=payload.get("sub"), session=session, filter_id_global=user_data[payload.get("sub")]["filter_id"])
                     await crud.saving_to_table_data(
-                        user_id=payload.get("sub"), session=session, data=ud["excel_result"], filename=result_file_name
+                        user_id=payload.get("sub"), session=session, data=ud["excel_result"], file_id=fileData.id
                     )
                     await crud.set_parsing(session=session, status=False, user_id=payload.get("sub"))
                     print("сохранили данные") 
-                    # print('3')
                     user_data[payload.get("sub")]["threads"] = [None] * count_of_threadings
-                    # print('сохранилось')
-                    print("финал")
                     user_data[payload.get("sub")]['ban_list'] = []
+                    user_data[payload.get("sub")]['status'] = "PARSER_NOT_STARTED_DATA_SAVED"
                     user_data[payload.get("sub")]['excel_result'] = []
                     user_data[payload.get("sub")]['counter_parsered'] = 0
                 except Exception as e:
@@ -249,10 +228,10 @@ async def websocket_status_endpoint(
             await asyncio.sleep(3)
     except WebSocketDisconnect:
         await websocket.close()
-    except Exception as e:
-        print("-="*20)
-        print("sfdlkksfdklsdf")
-        print(e)
+    # except Exception as e:
+    #     print("-="*20)
+    #     print("sfdlkksfdklsdf")
+    #     print(e)
 
 
 @router.get("/start/{filter_id}")
@@ -275,7 +254,8 @@ async def start(
         # ), "JFJFSDJFJDSJSFDJFJ")
         files = (
             await crud.get_last_upload_files(user_id=user_id, session=session)
-        ).before_parsing_filename
+        )
+        files = files.before_parsing_filename
     except Exception as e:
         print("-="*20)
         print(e)

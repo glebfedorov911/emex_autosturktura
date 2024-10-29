@@ -1,8 +1,8 @@
 """init
 
-Revision ID: 39d6615aae95
+Revision ID: b8401c08230a
 Revises: 
-Create Date: 2024-09-25 20:13:25.792593
+Create Date: 2024-10-29 18:45:46.366141
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '39d6615aae95'
+revision: str = 'b8401c08230a'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -33,7 +33,10 @@ def upgrade() -> None:
     )
     op.create_table('files',
     sa.Column('before_parsing_filename', sa.String(), nullable=False),
-    sa.Column('after_parsing_filename', sa.String(), nullable=True),
+    sa.Column('is_after_parsing', sa.Boolean(), nullable=True),
+    sa.Column('filename_after_parsing', sa.String(), nullable=True),
+    sa.Column('filename_after_parsing_without_nds', sa.String(), nullable=True),
+    sa.Column('filename_after_parsing_with_nds', sa.String(), nullable=True),
     sa.Column('date', sa.DateTime(), nullable=False),
     sa.Column('finish_date', sa.DateTime(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
@@ -46,6 +49,7 @@ def upgrade() -> None:
     sa.Column('deep_filter', sa.Integer(), nullable=True),
     sa.Column('deep_analog', sa.Integer(), nullable=True),
     sa.Column('analog', sa.Boolean(), nullable=False),
+    sa.Column('replacement', sa.Boolean(), nullable=True),
     sa.Column('title', sa.String(), nullable=True),
     sa.Column('is_bigger', sa.Boolean(), nullable=True),
     sa.Column('date', sa.Integer(), nullable=True),
@@ -71,6 +75,7 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('parsers',
+    sa.Column('good_code', sa.String(), nullable=False),
     sa.Column('article', sa.String(), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
     sa.Column('brand', sa.String(), nullable=False),
@@ -78,12 +83,12 @@ def upgrade() -> None:
     sa.Column('quantity', sa.String(), nullable=False),
     sa.Column('price', sa.String(), nullable=False),
     sa.Column('batch', sa.String(), nullable=False),
-    sa.Column('nds', sa.String(), nullable=False),
     sa.Column('best_price', sa.String(), nullable=False),
+    sa.Column('best_price_without_nds', sa.String(), nullable=False),
+    sa.Column('best_price_with_nds', sa.String(), nullable=False),
     sa.Column('logo', sa.String(), nullable=False),
     sa.Column('delivery_time', sa.String(), nullable=False),
     sa.Column('new_price', sa.String(), nullable=True),
-    sa.Column('after_vat_price', sa.String(), nullable=True),
     sa.Column('quantity1', sa.String(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('file_id', sa.Integer(), nullable=True),

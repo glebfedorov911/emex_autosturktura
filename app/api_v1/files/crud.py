@@ -1,12 +1,17 @@
 from fastapi import HTTPException, status
+from fastapi.responses import FileResponse
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.engine import Result
 from sqlalchemy import select
 
-from app.core.models import File
+from app.core.models import File, Parser
+from app.core.config import settings
 from .schemas import FilesCreate
-from .depends import get_files, zero_files
+from .depends import get_files, zero_files, check_has_last_file_after_parsing
+
+import pandas as pd
+import os
 
 
 async def create_file_in_db(session: AsyncSession, user_id: int, filename: str):
@@ -33,3 +38,31 @@ async def get_files_by_id(session: AsyncSession, file_id: int):
     zero_files(files)
 
     return files[0]
+
+async def getDataForCreateFile(session: AsyncSession, file_id: int, nds: bool = None):
+    stmt = select(Parser).where(Parser.file_id==file_id)
+    result: Result = await session.execute(stmt)
+    dataFromParsing = result.scalars().all()
+    columns = ["Код товара", "Артикул", "Наименование", "Брэнд", "Артикул", "Кол-во", "Цена", "Цена ABCP", "Партия", "Лого", "Доставка", "Лучшая цена", "Количество"]
+    if not dataFromParsing[0].new_price is None:
+        columns.append("Цена с лого")
+
+    if nds is None:
+        return columns, [[row.good_code, row.article, row.name, row.brand, row.article1, row.quantity, row.price, '', row.batch, row.logo, row.delivery_time, row.best_price, row.quantity1] for row in dataFromParsing]
+    if not nds:
+        return columns, [[row.good_code, row.article, row.name, row.brand, row.article1, row.quantity, row.price, '', row.batch, row.logo, row.delivery_time, row.best_price_without_nds, row.quantity1] for row in dataFromParsing]
+    else:
+        return columns, [[row.good_code, row.article, row.name, row.brand, row.article1, row.quantity, row.price, '', row.batch, row.logo, row.delivery_time, row.best_price_with_nds, row.quantity1] for row in dataFromParsing]
+
+async def create_file(session: AsyncSession, file_id: int, filestart: str, nds: bool = None):
+    filename = await get_files_by_id(session=session, file_id=file_id)
+    check_has_last_file_after_parsing(filename)
+    result_file_name = f"{filestart}_{filename.before_parsing_filename}"
+    if not os.path.exists(filepath := os.path.join(settings.upload.path_for_upload, result_file_name)):
+        headerFile, dataForCreatingFile = await getDataForCreateFile(session=session, file_id=file_id, nds=nds)
+        df = pd.DataFrame(dataForCreatingFile, columns=headerFile)
+        df.to_excel(
+            filepath,
+            index=False,
+        )
+    return FileResponse(path=filepath, filename=result_file_name)

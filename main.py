@@ -8,7 +8,8 @@ from app.core.config import settings
 import uvicorn
 
 
-app = FastAPI(openapi_url=settings.docs.docs_url)
+# app = FastAPI(openapi_url=settings.docs.docs_url)
+app = FastAPI()
 app.include_router(router=router)
 # test teeest
 origins = [

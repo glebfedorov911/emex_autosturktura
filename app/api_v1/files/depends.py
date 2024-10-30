@@ -9,6 +9,10 @@ from app.core.models import File
 from app.core.config import settings
 from . import crud
 
+from openpyxl import load_workbook
+from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.styles import NamedStyle
+
 import os
 import pandas as pd
 
@@ -44,3 +48,16 @@ def check_has_last_file_after_parsing(last_file):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Последний файл еще не спаршен"
         )
+
+async def edit_file(filepath: str, rows: list):
+    wb = load_workbook(filepath)
+    ws = wb.active
+
+    integer_style = NamedStyle(name="integer_style", number_format='0')
+
+    for row in rows:
+        for cell in ws[row]:  
+            if isinstance(cell.value, (int, float)):
+                cell.style = integer_style
+    
+    wb.save(filepath)

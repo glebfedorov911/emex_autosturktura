@@ -341,12 +341,13 @@ async def start(
 
 
 @router.get("/stop")
-async def stop(payload = Depends(get_payload)):
+async def stop(payload = Depends(get_payload), session: AsyncSession = Depends(db_helper.session_depends),):
     global user_data
 
     user_id = payload.get("sub")
     for index in range(count_of_threadings):
         user_data[user_id]["events"][index].set()
         user_data[user_id]["stop"][index] = True
+    await crud.set_parsing(session=session, status=False, user_id=payload.get("sub"))
 
     return JSONResponse(content="Парсер останавливается")

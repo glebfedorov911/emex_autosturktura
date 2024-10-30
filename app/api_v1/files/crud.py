@@ -8,7 +8,7 @@ from sqlalchemy import select
 from app.core.models import File, Parser
 from app.core.config import settings
 from .schemas import FilesCreate
-from .depends import get_files, zero_files, check_has_last_file_after_parsing
+from .depends import get_files, zero_files, check_has_last_file_after_parsing, edit_file
 
 import pandas as pd
 import os
@@ -65,4 +65,5 @@ async def create_file(session: AsyncSession, file_id: int, filestart: str, nds: 
             filepath,
             index=False,
         )
+        await edit_file(filepath, ["F", "I", "K", "L", "M"])
     return FileResponse(path=filepath, filename=result_file_name)

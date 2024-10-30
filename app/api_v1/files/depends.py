@@ -57,7 +57,8 @@ async def edit_file(filepath: str, rows: list):
 
     for row in rows:
         for cell in ws[row]:  
-            if isinstance(cell.value, (int, float)):
+            if cell.value.isdigit():
                 cell.style = integer_style
     
+    os.remove(filepath)
     wb.save(filepath)

@@ -17,10 +17,10 @@ async def show_data(session: AsyncSession, user_id: int, skip: int, limit: int, 
         stmt = select(File).where(File.filename_after_parsing==filename)
 
     result: Result = await session.execute(stmt)
-    file = result.scalar()
+    files = result.scalars().all()
 
     columns = [col for col in Parser.__table__.columns if col.name not in expectedColumns]
-    stmt = select(*columns).where(Parser.user_id==user_id).where(Parser.id==file.id)
+    stmt = select(*columns).where(Parser.user_id==user_id).where(Parser.file_id==files[-1].id)
     result: Result = await session.execute(stmt)
     all_data = result.fetchall()
 

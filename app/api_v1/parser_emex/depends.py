@@ -2,6 +2,7 @@ from math import ceil
 
 import pandas as pd
 import urllib.parse as up
+import aiofiles
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.engine import Result
@@ -69,6 +70,11 @@ async def check_after_parsing_file(session: AsyncSession, user_id: int):
     data = result.scalars().all()
     return data[-1].is_after_parsing if data != [] else False
 
+async def create_empty_json(filepath: str):
+    async with aiofiles.open(filepath, mode='w', encoding='utf-8') as f:
+        await f.write('{}')
+
 class ProxyException(Exception):
     def __init__(self, message):
         super().__init__(message)
+

@@ -9,7 +9,7 @@ from fastapi import (
     Header
 )
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -28,6 +28,7 @@ from .depends import *
 import asyncio
 import time
 import random
+import os
 import pandas as pd
 import threading
 
@@ -270,6 +271,7 @@ async def start(
     global user_data
     
 
+    await create_empty_json(os.path.join(settings.upload.path_for_upload, f"{payload.get("sub")}_parsing.json"))
     messages = []
     user_id = payload.get("sub")
     filter = await crud.get_filter(
@@ -351,3 +353,10 @@ async def stop(payload = Depends(get_payload), session: AsyncSession = Depends(d
     await crud.set_parsing(session=session, status=False, user_id=payload.get("sub"))
 
     return JSONResponse(content="Парсер останавливается")
+
+@router.get("/get_rezerv")
+async def get_rezerv(payload = Depends(get_payload)):
+    try:
+        return FileResponse(os.path.join(settings.upload.path_for_upload, f"{payload.get("sub")}_parsing.json"))
+    except:
+        return "Нет файла"

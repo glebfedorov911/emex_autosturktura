@@ -8,7 +8,9 @@ import requests
 import aiohttp
 import threading
 import os
+import aiofiles
 
+from app.core.config import settings
 from .depends import *
 
 from playwright.async_api import async_playwright
@@ -38,6 +40,11 @@ USERAGENTS = [
 ]
 
 user_locks = {}
+
+async def rezerv_copy(filepath: str, data: dict):
+    async with aiofiles.open(filepath, mode='a', encoding='utf-8') as f:
+        json_data = json.dumps(data, ensure_ascii=False, indent=4)
+        await f.write(json_data)
 
 async def main(user_id, using_proxy):
     global user_data, user_locks
@@ -340,6 +347,23 @@ async def main(user_id, using_proxy):
                     result.append(0)
                 with user_locks[user_id]:
                     user_data[user_id]["excel_result"].append(result)
+                    saving_to_json = {
+                        "good_code": result[0],
+                        "article": result[1],
+                        "name": result[2],
+                        "brand": result[3],
+                        "article1": result[4],
+                        "quantity": result[5],
+                        "price": result[6],
+                        "abcpprice": result[7],
+                        "batch": result[8],
+                        "logo": result[9],
+                        "delivery_time": result[10],
+                        "best_price": result[11],
+                        "quantity1": result[12]
+                    }
+                    if len(result) > 13: saving_to_json["new_price"] = result[13]
+                    await rezerv_copy(os.path.join(settings.upload.path_for_upload, f"{user_id}_parsing.json"), saving_to_json)
                     user_data[user_id]["counter_parsered"] += 1
                 if user_locks[user_id].locked():
                     print(f"2. Поток {threading.current_thread().name} ожидает разблокировки")
@@ -400,6 +424,23 @@ async def main(user_id, using_proxy):
                         result.append(0)
                 with user_locks[user_id]:
                     user_data[user_id]["excel_result"].append(result)
+                    saving_to_json = {
+                        "good_code": result[0],
+                        "article": result[1],
+                        "name": result[2],
+                        "brand": result[3],
+                        "article1": result[4],
+                        "quantity": result[5],
+                        "price": result[6],
+                        "abcpprice": result[7],
+                        "batch": result[8],
+                        "logo": result[9],
+                        "delivery_time": result[10],
+                        "best_price": result[11],
+                        "quantity1": result[12]
+                    }
+                    if len(result) > 13: saving_to_json["new_price"] = result[13]
+                    await rezerv_copy(os.path.join(settings.upload.path_for_upload, f"{user_id}_parsing.json"), saving_to_json)
                     user_data[user_id]["counter_parsered"] += 1
                 if user_locks[user_id].locked():
                     print(f"3. Поток {threading.current_thread().name} ожидает разблокировки")

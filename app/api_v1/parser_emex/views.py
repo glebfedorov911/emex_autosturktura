@@ -271,7 +271,7 @@ async def start(
     global user_data
     
 
-    await create_empty_json(os.path.join(settings.upload.path_for_upload, f"{payload.get("sub")}_parsing.json"))
+    await create_empty_json(os.path.join(settings.upload.path_for_upload, f"{payload.get('sub')}_parsing.json"))
     messages = []
     user_id = payload.get("sub")
     filter = await crud.get_filter(

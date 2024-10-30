@@ -65,5 +65,5 @@ async def create_file(session: AsyncSession, file_id: int, filestart: str, nds: 
             filepath,
             index=False,
         )
-        await edit_file(filepath, ["F", "I", "K", "L", "M"])
+        await edit_file(filepath, ["F"])
     return FileResponse(path=filepath, filename=result_file_name)

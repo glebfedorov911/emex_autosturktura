@@ -8,6 +8,9 @@ from app.api_v1.utils.depends import get_shablon as gs
 from app.core.config import settings
 from . import crud
 
+import requests
+import json
+
 
 router = APIRouter(prefix="/proxies", tags=["Proxies2"])
 
@@ -43,3 +46,9 @@ async def buy_proxy(payload = Depends(get_payload), count: int = 1, duration: in
 @router.get("/prolong_proxy")
 async def prolong_proxy(payload = Depends(get_payload), count: int = 1, duration: int = 30, date: str = "1970-01-01T00:00:00", session: AsyncSession = Depends(db_helper.session_depends)):
     return await crud.prolong_proxy(session=session, count=count, user_id=payload.get("sub"), duration=duration, date=date)
+
+@router.get("/get_balance_bright_data")
+async def get_balance_bright_data():
+    headers = {'Authorization': f'Bearer {settings.proxy.BRIGHT_DATA_TOKEN}'}
+    r = requests.get('https://api.brightdata.com/customer/balance', headers=headers)
+    return json.loads(r.content)

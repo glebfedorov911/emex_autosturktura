@@ -21,6 +21,7 @@ class Proxy(BaseModel):
     API_KEY: str = os.getenv("API_TOKEN")
     URL: str = "https://proxy6.net/api/"
     path_for_upload: str = BASE_DIR / "forProxy"
+    BRIGHT_DATA_TOKEN: str = os.getenv("BRIGHT_DATA_TOKEN")
 
 class Auth(BaseModel):
     private_key: Path = BASE_DIR / "certs" / "jwt-private.pem"

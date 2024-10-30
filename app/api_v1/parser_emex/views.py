@@ -181,6 +181,7 @@ async def websocket_status_endpoint(
                 ud["status"] = "PARSER_RUNNING"
                 ud["saving"] = True
 
+            print("EXCEL_RESULT:", len(ud["excel_result"]))
             if (limit := len(ud["excel_result"][ud["skip"]:])) >= 350:
                 ud["start"] = ud["skip"]
                 ud["skip"] += limit
@@ -189,7 +190,7 @@ async def websocket_status_endpoint(
                 fileData = (await crud.get_last_upload_files(user_id=payload.get("sub"), session=session))
                 await crud.saving_to_table_data(user_id=payload.get("sub"), session=session, data=ud["excel_result"][ud["start"]:ud["skip"]], file_id=fileData.id)
                 print("Данные для сохранения 2:", ud["start"], ':', ud["skip"], len(ud["excel_result"]), "ПРОЦЕНТЫ:", int(ud["counter_parsered"] / ud["count_brands"] * 100))
-            
+            print("EXCEL_RESULT2:", len(ud["excel_result"]))
             if ud["status"] in (
                 "ALL_PROXIES_BANNED",
                 "PARSING_COMPLETED"
@@ -215,7 +216,10 @@ async def websocket_status_endpoint(
                     user_data[payload.get("sub")]["threads"] = [None] * count_of_threadings
                     user_data[payload.get("sub")]['ban_list'] = []
                     user_data[payload.get("sub")]['status'] = "PARSER_NOT_STARTED_DATA_SAVED"
+                    print(user_data[payload.get("sub")]['status'])
+                    # user_data[payload.get("sub")]['flag'] = True
                     user_data[payload.get("sub")]['excel_result'] = []
+                    del user_data[payload.get("sub")]['brands']
                     user_data[payload.get("sub")]['counter_parsered'] = 0
                     ud["skip"] = 0
                     ud["start"] = 0
@@ -225,7 +229,8 @@ async def websocket_status_endpoint(
             if ud["status"] == "Парсер не запущен":
                 print("и тут я был")
                 if "brands" in ud:
-                    ud["status"] = "PARSING_COMPLETED"
+                    if int(ud["counter_parsered"] / ud["count_brands"] * 100) >= 100:
+                        ud["status"] = "PARSING_COMPLETED"
                     if len(ud["brands"]) != 0:
                         print(ud["brands"])
                         cnt = len(ud["brands"]) if len(ud["brands"]) < count_of_threadings else count_of_threadings
@@ -238,7 +243,7 @@ async def websocket_status_endpoint(
                             user_data[payload.get("sub")]["threads"][index].start()
                 if "stop" in ud:
                     for stop in user_data[payload.get("sub")]["stop"]:
-                        if user_data[payload.get("sub")]["stop"]:
+                        if stop:
                             ud["status"] = "Парсер не запущен"
                             user_data[payload.get("sub")]["all_break"] = True
                             user_data[payload.get("sub")]['ban_list'] = []

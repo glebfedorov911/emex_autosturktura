@@ -37,7 +37,7 @@ async def get_filter(session: AsyncSession, user_id: int, filter_id: int):
     return filter
 
 async def get_last_upload_files(user_id: int, session: AsyncSession):
-    stmt = select(File).where(File.user_id==user_id)
+    stmt = select(File).where(File.user_id==user_id).order_by(File.id)
     result: Result = await session.execute(stmt)
     files = result.scalars().all()
     if files == []:
@@ -53,7 +53,6 @@ async def get_last_upload_files(user_id: int, session: AsyncSession):
         #     detail="Данный файл уже спаршен"
         # )
         return None
-    print('я дошел сюда')
     return files[-1]
 
 def price_without_nds(best_price, price_site):

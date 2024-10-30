@@ -357,6 +357,6 @@ async def stop(payload = Depends(get_payload), session: AsyncSession = Depends(d
 @router.get("/get_rezerv")
 async def get_rezerv(payload = Depends(get_payload)):
     try:
-        return FileResponse(os.path.join(settings.upload.path_for_upload, f"{payload.get("sub")}_parsing.json"))
+        return FileResponse(os.path.join(settings.upload.path_for_upload, f"{payload.get('sub')}_parsing.json"))
     except:
         return "Нет файла"

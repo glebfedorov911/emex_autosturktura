@@ -254,10 +254,10 @@ async def websocket_status_endpoint(
             await asyncio.sleep(3)
     except WebSocketDisconnect:
         await websocket.close()
-    # except Exception as e:
-    #     print("-="*20)
-    #     print("sfdlkksfdklsdf")
-    #     print(e)
+    except Exception as e:
+        print("-="*20)
+        print("sfdlkksfdklsdf")
+        print(e)
 
 
 @router.get("/start/{filter_id}")

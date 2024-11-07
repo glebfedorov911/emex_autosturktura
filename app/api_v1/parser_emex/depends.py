@@ -72,7 +72,7 @@ async def check_after_parsing_file(session: AsyncSession, user_id: int):
 
 async def create_empty_json(filepath: str):
     async with aiofiles.open(filepath, mode='w', encoding='utf-8') as f:
-        await f.write('{}')
+        await f.write('')
 
 class ProxyException(Exception):
     def __init__(self, message):

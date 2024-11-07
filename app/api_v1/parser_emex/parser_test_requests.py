@@ -62,7 +62,7 @@ async def main(user_id, using_proxy):
     user_data[user_id]["all_break"] = False
     # user_data[user_id]["columns"] = ["Артикул", "Наименование", "Брэнд", "Артикул", "Кол-во", "Цена", "Партия", "НДС", "Лого", "Доставка", "Лучшая цена", "Количество",]
     user_data[user_id]["columns"] = ["Код товара", "Артикул", "Наименование", "Брэнд", "Артикул", "Кол-во", "Цена", "Цена ABCP", "Партия", "Лого", "Доставка", "Лучшая цена", "Количество",]
-
+    t = 0
     if LOGO and "Цена с лого" not in user_data[user_id]["columns"]:
         user_data[user_id]["columns"].append("Цена с лого")
 
@@ -126,6 +126,7 @@ async def main(user_id, using_proxy):
                 async with aiohttp.ClientSession() as session:
                     async with session.get(url, proxy=proxies, timeout=3, headers=headers) as resp:
                         response = await resp.json()
+            t = 1
             originals = []
 
             if IS_BIGGER is None:
@@ -396,7 +397,7 @@ async def main(user_id, using_proxy):
                         async with session.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=3, proxy=proxies, headers=headers) as resp:
                             response_with_logo = await resp.json()
                 await asyncio.sleep(0.2)    
-                
+                t = 2
                 price_logo = response_with_logo["priceLogo"]
 
                 result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], brand[8], price_logo, *best_data[1:],]
@@ -406,7 +407,7 @@ async def main(user_id, using_proxy):
                     for data in sorted_by_price:
                         try:
                             async with aiohttp.ClientSession() as session:
-                                async with session.get(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=4, proxy=proxies, headers=headers) as resp:
+                                async with session.get(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=8, proxy=proxies, headers=headers) as resp:
                                     response_with_logo = await resp.json()
                         except:
                             async with aiohttp.ClientSession() as session:
@@ -422,6 +423,7 @@ async def main(user_id, using_proxy):
                         result.append(int(best_data[2]))
                     else:
                         result.append(0)
+                    t = 3
                 with user_locks[user_id]:
                     user_data[user_id]["excel_result"].append(result)
                     saving_to_json = {
@@ -454,7 +456,7 @@ async def main(user_id, using_proxy):
                 raise ProxyException("Proxy Authentication Required")
 
             print("-="*20)
-            print("Общее исключение\nОшибка:", e, brand)
+            print("Общее исключение\nОшибка:", e, brand, t)
             print("-="*20)
             if user_locks[user_id].locked():
                 print(f"4. Поток {threading.current_thread().name} ожидает разблокировки")

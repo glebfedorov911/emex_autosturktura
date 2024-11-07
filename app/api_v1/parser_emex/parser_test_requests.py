@@ -120,11 +120,11 @@ async def main(user_id, using_proxy):
                 
             try:
                 async with aiohttp.ClientSession() as session:
-                    async with session.get(url, proxy=proxies, timeout=3, headers=headers) as resp:
+                    async with session.get(url, proxy=proxies, timeout=8, headers=headers) as resp:
                         response = await resp.json()
             except Exception as e:
                 async with aiohttp.ClientSession() as session:
-                    async with session.get(url, proxy=proxies, timeout=3, headers=headers) as resp:
+                    async with session.get(url, proxy=proxies, timeout=8, headers=headers) as resp:
                         response = await resp.json()
             t = 1
             originals = []
@@ -390,11 +390,11 @@ async def main(user_id, using_proxy):
 
                 try:
                     async with aiohttp.ClientSession() as session:
-                        async with session.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=3, proxy=proxies, headers=headers) as resp:
+                        async with session.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=8, proxy=proxies, headers=headers) as resp:
                             response_with_logo = await resp.json()
                 except:
                     async with aiohttp.ClientSession() as session:
-                        async with session.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=3, proxy=proxies, headers=headers) as resp:
+                        async with session.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=8, proxy=proxies, headers=headers) as resp:
                             response_with_logo = await resp.json()
                 await asyncio.sleep(0.2)    
                 t = 2
@@ -426,6 +426,7 @@ async def main(user_id, using_proxy):
                     t = 3
                 with user_locks[user_id]:
                     user_data[user_id]["excel_result"].append(result)
+                    t = 4
                     saving_to_json = {
                         "good_code": result[0],
                         "article": result[1],
@@ -443,7 +444,9 @@ async def main(user_id, using_proxy):
                     }
                     if len(result) > 13: saving_to_json["new_price"] = result[13]
                     await rezerv_copy(os.path.join(settings.upload.path_for_upload, f"{user_id}_parsing.json"), saving_to_json)
+                    t = 5
                     user_data[user_id]["counter_parsered"] += 1
+                    t = 6
                 if user_locks[user_id].locked():
                     print(f"3. Поток {threading.current_thread().name} ожидает разблокировки")
                 else:

@@ -414,9 +414,13 @@ async def main(user_id, using_proxy):
                                 async with session.get(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=timeout2, proxy=proxies, headers=headers) as resp:
                                     response_with_logo = await resp.json()
                         except:
-                            async with aiohttp.ClientSession() as session:
-                                async with session.get(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=timeout2, proxy=proxies, headers=headers) as resp:
-                                    response_with_logo = await resp.json()
+                            if using_proxy == "MANGO":
+                                async with aiohttp.ClientSession() as session:
+                                    async with session.get(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=timeout2, proxy=proxies, headers=headers) as resp:
+                                        response_with_logo = await resp.json()
+                            else:
+                                sorted_by_price.append(data)
+                                print("sorted len: ", len(sorted_by_price))
                         price_logo = response_with_logo["priceLogo"]
 
                         data[0] = price_logo

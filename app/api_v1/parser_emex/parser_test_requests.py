@@ -119,8 +119,8 @@ async def main(user_id, using_proxy):
                 timeout2 = 5
             elif using_proxy == "BRIGHTDATA":
                 proxies = os.getenv("BRIGHTDATAPROXY")
-                timeout1 = 25
-                timeout2 = 27
+                timeout1 = 15
+                timeout2 = 17
                 
             try:
                 async with aiohttp.ClientSession() as session:
@@ -423,6 +423,7 @@ async def main(user_id, using_proxy):
                         if price_logo == LOGO:
                             best_data = data
                             break
+                        await asyncio.sleep(0.2)
                     if best_data:
                         result.append(int(best_data[2]))
                     else:

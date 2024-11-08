@@ -423,7 +423,7 @@ async def main(user_id, using_proxy):
                         if price_logo == LOGO:
                             best_data = data
                             break
-                        await asyncio.sleep(0.2)
+                        await asyncio.sleep(0.7)
                     if best_data:
                         result.append(int(best_data[2]))
                     else:

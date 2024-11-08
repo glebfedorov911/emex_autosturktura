@@ -115,16 +115,20 @@ async def main(user_id, using_proxy):
 
             if using_proxy == "MANGO":
                 proxies = os.getenv("MANGOPROXY")
+                timeout1 = 3
+                timeout2 = 5
             elif using_proxy == "BRIGHTDATA":
                 proxies = os.getenv("BRIGHTDATAPROXY")
+                timeout1 = 10
+                timeout2 = 12
                 
             try:
                 async with aiohttp.ClientSession() as session:
-                    async with session.get(url, proxy=proxies, timeout=3, headers=headers) as resp:
+                    async with session.get(url, proxy=proxies, timeout=timeout1, headers=headers) as resp:
                         response = await resp.json()
             except Exception as e:
                 async with aiohttp.ClientSession() as session:
-                    async with session.get(url, proxy=proxies, timeout=3, headers=headers) as resp:
+                    async with session.get(url, proxy=proxies, timeout=timeout1, headers=headers) as resp:
                         response = await resp.json()
             t = 1
             originals = []
@@ -390,11 +394,11 @@ async def main(user_id, using_proxy):
 
                 try:
                     async with aiohttp.ClientSession() as session:
-                        async with session.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=3, proxy=proxies, headers=headers) as resp:
+                        async with session.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=timeout1, proxy=proxies, headers=headers) as resp:
                             response_with_logo = await resp.json()
                 except:
                     async with aiohttp.ClientSession() as session:
-                        async with session.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=3, proxy=proxies, headers=headers) as resp:
+                        async with session.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=timeout1, proxy=proxies, headers=headers) as resp:
                             response_with_logo = await resp.json()
                 await asyncio.sleep(0.2)    
                 t = 2
@@ -407,11 +411,11 @@ async def main(user_id, using_proxy):
                     for data in sorted_by_price:
                         try:
                             async with aiohttp.ClientSession() as session:
-                                async with session.get(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=5, proxy=proxies, headers=headers) as resp:
+                                async with session.get(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=timeout2, proxy=proxies, headers=headers) as resp:
                                     response_with_logo = await resp.json()
                         except:
                             async with aiohttp.ClientSession() as session:
-                                async with session.get(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=5, proxy=proxies, headers=headers) as resp:
+                                async with session.get(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=timeout2, proxy=proxies, headers=headers) as resp:
                                     response_with_logo = await resp.json()
                         price_logo = response_with_logo["priceLogo"]
 

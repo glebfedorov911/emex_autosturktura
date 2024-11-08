@@ -119,8 +119,8 @@ async def main(user_id, using_proxy):
                 timeout2 = 5
             elif using_proxy == "BRIGHTDATA":
                 proxies = os.getenv("BRIGHTDATAPROXY")
-                timeout1 = 10
-                timeout2 = 12
+                timeout1 = 25
+                timeout2 = 27
                 
             try:
                 async with aiohttp.ClientSession() as session:

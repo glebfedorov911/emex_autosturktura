@@ -411,11 +411,11 @@ async def main(user_id, using_proxy):
                     for data in sorted_by_price:
                         try:
                             async with aiohttp.ClientSession() as session:
-                                async with session.get(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=timeout2, proxy=proxies, headers=headers) as resp:
+                                async with session.get(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=timeout2, http_version="2.0", proxy=proxies, headers=headers) as resp:
                                     response_with_logo = await resp.json()
                         except:
                             async with aiohttp.ClientSession() as session:
-                                async with session.get(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=timeout2, proxy=proxies, headers=headers) as resp:
+                                async with session.get(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=timeout2, http_version="2.0", proxy=proxies, headers=headers) as resp:
                                     response_with_logo = await resp.json()
                         price_logo = response_with_logo["priceLogo"]
 

@@ -52,6 +52,7 @@ async def main(user_id, using_proxy):
 
     DEEP_FILTER = user_data[user_id]["filter"].deep_filter
     DEEP_ANALOG = user_data[user_id]["filter"].deep_analog
+    ONLY_FIRST_LOGO = user_data[user_id]["filter"].only_first_logo
     ANALOG = user_data[user_id]["filter"].analog
     REPLACEMENT = user_data[user_id]["filter"].replacement
     IS_BIGGER = user_data[user_id]["filter"].is_bigger 
@@ -395,44 +396,64 @@ async def main(user_id, using_proxy):
                         best_data[idx] = int(best_data[idx])
                     except:
                         pass
-
-                try:
-                    async with aiohttp.ClientSession() as session:
-                        async with session.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=timeout1, proxy=proxies, headers=headers) as resp:
-                            response_with_logo = await resp.json()
-                except:
-                    async with aiohttp.ClientSession() as session:
-                        async with session.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=timeout1, proxy=proxies, headers=headers) as resp:
-                            response_with_logo = await resp.json()
-                await asyncio.sleep(0.2)    
-                t = 2
-                price_logo = response_with_logo["priceLogo"]
-
-                result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], brand[8], price_logo, *best_data[1:],]
-                if LOGO:
-                    best_data = None
-                    sorted_by_price = quick_sort(originals, 2)[:10]
-                    for data in sorted_by_price:
+                
+                if ONLY_FIRST_LOGO:
+                    first_second_goods = sorted_by_price[:2]
+                    price_with_logo = 0
+                    result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], brand[8], 0, 0, 0, 0, 0]
+                    for good in first_second_goods:
                         try:
                             async with aiohttp.ClientSession() as session:
-                                async with session.get(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=timeout2, proxy=proxies, headers=headers) as resp:
+                                async with session.get(f"https://emex.ru/api/search/rating?offerKey={good[0]}", timeout=timeout1, proxy=proxies, headers=headers) as resp:
                                     response_with_logo = await resp.json()
                         except:
                             async with aiohttp.ClientSession() as session:
-                                async with session.get(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=timeout2, proxy=proxies, headers=headers) as resp:
+                                async with session.get(f"https://emex.ru/api/search/rating?offerKey={good[0]}", timeout=timeout1, proxy=proxies, headers=headers) as resp:
                                     response_with_logo = await resp.json()
-                        price_logo = response_with_logo["priceLogo"]
-
-                        data[0] = price_logo
-                        if price_logo == LOGO:
-                            best_data = data
+                        
+                        if response_with_logo != LOGO:
+                            result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], brand[8], response_with_logo, *good[1:], price_with_logo]
                             break
-                        await asyncio.sleep(timeout3)
-                    if best_data:
-                        result.append(int(best_data[2]))
-                    else:
-                        result.append(0)
-                    t = 3
+                        else:
+                            price_with_logo = good[2]
+                else:
+                    try:
+                        async with aiohttp.ClientSession() as session:
+                            async with session.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=timeout1, proxy=proxies, headers=headers) as resp:
+                                response_with_logo = await resp.json()
+                    except:
+                        async with aiohttp.ClientSession() as session:
+                            async with session.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=timeout1, proxy=proxies, headers=headers) as resp:
+                                response_with_logo = await resp.json()
+                    await asyncio.sleep(0.2)    
+                    t = 2
+                    price_logo = response_with_logo["priceLogo"]
+
+                    result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], brand[8], price_logo, *best_data[1:],]
+                    if LOGO:
+                        best_data = None
+                        sorted_by_price = quick_sort(originals, 2)[:10]
+                        for data in sorted_by_price:
+                            try:
+                                async with aiohttp.ClientSession() as session:
+                                    async with session.get(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=timeout2, proxy=proxies, headers=headers) as resp:
+                                        response_with_logo = await resp.json()
+                            except:
+                                async with aiohttp.ClientSession() as session:
+                                    async with session.get(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=timeout2, proxy=proxies, headers=headers) as resp:
+                                        response_with_logo = await resp.json()
+                            price_logo = response_with_logo["priceLogo"]
+
+                            data[0] = price_logo
+                            if price_logo == LOGO:
+                                best_data = data
+                                break
+                            await asyncio.sleep(timeout3)
+                        if best_data:
+                            result.append(int(best_data[2]))
+                        else:
+                            result.append(0)
+                        t = 3
                 with user_locks[user_id]:
                     user_data[user_id]["excel_result"].append(result)
                     t = 4

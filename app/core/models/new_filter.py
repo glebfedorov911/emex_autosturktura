@@ -12,6 +12,7 @@ if TYPE_CHECKING:
 class NewFilter(Base):
     deep_filter: Mapped[int] = mapped_column(default=10, nullable=True)
     deep_analog: Mapped[int] = mapped_column(default=10, nullable=True)
+    only_first_logo: Mapped[bool] = mapped_column(default=False, nullable=True)
     analog: Mapped[bool] = mapped_column(default=False)
     replacement: Mapped[bool] = mapped_column(default=False, nullable=True)
     title: Mapped[str] = mapped_column(nullable=True)

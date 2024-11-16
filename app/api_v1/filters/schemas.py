@@ -2,6 +2,7 @@ from pydantic import BaseModel
 
 
 class FilterCreate(BaseModel):
+    only_first_logo: bool | None = False
     deep_filter: int | None = 10
     deep_analog: int | None = 10
     analog: bool
@@ -14,6 +15,7 @@ class FilterCreate(BaseModel):
 
 
 class FilterUpdate(BaseModel):
+    only_first_logo: bool | None = None
     deep_filter: int | None = None
     deep_analog: int | None = None
     analog: bool | None = None

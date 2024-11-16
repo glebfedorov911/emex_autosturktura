@@ -78,3 +78,7 @@ async def get_files(session: AsyncSession = Depends(db_helper.session_depends), 
 @router.get("/get_shablon")
 async def get_shablon():
     return await gs(settings.upload.path_for_upload)
+
+@router.delete("/delete_files")
+async def delete_file(file_ids: list[int], payload = Depends(get_payload), session: AsyncSession = Depends(db_helper.session_depends)):
+    return await crud.delete_files(session=session, user_id=payload.get("sub"), file_ids=file_ids)

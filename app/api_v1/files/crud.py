@@ -39,6 +39,11 @@ async def get_files_by_id(session: AsyncSession, file_id: int):
 
     return files[0]
 
+async def get_file_by_ids(session: AsyncSession, file_ids: list[int]):
+    stmt = select(File).where(File.id.in_(file_ids))
+    result: Result = await session.execute(stmt)
+    return result.scalars().all()
+
 async def getDataForCreateFile(session: AsyncSession, file_id: int, nds: bool = None):
     stmt = select(Parser).where(Parser.file_id==file_id)
     result: Result = await session.execute(stmt)
@@ -67,3 +72,19 @@ async def create_file(session: AsyncSession, file_id: int, filestart: str, nds: 
         )
         await edit_file(filepath, ["F", "G", "I", "J", "K", "L", "M", "N"])
     return FileResponse(path=filepath, filename=result_file_name)
+
+async def delete_files(session: AsyncSession, user_id: int, file_ids: list[int]):
+    files = await get_file_by_ids(session=session, file_ids=file_ids)
+    for file in files:
+        if file.before_parsing_filename and os.path.exists(os.path.join(settings.upload.path_for_upload, file.before_parsing_filename)):
+            os.remove(os.path.join(settings.upload.path_for_upload, file.before_parsing_filename))
+        if file.filename_after_parsing and os.path.exists(os.path.join(settings.upload.path_for_upload, file.filename_after_parsing)):
+            os.remove(os.path.join(settings.upload.path_for_upload, file.filename_after_parsing))
+        if file.filename_after_parsing_with_nds and os.path.exists(os.path.join(settings.upload.path_for_upload, file.filename_after_parsing_with_nds)):
+            os.remove(os.path.join(settings.upload.path_for_upload, file.filename_after_parsing_with_nds))
+        if file.filename_after_parsing_without_nds and os.path.exists(os.path.join(settings.upload.path_for_upload, file.filename_after_parsing_without_nds)):
+            os.remove(os.path.join(settings.upload.path_for_upload, file.filename_after_parsing_without_nds))
+        await session.delete(file)
+    await session.commit()
+
+    return await get_files(session=session, user_id=user_id)

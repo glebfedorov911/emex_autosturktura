@@ -51,13 +51,18 @@ async def getDataForCreateFile(session: AsyncSession, file_id: int, nds: bool = 
     columns = ["Код товара", "Артикул", "Наименование", "Брэнд", "Артикул", "Кол-во", "Цена", "Цена ABCP", "Партия", "Лого", "Доставка", "Лучшая цена", "Количество"]
     if not dataFromParsing[0].new_price is None:
         columns.append("Цена с лого")
-
     if nds is None:
-        return columns, [[row.good_code, row.article, row.name, row.brand, row.article1, row.quantity, row.price, '', row.batch, row.logo, row.delivery_time, row.best_price, row.quantity1] for row in dataFromParsing]
+        if dataFromParsing[0].new_price:
+            return columns, [[row.good_code, row.article, row.name, row.brand, row.article1, row.quantity, row.price, row.abcp_price, row.batch, row.logo, row.delivery_time, row.best_price, row.quantity1, row.new_price] for row in dataFromParsing]
+        return columns, [[row.good_code, row.article, row.name, row.brand, row.article1, row.quantity, row.price, row.abcp_price, row.batch, row.logo, row.delivery_time, row.best_price, row.quantity1] for row in dataFromParsing]
     if not nds:
-        return columns, [[row.good_code, row.article, row.name, row.brand, row.article1, row.quantity, row.price, '', row.batch, row.logo, row.delivery_time, row.best_price_without_nds, row.quantity1] for row in dataFromParsing]
+        if dataFromParsing[0].new_price:
+            return columns, [[row.good_code, row.article, row.name, row.brand, row.article1, row.quantity, row.price, row.abcp_price, row.batch, row.logo, row.delivery_time, row.best_price_without_nds, row.quantity1, row.new_price] for row in dataFromParsing]
+        return columns, [[row.good_code, row.article, row.name, row.brand, row.article1, row.quantity, row.price, row.abcp_price, row.batch, row.logo, row.delivery_time, row.best_price_without_nds, row.quantity1] for row in dataFromParsing]
     else:
-        return columns, [[row.good_code, row.article, row.name, row.brand, row.article1, row.quantity, row.price, '', row.batch, row.logo, row.delivery_time, row.best_price_with_nds, row.quantity1] for row in dataFromParsing]
+        if dataFromParsing[0].new_price:
+            return columns, [[row.good_code, row.article, row.name, row.brand, row.article1, row.quantity, row.price, row.abcp_price, row.batch, row.logo, row.delivery_time, row.best_price_with_nds, row.quantity1, row.new_price] for row in dataFromParsing]
+        return columns, [[row.good_code, row.article, row.name, row.brand, row.article1, row.quantity, row.price, row.abcp_price, row.batch, row.logo, row.delivery_time, row.best_price_with_nds, row.quantity1] for row in dataFromParsing]
 
 async def create_file(session: AsyncSession, file_id: int, filestart: str, nds: bool = None):
     filename = await get_files_by_id(session=session, file_id=file_id)

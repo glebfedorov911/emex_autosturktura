@@ -11,6 +11,7 @@ class ParserCreate(BaseModel):
     # price_with_logo: str | None = None
     # user_id: int
     # file_id: int
+    abcp_price: str
     good_code: str
     article: str
     name: str

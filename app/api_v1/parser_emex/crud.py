@@ -71,20 +71,24 @@ def price_with_nds(best_price, price_site):
 
 async def saving_to_table_data(user_id: int, session: AsyncSession, data: list, file_id: int):
     for value in data:
-        if len(value) == 14:
-            parser_in = ParserCreate(good_code=str(value[0]), article=str(value[1]), name=str(value[2]), brand=str(value[3]), article1=str(value[4]), quantity=str(value[5]), 
-                price=str(value[6]), batch=str(value[8]),
-                logo=str(value[9]), delivery_time=str(value[10]), best_price=str(value[11]), 
-                best_price_without_nds=str(price_without_nds(value[11], value[6])), best_price_with_nds=str(price_with_nds(value[11], value[6])), 
-                quantity1=str(value[12]), new_price=str(value[13]), user_id=user_id, file_id=file_id)
-        else:
-            parser_in = ParserCreate(good_code=str(value[0]), article=str(value[1]), name=str(value[2]), brand=str(value[3]), article1=str(value[4]), quantity=str(value[5]), 
-                price=str(value[6]), batch=str(value[8]),
-                logo=str(value[9]), delivery_time=str(value[10]), best_price=str(value[11]), 
-                best_price_without_nds=str(price_without_nds(value[11], value[6])), best_price_with_nds=str(price_with_nds(value[11], value[6])), 
-                quantity1=str(value[12]), user_id=user_id, file_id=file_id)
-        parser = Parser(**parser_in.model_dump())
-        session.add(parser)
+        try:
+            if len(value) == 14:
+                parser_in = ParserCreate(good_code=str(value[0]), article=str(value[1]), name=str(value[2]), brand=str(value[3]), article1=str(value[4]), quantity=str(value[5]), 
+                    price=str(value[6]), abcp_price=str(value[7]), batch=str(value[8]),
+                    logo=str(value[9]), delivery_time=str(value[10]), best_price=str(value[11]), 
+                    best_price_without_nds=str(price_without_nds(value[11], value[6])), best_price_with_nds=str(price_with_nds(value[11], value[6])), 
+                    quantity1=str(value[12]), new_price=str(value[13]), user_id=user_id, file_id=file_id)
+            else:
+                parser_in = ParserCreate(good_code=str(value[0]), article=str(value[1]), name=str(value[2]), brand=str(value[3]), article1=str(value[4]), quantity=str(value[5]), 
+                    price=str(value[6]), abcp_price=str(value[7]), batch=str(value[8]),
+                    logo=str(value[9]), delivery_time=str(value[10]), best_price=str(value[11]), 
+                    best_price_without_nds=str(price_without_nds(value[11], value[6])), best_price_with_nds=str(price_with_nds(value[11], value[6])), 
+                    quantity1=str(value[12]), user_id=user_id, file_id=file_id)
+            parser = Parser(**parser_in.model_dump())
+            session.add(parser)
+        except:
+            print("choot-to net tak")
+            continue
     await session.commit()
 
     return "все успешно сохранено"

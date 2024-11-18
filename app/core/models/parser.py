@@ -18,6 +18,7 @@ if TYPE_CHECKING:
 
 
 class Parser(Base):
+    abcp_price: Mapped[str] = mapped_column(nullable=True, default=None)
     good_code: Mapped[str]
     article: Mapped[str]
     name: Mapped[str]

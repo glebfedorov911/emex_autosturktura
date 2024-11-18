@@ -6,6 +6,7 @@ import time
 import random
 import requests
 import aiohttp
+import httpx
 import threading
 import os
 import aiofiles
@@ -117,7 +118,10 @@ async def main(user_id, using_proxy):
             print(f"-="*(len(for_log)//2))
 
             if using_proxy == "MANGO":
-                proxies = os.getenv("MANGOPROXY")
+                proxies = {
+                    "http://": os.getenv("MANGOPROXY"),
+                    "https://": os.getenv("MANGOPROXY"),
+                }
                 timeout1 = 3
                 timeout2 = 5
                 timeout3 = 0.2
@@ -128,13 +132,13 @@ async def main(user_id, using_proxy):
                 timeout3 = 1.5
                 
             try:
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(url, proxy=proxies, timeout=timeout1, headers=headers) as resp:
-                        response = await resp.json()
+                async with httpx.AsyncClient(proxies=proxies, headers=headers, timeout=httpx.Timeout(read=timeout1, pool=timeout1, connect=timeout1, write=timeout1)) as client:
+                    response = await client.get(url)
+                    response = response.json()
             except Exception as e:
-                async with aiohttp.ClientSession() as session:
-                    async with session.get(url, proxy=proxies, timeout=timeout1, headers=headers) as resp:
-                        response = await resp.json()
+                async with httpx.AsyncClient(proxies=proxies, headers=headers, timeout=httpx.Timeout(read=timeout1, pool=timeout1, connect=timeout1, write=timeout1)) as client:
+                    response = await client.get(url)
+                    response = response.json()
             t = 1
             originals = []
 
@@ -398,33 +402,42 @@ async def main(user_id, using_proxy):
                         pass
                 
                 if ONLY_FIRST_LOGO:
+                    print("tut")
                     first_second_goods = sorted_by_price[:2]
                     price_with_logo = 0
                     result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], brand[8], 0, 0, 0, 0, 0]
                     for good in first_second_goods:
-                        try:
-                            async with aiohttp.ClientSession() as session:
-                                async with session.get(f"https://emex.ru/api/search/rating?offerKey={good[0]}", timeout=timeout1, proxy=proxies, headers=headers) as resp:
-                                    response_with_logo = await resp.json()
-                        except:
-                            async with aiohttp.ClientSession() as session:
-                                async with session.get(f"https://emex.ru/api/search/rating?offerKey={good[0]}", timeout=timeout1, proxy=proxies, headers=headers) as resp:
-                                    response_with_logo = await resp.json()
+                        while True:
+                            try:
+                                try:
+                                    async with httpx.AsyncClient(proxies=proxies, headers=headers, timeout=httpx.Timeout(read=timeout1, pool=timeout1, connect=timeout1, write=timeout1)) as client:
+                                        response = await client.get(f"https://emex.ru/api/search/rating?offerKey={good[0]}")
+                                        response_with_logo = response.json()
+                                        break
+                                except:
+                                    async with httpx.AsyncClient(proxies=proxies, headers=headers, timeout=httpx.Timeout(read=timeout1, pool=timeout1, connect=timeout1, write=timeout1)) as client:
+                                        response = await client.get(f"https://emex.ru/api/search/rating?offerKey={good[0]}")
+                                        response_with_logo = response.json()
+                                        break
+                            except httpx.TimeoutException as esda:
+                                print("appapapapap", esda)
                         
-                        if response_with_logo != LOGO:
-                            result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], brand[8], response_with_logo, *good[1:], price_with_logo]
+                        if response_with_logo["priceLogo"] != LOGO:
+                            result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], brand[8], response_with_logo["priceLogo"], *good[1:], price_with_logo]
+                            print("HYI", result)
                             break
                         else:
                             price_with_logo = good[2]
+                            print("TUUTUTUT", price_with_logo)
                 else:
                     try:
-                        async with aiohttp.ClientSession() as session:
-                            async with session.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=timeout1, proxy=proxies, headers=headers) as resp:
-                                response_with_logo = await resp.json()
+                        async with httpx.AsyncClient(proxies=proxies, headers=headers, timeout=httpx.Timeout(read=timeout1, pool=timeout1, connect=timeout1, write=timeout1)) as client:
+                            response = await client.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}")
+                            response_with_logo = response.json()
                     except:
-                        async with aiohttp.ClientSession() as session:
-                            async with session.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}", timeout=timeout1, proxy=proxies, headers=headers) as resp:
-                                response_with_logo = await resp.json()
+                        async with httpx.AsyncClient(proxies=proxies, headers=headers, timeout=httpx.Timeout(read=timeout1, pool=timeout1, connect=timeout1, write=timeout1)) as client:
+                            response = await client.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}")
+                            response_with_logo = response.json()
                     await asyncio.sleep(0.2)    
                     t = 2
                     price_logo = response_with_logo["priceLogo"]
@@ -435,13 +448,13 @@ async def main(user_id, using_proxy):
                         sorted_by_price = quick_sort(originals, 2)[:10]
                         for data in sorted_by_price:
                             try:
-                                async with aiohttp.ClientSession() as session:
-                                    async with session.get(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=timeout2, proxy=proxies, headers=headers) as resp:
-                                        response_with_logo = await resp.json()
+                                async with httpx.AsyncClient(proxies=proxies, headers=headers, timeout=httpx.Timeout(read=timeout1, pool=timeout1, connect=timeout1, write=timeout1)) as client:
+                                    response = await client.get(f"https://emex.ru/api/search/rating?offerKey={data[0]}")
+                                    response_with_logo = response.json()
                             except:
-                                async with aiohttp.ClientSession() as session:
-                                    async with session.get(f"https://emex.ru/api/search/rating?offerKey={data[0]}", timeout=timeout2, proxy=proxies, headers=headers) as resp:
-                                        response_with_logo = await resp.json()
+                                async with httpx.AsyncClient(proxies=proxies, headers=headers, timeout=httpx.Timeout(read=timeout1, pool=timeout1, connect=timeout1, write=timeout1)) as client:
+                                    response = await client.get(f"https://emex.ru/api/search/rating?offerKey={data[0]}")
+                                    response_with_logo = response.json()
                             price_logo = response_with_logo["priceLogo"]
 
                             data[0] = price_logo
@@ -482,6 +495,9 @@ async def main(user_id, using_proxy):
                 else:
                     print(f"3. Поток {threading.current_thread().name} не блокирован")
         except Exception as e:
+            import traceback
+            print("pupupulya")
+            traceback.print_exc()
             with user_locks[user_id]:
                 user_data[user_id]["brands"].append(brand)
             msg = "message='Proxy Authentication Required'"

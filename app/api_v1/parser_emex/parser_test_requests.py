@@ -10,6 +10,7 @@ import httpx
 import threading
 import os
 import aiofiles
+import traceback
 
 from app.core.config import settings
 from .depends import *
@@ -407,14 +408,21 @@ async def main(user_id, using_proxy):
                     price_with_logo = 0
                     result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], brand[8], 0, 0, 0, 0, 0]
                     for good in first_second_goods:
-                        try:
-                            async with httpx.AsyncClient(proxies=proxies, headers=headers, timeout=httpx.Timeout(read=timeout1, pool=timeout1, connect=timeout1, write=timeout1)) as client:
-                                response = await client.get(f"https://emex.ru/api/search/rating?offerKey={good[0]}")
-                                response_with_logo = response.json()
-                        except:
-                            async with httpx.AsyncClient(proxies=proxies, headers=headers, timeout=httpx.Timeout(read=timeout1, pool=timeout1, connect=timeout1, write=timeout1)) as client:
-                                response = await client.get(f"https://emex.ru/api/search/rating?offerKey={good[0]}")
-                                response_with_logo = response.json()
+                        while True:
+                            try:
+                                try:
+                                    async with httpx.AsyncClient(proxies=proxies, headers=headers, timeout=httpx.Timeout(read=timeout1, pool=timeout1, connect=timeout1, write=timeout1)) as client:
+                                        response = await client.get(f"https://emex.ru/api/search/rating?offerKey={good[0]}")
+                                        response_with_logo = response.json()
+                                        break
+                                except:
+                                    async with httpx.AsyncClient(proxies=proxies, headers=headers, timeout=httpx.Timeout(read=timeout1, pool=timeout1, connect=timeout1, write=timeout1)) as client:
+                                        response = await client.get(f"https://emex.ru/api/search/rating?offerKey={good[0]}")
+                                        response_with_logo = response.json()
+                                        break
+                            except httpx.TimeoutException as esda:
+                                traceback.print_exc()
+                                print("Ошибка", esda)
                         
                         if response_with_logo["priceLogo"] != LOGO:
                             result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], brand[8], response_with_logo["priceLogo"], *good[1:], price_with_logo]
@@ -489,7 +497,6 @@ async def main(user_id, using_proxy):
                 else:
                     print(f"3. Поток {threading.current_thread().name} не блокирован")
         except Exception as e:
-            import traceback
             print("pupupulya")
             traceback.print_exc()
             with user_locks[user_id]:

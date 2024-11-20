@@ -14,6 +14,7 @@ app.include_router(router=router)
 # test teeest
 origins = [
     "https://autostructure.ru",
+    "https://dev.autostructure.ru",
     # 'http://127.0.0.1:5173',
     # 'http://localhost:5173',
 ]

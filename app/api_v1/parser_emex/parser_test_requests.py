@@ -128,8 +128,8 @@ async def main(user_id, using_proxy):
                 timeout3 = 0.2
             elif using_proxy == "BRIGHTDATA":
                 proxies = os.getenv("BRIGHTDATAPROXY")
-                timeout1 = 4
-                timeout2 = 7
+                timeout1 = 30
+                timeout2 = 35
                 timeout3 = 1.5
                 
             try:

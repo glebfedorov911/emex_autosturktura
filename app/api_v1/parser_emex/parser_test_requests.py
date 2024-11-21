@@ -48,7 +48,7 @@ async def rezerv_copy(filepath: str, data: dict):
         json_data = json.dumps(data, ensure_ascii=False, indent=4)
         await f.write(json_data)
 
-async def main(user_id, using_proxy):
+async def main(user_id, using_proxy, index):
     global user_data, user_locks
     user_locks[user_id] = threading.Lock()
 
@@ -127,7 +127,10 @@ async def main(user_id, using_proxy):
                 timeout2 = 5
                 timeout3 = 0.2
             elif using_proxy == "BRIGHTDATA":
-                proxies = os.getenv("BRIGHTDATAPROXY")
+                if index % 2 == 0:
+                    proxies = os.getenv("BRIGHTDATAPROXY1")
+                else:
+                    proxies = os.getenv("BRIGHTDATAPROXY2")
                 timeout1 = 30
                 timeout2 = 35
                 timeout3 = 1.5
@@ -521,5 +524,5 @@ async def main(user_id, using_proxy):
                 user_data[user_id]["stop"][index] = True
             break
 
-def run(user_id, using_proxy):
-    asyncio.run(main(user_id, using_proxy))
+def run(user_id, using_proxy, index):
+    asyncio.run(main(user_id, using_proxy, index))

@@ -38,7 +38,7 @@ import threading
 router = APIRouter(prefix="/new_parser", tags=["New Parser"])
 templates = Jinja2Templates(directory=settings.templates.templates_path)
 
-count_of_threadings = 128
+count_of_threadings = 32
 threads: list[Thread] = [None] * count_of_threadings
 
 
@@ -332,7 +332,7 @@ async def start(
             ):
                 user_data[user_id]["events"][index].clear()
                 user_data[user_id]["threads"][index] = Thread(
-                    target=run, args=(user_id, using_proxy, )
+                    target=run, args=(user_id, using_proxy, index, )
                 )
                 user_data[user_id]["threads"][index].start()
                 messages.append(f"поток {index+1} запущен")

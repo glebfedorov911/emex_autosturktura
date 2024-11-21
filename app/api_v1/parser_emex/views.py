@@ -92,7 +92,7 @@ async def websocket_endpoint(
                         if (not user_data[payload.get("sub")]["threads"][i].is_alive()):
                             user_data[payload.get("sub")]["events"][i].clear()
                             user_data[payload.get("sub")]["threads"][i] = Thread(
-                                target=run, args=(payload.get("sub"), user_data[payload.get("sub")]["using_proxy"])
+                                target=run, args=(payload.get("sub"), user_data[payload.get("sub")]["using_proxy"], i)
                             )
                             user_data[payload.get("sub")]["threads"][i].start()
                     except Exception as e:
@@ -239,7 +239,7 @@ async def websocket_status_endpoint(
                         for index in range(cnt):
                             user_data[payload.get("sub")]["events"][index].clear()
                             user_data[payload.get("sub")]["threads"][index] = Thread(
-                                target=run, args=(payload.get("sub"), user_data[payload.get("sub")]["using_proxy"])
+                                target=run, args=(payload.get("sub"), user_data[payload.get("sub")]["using_proxy"], index)
                             )
                             user_data[payload.get("sub")]["threads"][index].start()
                 if "stop" in ud:

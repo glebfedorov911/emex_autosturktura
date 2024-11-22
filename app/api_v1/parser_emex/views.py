@@ -22,7 +22,7 @@ from app.api_v1.auth.utils import get_payload
 from app.api_v1.utils.depends import edit_file, get_unique_filename
 
 from . import crud
-from .parser_test_requests import user_data, run
+from .parser_test_requests import user_data, run, ParserEmex
 from .depends import *
 
 import asyncio
@@ -271,7 +271,7 @@ async def start(
     global user_data
     
 
-    await create_empty_json(os.path.join(settings.upload.path_for_upload, f"{payload.get('sub')}_parsing.json"))
+    await FileWorker.create_empty_json(os.path.join(settings.upload.path_for_upload, f"{payload.get('sub')}_parsing.json"))
     messages = []
     user_id = payload.get("sub")
     filter = await crud.get_filter(
@@ -325,6 +325,7 @@ async def start(
         user_data[user_id]["count_brands"] = len(brands)
         user_data[user_id]["brands"] = brands
 
+        parser = ParserEmex(filter, "PARSER_RUNNING", brands, "MANGO", user_id)
         for index in range(count_of_threadings):
             if (
                 user_data[user_id]["threads"][index] is None
@@ -332,7 +333,7 @@ async def start(
             ):
                 user_data[user_id]["events"][index].clear()
                 user_data[user_id]["threads"][index] = Thread(
-                    target=run, args=(user_id, using_proxy, )
+                    target=run, args=(parser, )
                 )
                 user_data[user_id]["threads"][index].start()
                 messages.append(f"поток {index+1} запущен")

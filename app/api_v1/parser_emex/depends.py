@@ -3,6 +3,7 @@ from math import ceil
 import pandas as pd
 import urllib.parse as up
 import aiofiles
+import json
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.engine import Result
@@ -33,6 +34,7 @@ def split_file_for_thr(num: int, url: list) -> list[list]:
     return new_url
 
 def create_params_for_url(param: str):
+    param = str(param)
     if "---" in param:
         param = param.replace("---", "+%2F+")
         return param
@@ -70,11 +72,21 @@ async def check_after_parsing_file(session: AsyncSession, user_id: int):
     data = result.scalars().all()
     return data[-1].is_after_parsing if data != [] else False
 
-async def create_empty_json(filepath: str):
-    async with aiofiles.open(filepath, mode='w', encoding='utf-8') as f:
-        await f.write('')
-
 class ProxyException(Exception):
     def __init__(self, message):
         super().__init__(message)
 
+class FileWorker:
+    def __new__(cls, *args, **kwargs):
+        raise TypeError(f"{cls.__name__} не предназначен для создания экземпляров")
+
+    @staticmethod
+    async def rezerv_copy(filepath: str, data: dict):
+        async with aiofiles.open(filepath, mode='a', encoding='utf-8') as f:
+            json_data = json.dumps(data, ensure_ascii=False, indent=4)
+            await f.write(json_data)
+
+    @staticmethod
+    async def create_empty_json(filepath: str):
+        async with aiofiles.open(filepath, mode='w', encoding='utf-8') as f:
+            await f.write('')

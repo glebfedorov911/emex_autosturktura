@@ -12,7 +12,12 @@ import os
 import aiofiles
 import traceback
 
+from fake_useragent import UserAgent
+
+from typing import List
+
 from app.core.config import settings
+from app.core.models import NewFilter
 from .depends import *
 
 from playwright.async_api import async_playwright
@@ -21,508 +26,246 @@ from dotenv import load_dotenv
 load_dotenv()
 
 user_data = {}
-
-USERAGENTS = [
-    "Mediapartners-Google",
-    "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0",
-    "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 YaBrowser/20.9.3.136 Yowser/2.5 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.105 YaBrowser/21.3.3.230 Yowser/2.5 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/62.0",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 11.1; rv:84.0) Gecko/20100101 Firefox/84.0",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.81 Safari/537.36 Maxthon/5.3.8.2000",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 YaBrowser/20.12.2.105 Yowser/2.5 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 YaBrowser/21.8.1.468 Yowser/2.5 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36",
-]
-
 user_locks = {}
 
-async def rezerv_copy(filepath: str, data: dict):
-    async with aiofiles.open(filepath, mode='a', encoding='utf-8') as f:
-        json_data = json.dumps(data, ensure_ascii=False, indent=4)
-        await f.write(json_data)
 
-async def main(user_id, using_proxy):
-    global user_data, user_locks
-    user_locks[user_id] = threading.Lock()
+class ParserEmex:
+    USERAGENTS = UserAgent()
+    PROXIES = {
+        "MANGO": {
+            "http://": os.getenv("MANGOPROXY"),
+            "https://": os.getenv("MANGOPROXY"),
+        },
+        "BRIGHTDATA": {
+            "http://": os.getenv("BRIGHTDATAPROXY1"),
+            "https://": os.getenv("BRIGHTDATAPROXY1"),
+        },
+    }
+    TIMEOUTS = {
+        "MANGO": (3, 5, 0.2),
+        "BRIGHTDATA": (30, 35, 1.5),
+    }
+    SELECTELS = {
+        "DATE": 1,
+        "PRICE": 2,
+    }
+    PARSER_WORKER_STATUS = "PARSER_RUNNING"
 
-    DEEP_FILTER = user_data[user_id]["filter"].deep_filter
-    DEEP_ANALOG = user_data[user_id]["filter"].deep_analog
-    ONLY_FIRST_LOGO = user_data[user_id]["filter"].only_first_logo
-    ANALOG = user_data[user_id]["filter"].analog
-    REPLACEMENT = user_data[user_id]["filter"].replacement
-    IS_BIGGER = user_data[user_id]["filter"].is_bigger 
-    DATE = user_data[user_id]["filter"].date
-    LOGO = user_data[user_id]["filter"].logo 
-    PICKUP_POINT = user_data[user_id]["filter"].pickup_point
-    browser = None
-    user_data[user_id]["all_break"] = False
-    # user_data[user_id]["columns"] = ["Артикул", "Наименование", "Брэнд", "Артикул", "Кол-во", "Цена", "Партия", "НДС", "Лого", "Доставка", "Лучшая цена", "Количество",]
-    user_data[user_id]["columns"] = ["Код товара", "Артикул", "Наименование", "Брэнд", "Артикул", "Кол-во", "Цена", "Цена ABCP", "Партия", "Лого", "Доставка", "Лучшая цена", "Количество",]
-    t = 0
-    if LOGO and "Цена с лого" not in user_data[user_id]["columns"]:
-        user_data[user_id]["columns"].append("Цена с лого")
+    def __init__(self, _filter: NewFilter, status: str, brands: List, using_proxy: str, user_id: int):
+        self.logo_srez = 10
+        self.deep_filter = _filter.deep_filter
+        self.deep_analog = _filter.deep_analog
+        self.only_first_logo = _filter.only_first_logo
+        self.analog = _filter.analog
+        self.replacement = _filter.replacement
+        self.is_bigger = _filter.is_bigger
+        self.date = _filter.date
+        self.logo = _filter.logo
+        self.pickup_point = _filter.pickup_point
+        self.columns = self.create_columns()
+        self.status = status
+        self.brands = brands
+        self.browser = None
+        self.all_break = None
+        self.timeout1 = self.timeout2 = self.timeout3 = 0
+        self.file_worker = FileWorker
+        self.using_proxy = using_proxy
+        self.path_to_save_file = os.path.join(settings.upload.path_for_upload, f"{user_id}_parsing.json")
+        self.counter_parsered = 0
+        self.checked_data = []
+        self.headers = self.create_headers()
 
-    while user_data[user_id]["status"] == "PARSER_RUNNING":
-        headers = {
-            'User-Agent': random.choice(USERAGENTS)
-        }
+    def create_columns(self):
+        columns = ["Код товара", "Артикул", "Наименование", "Брэнд", "Артикул", "Кол-во", "Цена", "Цена ABCP", "Партия", "Лого", "Доставка", "Лучшая цена", "Количество"]
+        if self.logo:
+            columns.append("Цена с лого")
+        return columns
+    
+    def create_headers(self):
+        useragent = self.USERAGENTS.random
+        return {'User-Agent': useragent}
 
-        for stop in user_data[user_id]["stop"]:
-            if stop:
-                print("Остановка парсера началась!")
-                user_data[user_id]["status"] = "Парсер не запущен"
-                user_data[user_id]["excel_result"] = []
-                user_data[user_id]["counter_parsered"] = 0
-                user_data[user_id]["brands"] = []
-                user_data[user_id]["ban_list"] = []
-                return
+    def get_brand(self):
+        return self.brands.pop(0)
+    
+    def back_brand(self, brand: List):
+        self.brands.append(brand)
+    
+    def create_url(self, brand: List):
+        return f"https://emex.ru/api/search/search?make={create_params_for_url(brand[3])}&detailNum={brand[1]}&locationId={self.pickup_point}&showAll=true&longitude=37.8613&latitude=55.7434"
 
-        if user_data[user_id]["all_break"]:
-            user_data[user_id]["status"] = "Парсер не запущен"
-            return
-        
-        if len(user_data[user_id]["brands"]) == 0 or all([ev.is_set() for ev in user_data[user_id]["events"]]) or user_data[user_id]["all_break"]:
-            user_data[user_id]["status"] = "Парсер не запущен"
-            return
+    def get_proxy(self):
+        return self.PROXIES[self.using_proxy]
 
-        with user_locks[user_id]:
-            brand = user_data[user_id]["brands"].pop(0)
-        if user_locks[user_id].locked():
-            print(f"1. Поток {threading.current_thread().name} ожидает разблокировки")
+    def get_timeouts(self):
+        return self.TIMEOUTS[self.using_proxy]
+
+    @staticmethod
+    async def get_response(url: str, headers: dict, timeout: int, proxies: dict):
+        async with httpx.AsyncClient(proxies=proxies, headers=headers, timeout=httpx.Timeout(read=timeout, pool=timeout, connect=timeout, write=timeout)) as client:
+            response = await client.get(url)
+            return response.json()
+
+    def get_data_from_response(self, response: dict, _type: str):
+        if _type == "ANALOG":
+            goods_information = response["searchResult"][_type][:self.deep_analog]
         else:
-            print(f"1. Поток {threading.current_thread().name} не блокирован")
+            goods_information = response["searchResult"][_type]
+        return [
+            [
+                good_field["offerKey"],
+                int(
+                    str(good_field["delivery"]["value"]).replace(
+                        "Завтра", "1"
+                    )
+                ),
+                good_field["displayPrice"]["value"],
+                good_field["data"]["maxQuantity"]["value"],
+            ]
+            if self.check_date(good_field["delivery"]["value"]) else False
+            for good_information in goods_information
+            for good_field in good_information["offers"]
+        ]
+    
+    def check_date(self, delivery):
+        if self.is_bigger:
+            return True if (self.date is None or int(str(delivery).replace("Завтра", "1")) >= self.date) else False
+        else:
+            return True if (self.date is None or int(str(delivery).replace("Завтра", "1")) <= self.date) else False
 
-        url = f"https://emex.ru/api/search/search?make={create_params_for_url(brand[3])}&detailNum={brand[1]}&locationId={PICKUP_POINT}&showAll=true&longitude=37.8613&latitude=55.7434"
-        
+    def set_only_goods(self, goods):
+        return [good for good in goods if good]
+
+    def create_empty_result(self, brand):
+        result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], brand[8], 0, 0, 0, 0,]
+        if self.logo:
+            result.append(0)
+        return result
+
+    async def saving_to_json(self, result):
+        saving_to_json = {
+            "good_code": result[0],
+            "article": result[1],
+            "name": result[2],
+            "brand": result[3],
+            "article1": result[4],
+            "quantity": result[5],
+            "price": result[6],
+            "abcpprice": result[7],
+            "batch": result[8],
+            "logo": result[9],
+            "delivery_time": result[10],
+            "best_price": result[11],
+            "quantity1": result[12]
+        }
+        if len(result) > 13: saving_to_json["new_price"] = result[13]
+        await self.file_worker.rezerv_copy(self.path_to_save_file, saving_to_json)
+
+    def get_sorted_data(self, goods):
+        sorted_data_by_date = quick_sort(goods, self.SELECTELS["DATE"])
+        cut_data_by_deep_filter = sorted_data_by_date[:self.deep_filter]
+        sorted_by_price = quick_sort(cut_data_by_deep_filter, self.SELECTELS["PRICE"])
+        return sorted_by_price
+
+    def get_first_best_data(self, sorted_by_price):
+        best_data = sorted_by_price[0]
+        for idx in range(len(best_data)):
+            try:
+                best_data[idx] = int(best_data[idx])
+            except:
+                pass
+        return best_data
+
+    async def double_request(self, url, headers, timeout, proxies):
         try:
-            for_log = f"-=-=-=-=-=-=-={threading.current_thread().name}=-=-=-=-=-=-=-"
-            print(for_log)
-            if user_data[user_id]["count_brands"] == 0:
-                user_data[user_id]["count_brands"] = 1
-            print(int(user_data[user_id]["counter_parsered"] / user_data[user_id]["count_brands"] * 100))
-            print(user_data[user_id]["status"])
-            print("URL сейчас:", url)
-            print("Данных спаршено:", user_data[user_id]["counter_parsered"], "данных всего:", user_data[user_id]["count_brands"])
-            print("Обновление списка (длина):", len(user_data[user_id]["brands"]))
-            print("Потоки", threading.enumerate())
+            response = await self.get_response(url=url, headers=headers, timeout=timeout, proxies=proxies)
+        except:
+            response = await self.get_response(url=url, headers=headers, timeout=timeout, proxies=proxies)
+        return response
+
+    async def algorithm_only_first_with_logo(self, sorted_by_price, brand, headers, timeout, timeout_between_response, proxies):
+        first_second_goods = sorted_by_price[:2]
+        price_with_logo = 0
+        result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], brand[8], 0, 0, 0, 0, 0]
+        for good in first_second_goods:
+            url = f"https://emex.ru/api/search/rating?offerKey={good[0]}"
+            while True:
+                try:
+                    response = await self.double_request(url=url, timeout=timeout, headers=headers, proxies=proxies)
+                    break
+                except httpx.TimeoutException as e:
+                    traceback.print_exc()
+            if response["priceLogo"] != self.logo:
+                result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], brand[8], response["priceLogo"], *good[1:], price_with_logo]
+                break
+            else:
+                price_with_logo = good[2]
+            await asyncio.sleep(timeout_between_response)
+        return result
+    
+    async def algorithm_get_best_about_good(self, best_data, brand, headers, timeout, proxies):
+        url = f"https://emex.ru/api/search/rating?offerKey={best_data[0]}"
+        try:
+            response = await self.get_response(url=url, headers=headers, timeout=timeout, proxies=proxies)
+        except:
+            response = await self.get_response(url=url, headers=headers, timeout=timeout, proxies=proxies)
+
+        price_logo = response["priceLogo"]
+        result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], brand[8], price_logo, *best_data[1:],]
+        return result
+
+    async def algorithm_get_price_with_logo(self, goods, brand, headers, timeout, proxies, timeout_between_response):
+        best_data = None
+        sorted_by_price = quick_sort(goods, self.SELECTELS["PRICE"])[:self.logo_srez]
+        for data in sorted_by_price:
+            url = f"https://emex.ru/api/search/rating?offerKey={data[0]}"
+            response = await self.double_request(url=url, headers=headers, timeout=timeout, proxies=proxies)
+            price_logo = response["priceLogo"]
+            data[0] = price_logo
+            if price_logo == self.logo:
+                best_data = data
+                break
+            await asyncio.sleep(timeout_between_response)
+
+        return best_data[2] if best_data else 0
+
+    async def start_parser(self):
+        while self.status == self.PARSER_WORKER_STATUS:
+            timeout1, timeout2, timeout_between_response = self.get_timeouts()
+            proxies = self.get_proxy()
+            brand = self.get_brand()
+            url = self.create_url(brand)
+
             try:
-                print(*[f"""{i} | {user_data[user_id]["threads"][i]}: {user_data[user_id]["threads"][i].is_alive()}""" for i in range(len(user_data[user_id]["threads"])) if user_data[user_id]["threads"][i] != None]) #4: {user_data[user_id]["threads"][4].is_alive()} 5: {user_data[user_id]["threads"][5].is_alive()}""")
-            except Exception as e:
-                print("Ошибка в alive модуле", e)
-            print(f"-="*(len(for_log)//2))
-
-            if using_proxy == "MANGO":
-                proxies = {
-                    "http://": os.getenv("MANGOPROXY"),
-                    "https://": os.getenv("MANGOPROXY"),
-                }
-                timeout1 = 3
-                timeout2 = 5
-                timeout3 = 0.2
-            elif using_proxy == "BRIGHTDATA":
-                proxies = {
-                    "http://": os.getenv("BRIGHTDATAPROXY1"),
-                    "https://": os.getenv("BRIGHTDATAPROXY1"),
-                }
-                timeout1 = 30
-                timeout2 = 35
-                timeout3 = 1.5
-                
-            try:
-                async with httpx.AsyncClient(proxies=proxies, headers=headers, timeout=httpx.Timeout(read=timeout1, pool=timeout1, connect=timeout1, write=timeout1)) as client:
-                    response = await client.get(url)
-                    response = response.json()
-            except Exception as e:
-                async with httpx.AsyncClient(proxies=proxies, headers=headers, timeout=httpx.Timeout(read=timeout1, pool=timeout1, connect=timeout1, write=timeout1)) as client:
-                    response = await client.get(url)
-                    response = response.json()
-            t = 1
-            originals = []
-
-            if IS_BIGGER is None:
+                response = await self.get_response(url=url, headers=self.headers, timeout=timeout1, proxies=proxies) 
+                goods = []
                 if "originals" in response["searchResult"]:
-                    originals += [
-                        [
-                            goods["offerKey"],
-                            int(
-                                str(goods["delivery"]["value"]).replace(
-                                    "Завтра", "1"
-                                )
-                            ),
-                            goods["displayPrice"]["value"],
-                            goods["data"]["maxQuantity"]["value"],
-                        ]
-                        for orig in response["searchResult"]["originals"]
-                        for goods in orig["offers"]
-                    ]
+                    goods += self.get_data_from_response(response=response, _type="originals")
+                if self.replacement and "replacement" in response["searchResult"]:
+                    goods += self.get_data_from_response(response=response, _type="replacement")
+                if self.analog and "analog" in response["searchResult"]:
+                    goods += self.get_data_from_response(response=response, _type="analog")
+
+                if goods == []:
+                    result = self.create_empty_result(brand)
+                    self.counter_parsered += 1
                 else:
-                    result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], brand[8], 0, 0, 0, 0,]
-                    if LOGO:
-                        result.append(0)
-                if REPLACEMENT and "replacements" in response["searchResult"]:
-                    originals += [
-                        [
-                            goods["offerKey"],
-                            int(
-                                str(goods["delivery"]["value"]).replace(
-                                    "Завтра", "1"
-                                )
-                            ),
-                            goods["displayPrice"]["value"],
-                            goods["data"]["maxQuantity"]["value"],
-                        ]
-                        for repl in response["searchResult"]["replacements"]
-                        for goods in repl["offers"]
-                    ]
-                
-                if ANALOG and "analogs" in response["searchResult"]:
-                    originals += [
-                        [
-                            goods["offerKey"],
-                            int(
-                                str(goods["delivery"]["value"]).replace(
-                                    "Завтра", "1"
-                                )
-                            ),
-                            goods["displayPrice"]["value"],
-                            goods["data"]["maxQuantity"]["value"],
-                        ]
-                        for anal in response["searchResult"]["analogs"][
-                            :DEEP_ANALOG
-                        ]
-                        for goods in anal["offers"]
-                    ]
-            else:
-                if "originals" in response["searchResult"]:
-                    if IS_BIGGER:
-                        originals += [
-                            (
-                                [
-                                    goods["offerKey"],
-                                    int(
-                                        str(goods["delivery"]["value"]).replace(
-                                            "Завтра", "1"
-                                        )
-                                    ),
-                                    goods["displayPrice"]["value"],
-                                    goods["data"]["maxQuantity"]["value"],
-                                ]
-                                if int(
-                                    str(goods["delivery"]["value"]).replace(
-                                        "Завтра", "1"
-                                    )
-                                )
-                                >= DATE
-                                else False
-                            )
-                            for orig in response["searchResult"]["originals"]
-                            for goods in orig["offers"]
-                        ]
+                    goods = self.set_only_goods(goods)
+                    sorted_by_price = self.get_sorted_data(goods)
+                    if self.only_first_logo:
+                        result = await self.algorithm_only_first_with_logo(sorted_by_price=sorted_by_price, brand=brand, headers=self.headers, timeout=timeout1, timeout_between_response=timeout_between_response, proxies=proxies)
                     else:
-                        originals += [
-                            (
-                                [
-                                    goods["offerKey"],
-                                    int(
-                                        str(goods["delivery"]["value"]).replace(
-                                            "Завтра", "1"
-                                        )
-                                    ),
-                                    goods["displayPrice"]["value"],
-                                    goods["data"]["maxQuantity"]["value"],
-                                ]
-                                if int(
-                                    str(goods["delivery"]["value"]).replace(
-                                        "Завтра", "1"
-                                    )
-                                )
-                                <= DATE
-                                else False
-                            )
-                            for orig in response["searchResult"]["originals"]
-                            for goods in orig["offers"]
-                        ]
-                else:
-                    result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], brand[8], 0, 0, 0, 0,]
-                    if LOGO:
-                        result.append(0)
+                        best_data = self.get_first_best_data(sorted_by_price=sorted_by_price)
+                        result = await self.algorithm_get_best_about_good(best_data=best_data, brand=brand, headers=self.headers, timeout=timeout1, proxies=proxies)
+                        if self.logo:
+                            price_logo = await self.algorithm_get_price_with_logo(goods=goods, brand=brand, headers=self.headers, timeout=timeout2, proxies=proxies, timeout_between_response=timeout_between_response)
+                            result.append(price_logo)
 
-                if REPLACEMENT and "replacements" in response["searchResult"]:
-                    if IS_BIGGER:
-                        originals += [
-                            (
-                                [
-                                    goods["offerKey"],
-                                    int(
-                                        str(goods["delivery"]["value"]).replace(
-                                            "Завтра", "1"
-                                        )
-                                    ),
-                                    goods["displayPrice"]["value"],
-                                    goods["data"]["maxQuantity"]["value"],
-                                ]
-                                if int(
-                                    str(goods["delivery"]["value"]).replace(
-                                        "Завтра", "1"
-                                    )
-                                )
-                                >= DATE
-                                else False
-                            )
-                            for orig in response["searchResult"]["replacements"]
-                            for goods in orig["offers"]
-                        ]
-                    else:
-                        originals += [
-                            (
-                                [
-                                    goods["offerKey"],
-                                    int(
-                                        str(goods["delivery"]["value"]).replace(
-                                            "Завтра", "1"
-                                        )
-                                    ),
-                                    goods["displayPrice"]["value"],
-                                    goods["data"]["maxQuantity"]["value"],
-                                ]
-                                if int(
-                                    str(goods["delivery"]["value"]).replace(
-                                        "Завтра", "1"
-                                    )
-                                )
-                                <= DATE
-                                else False
-                            )
-                            for orig in response["searchResult"]["replacements"]
-                            for goods in orig["offers"]
-                        ]
-                
-                if ANALOG and "analogs" in response["searchResult"]:
-                    if IS_BIGGER:
-                        originals += [
-                            (
-                                [
-                                    goods["offerKey"],
-                                    int(
-                                        str(goods["delivery"]["value"]).replace(
-                                            "Завтра", "1"
-                                        )
-                                    ),
-                                    goods["displayPrice"]["value"],
-                                    goods["data"]["maxQuantity"]["value"],
-                                ]
-                                if int(
-                                    str(goods["delivery"]["value"]).replace(
-                                        "Завтра", "1"
-                                    )
-                                )
-                                >= DATE
-                                else False
-                            )
-                            for orig in response["searchResult"]["analogs"][
-                                :DEEP_ANALOG
-                            ]
-                            for goods in orig["offers"]
-                        ]
-                    else:
-                        originals += [
-                            (
-                                [
-                                    goods["offerKey"],
-                                    int(
-                                        str(goods["delivery"]["value"]).replace(
-                                            "Завтра", "1"
-                                        )
-                                    ),
-                                    goods["displayPrice"]["value"],
-                                    goods["data"]["maxQuantity"]["value"],
-                                ]
-                                if int(
-                                    str(goods["delivery"]["value"]).replace(
-                                        "Завтра", "1"
-                                    )
-                                )
-                                <= DATE
-                                else False
-                            )
-                            for orig in response["searchResult"]["analogs"][
-                                :DEEP_ANALOG
-                            ]
-                            for goods in orig["offers"]
-                        ]
+                await self.saving_to_json(result=result)
+                self.checked_data.append(result)
+            except Exception as e:
+                self.back_brand(brand=brand)
+                traceback.print_exc()
 
-                originals = [data for data in originals if data]
-            if originals == []:
-                result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], brand[8], 0, 0, 0, 0,]
-                if LOGO:
-                    result.append(0)
-                with user_locks[user_id]:
-                    user_data[user_id]["excel_result"].append(result)
-                    saving_to_json = {
-                        "good_code": result[0],
-                        "article": result[1],
-                        "name": result[2],
-                        "brand": result[3],
-                        "article1": result[4],
-                        "quantity": result[5],
-                        "price": result[6],
-                        "abcpprice": result[7],
-                        "batch": result[8],
-                        "logo": result[9],
-                        "delivery_time": result[10],
-                        "best_price": result[11],
-                        "quantity1": result[12]
-                    }
-                    if len(result) > 13: saving_to_json["new_price"] = result[13]
-                    await rezerv_copy(os.path.join(settings.upload.path_for_upload, f"{user_id}_parsing.json"), saving_to_json)
-                    user_data[user_id]["counter_parsered"] += 1
-                if user_locks[user_id].locked():
-                    print(f"2. Поток {threading.current_thread().name} ожидает разблокировки")
-                else:
-                    print(f"2. Поток {threading.current_thread().name} не блокирован")
-            
-            else:
-                sorted_data_by_date = quick_sort(originals, 1)
-                # cut_data_by_date = sorted_data_by_date[:len(sorted_data_by_date)//2+1]
-                cut_data_by_date = sorted_data_by_date[:DEEP_FILTER]
-
-                # sorted_data_by_availability = quick_sort(cut_data_by_date, 3)
-                # cut_data_by_availability = sorted_data_by_availability[-DEEP_FILTER:]
-
-                # best_data = min(cut_data_by_availability, key=lambda x: x[2])
-                sorted_by_price = quick_sort(cut_data_by_date, 2)
-                best_data = sorted_by_price[0]
-                for idx in range(len(best_data)):
-                    try:
-                        best_data[idx] = int(best_data[idx])
-                    except:
-                        pass
-                
-                if ONLY_FIRST_LOGO:
-                    print("tut")
-                    first_second_goods = sorted_by_price[:2]
-                    price_with_logo = 0
-                    result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], brand[8], 0, 0, 0, 0, 0]
-                    for good in first_second_goods:
-                        while True:
-                            try:
-                                try:
-                                    async with httpx.AsyncClient(proxies=proxies, headers=headers, timeout=httpx.Timeout(read=timeout1, pool=timeout1, connect=timeout1, write=timeout1)) as client:
-                                        response = await client.get(f"https://emex.ru/api/search/rating?offerKey={good[0]}")
-                                        response_with_logo = response.json()
-                                        break
-                                except:
-                                    async with httpx.AsyncClient(proxies=proxies, headers=headers, timeout=httpx.Timeout(read=timeout1, pool=timeout1, connect=timeout1, write=timeout1)) as client:
-                                        response = await client.get(f"https://emex.ru/api/search/rating?offerKey={good[0]}")
-                                        response_with_logo = response.json()
-                                        break
-                            except httpx.TimeoutException as esda:
-                                traceback.print_exc()
-                                print("Ошибка", esda)
-                        
-                        if response_with_logo["priceLogo"] != LOGO:
-                            result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], brand[8], response_with_logo["priceLogo"], *good[1:], price_with_logo]
-                            print("HYI", result)
-                            break
-                        else:
-                            price_with_logo = good[2]
-                            print("TUUTUTUT", price_with_logo)
-                else:
-                    try:
-                        async with httpx.AsyncClient(proxies=proxies, headers=headers, timeout=httpx.Timeout(read=timeout1, pool=timeout1, connect=timeout1, write=timeout1)) as client:
-                            response = await client.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}")
-                            response_with_logo = response.json()
-                    except:
-                        async with httpx.AsyncClient(proxies=proxies, headers=headers, timeout=httpx.Timeout(read=timeout1, pool=timeout1, connect=timeout1, write=timeout1)) as client:
-                            response = await client.get(f"https://emex.ru/api/search/rating?offerKey={best_data[0]}")
-                            response_with_logo = response.json()
-                    await asyncio.sleep(0.2)    
-                    t = 2
-                    price_logo = response_with_logo["priceLogo"]
-
-                    result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], brand[8], price_logo, *best_data[1:],]
-                    if LOGO:
-                        best_data = None
-                        sorted_by_price = quick_sort(originals, 2)[:10]
-                        for data in sorted_by_price:
-                            try:
-                                async with httpx.AsyncClient(proxies=proxies, headers=headers, timeout=httpx.Timeout(read=timeout1, pool=timeout1, connect=timeout1, write=timeout1)) as client:
-                                    response = await client.get(f"https://emex.ru/api/search/rating?offerKey={data[0]}")
-                                    response_with_logo = response.json()
-                            except:
-                                async with httpx.AsyncClient(proxies=proxies, headers=headers, timeout=httpx.Timeout(read=timeout1, pool=timeout1, connect=timeout1, write=timeout1)) as client:
-                                    response = await client.get(f"https://emex.ru/api/search/rating?offerKey={data[0]}")
-                                    response_with_logo = response.json()
-                            price_logo = response_with_logo["priceLogo"]
-
-                            data[0] = price_logo
-                            if price_logo == LOGO:
-                                best_data = data
-                                break
-                            await asyncio.sleep(timeout3)
-                        if best_data:
-                            result.append(int(best_data[2]))
-                        else:
-                            result.append(0)
-                        t = 3
-                with user_locks[user_id]:
-                    user_data[user_id]["excel_result"].append(result)
-                    t = 4
-                    saving_to_json = {
-                        "good_code": result[0],
-                        "article": result[1],
-                        "name": result[2],
-                        "brand": result[3],
-                        "article1": result[4],
-                        "quantity": result[5],
-                        "price": result[6],
-                        "abcpprice": result[7],
-                        "batch": result[8],
-                        "logo": result[9],
-                        "delivery_time": result[10],
-                        "best_price": result[11],
-                        "quantity1": result[12]
-                    }
-                    if len(result) > 13: saving_to_json["new_price"] = result[13]
-                    await rezerv_copy(os.path.join(settings.upload.path_for_upload, f"{user_id}_parsing.json"), saving_to_json)
-                    t = 5
-                    user_data[user_id]["counter_parsered"] += 1
-                    t = 6
-                if user_locks[user_id].locked():
-                    print(f"3. Поток {threading.current_thread().name} ожидает разблокировки")
-                else:
-                    print(f"3. Поток {threading.current_thread().name} не блокирован")
-        except Exception as e:
-            print("pupupulya")
-            traceback.print_exc()
-            with user_locks[user_id]:
-                user_data[user_id]["brands"].append(brand)
-            msg = "message='Proxy Authentication Required'"
-            if msg in repr(e):
-                raise ProxyException("Proxy Authentication Required")
-
-            print("-="*20)
-            print("Общее исключение\nОшибка:", e, brand, t)
-            print("-="*20)
-            if user_locks[user_id].locked():
-                print(f"4. Поток {threading.current_thread().name} ожидает разблокировки")
-            else:
-                print(f"4. Поток {threading.current_thread().name} не блокирован")
-        except ProxyException as e:
-            user_data[user_id]["status"] = "ALL_PROXIES_BANNED"
-            user_data[user_id]["count_brands"] = user_data[user_id]["counter_parsered"]
-            print("Трафик кончился")
-            for index in range(count_of_threadings):
-                user_data[user_id]["events"][index].set()
-                user_data[user_id]["stop"][index] = True
-            break
-
-def run(user_id, using_proxy):
-    asyncio.run(main(user_id, using_proxy))
+def run(parser: ParserEmex):
+    asyncio.run(parser.start_parser())

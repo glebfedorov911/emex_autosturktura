@@ -205,10 +205,7 @@ class ParserEmex:
     
     async def algorithm_get_best_about_good(self, best_data, brand, headers, timeout, proxies):
         url = f"https://emex.ru/api/search/rating?offerKey={best_data[0]}"
-        try:
-            response = await self.get_response(url=url, headers=headers, timeout=timeout, proxies=proxies)
-        except:
-            response = await self.get_response(url=url, headers=headers, timeout=timeout, proxies=proxies)
+        response = await self.double_request(url=url, headers=headers, timeout=timeout, proxies=proxies)
 
         price_logo = response["priceLogo"]
         result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], brand[8], price_logo, *best_data[1:],]
@@ -237,7 +234,7 @@ class ParserEmex:
             url = self.create_url(brand)
 
             try:
-                response = await self.get_response(url=url, headers=self.headers, timeout=timeout1, proxies=proxies) 
+                response = await self.double_request(url=url, headers=headers, timeout=timeout, proxies=proxies) 
                 goods = []
                 if "originals" in response["searchResult"]:
                     goods += self.get_data_from_response(response=response, _type="originals")

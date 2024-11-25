@@ -127,21 +127,10 @@ async def main(user_id, using_proxy, index):
                 timeout2 = 5
                 timeout3 = 0.2
             elif using_proxy == "BRIGHTDATA":
-                if index % 3 == 0:
-                    proxies = {
-                        "http://": os.getenv("BRIGHTDATAPROXY1"),
-                        "https://": os.getenv("BRIGHTDATAPROXY1"),
-                    }
-                elif index % 2 == 0:
-                    proxies = {
-                        "http://": os.getenv("BRIGHTDATAPROXY2"),
-                        "https://": os.getenv("BRIGHTDATAPROXY2"),
-                    }
-                else:
-                    proxies = {
-                        "http://": os.getenv("BRIGHTDATAPROXY3"),
-                        "https://": os.getenv("BRIGHTDATAPROXY3"),
-                    }
+                proxies = {
+                    "http://": os.getenv(random.choice(["BRIGHTDATAPROXY1", "BRIGHTDATAPROXY2", "BRIGHTDATAPROXY3"])),
+                    "https://": os.getenv(random.choice(["BRIGHTDATAPROXY1", "BRIGHTDATAPROXY2", "BRIGHTDATAPROXY3"])),
+                }
                 # proxies = {
                 #     "http://": os.getenv("BRIGHTDATAPROXY1"),
                 #     "https://": os.getenv("BRIGHTDATAPROXY1"),

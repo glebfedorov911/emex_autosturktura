@@ -136,8 +136,8 @@ async def main(user_id, using_proxy, index):
                 #     "http://": os.getenv("BRIGHTDATAPROXY1"),
                 #     "https://": os.getenv("BRIGHTDATAPROXY1"),
                 # }
-                timeout1 = 30
-                timeout2 = 35
+                timeout1 = 12
+                timeout2 = 15
                 timeout3 = 1.5
                 
             try:

@@ -48,7 +48,7 @@ class Settings(BaseSettings):
     docs: Docs = Docs()
 
 settings = Settings()
-
+#
 if not os.path.exists(settings.upload.path_for_upload):
     os.makedirs(settings.upload.path_for_upload)
 

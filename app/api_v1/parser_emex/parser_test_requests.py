@@ -59,7 +59,9 @@ async def main(user_id, using_proxy, index):
     REPLACEMENT = user_data[user_id]["filter"].replacement
     IS_BIGGER = user_data[user_id]["filter"].is_bigger 
     DATE = user_data[user_id]["filter"].date
-    LOGO = user_data[user_id]["filter"].logo 
+    LOGO = user_data[user_id]["filter"].logo
+    if LOGO:
+        LOGO = LOGO.split(" ") 
     PICKUP_POINT = user_data[user_id]["filter"].pickup_point
     browser = None
     user_data[user_id]["all_break"] = False
@@ -412,10 +414,10 @@ async def main(user_id, using_proxy, index):
                 
                 if ONLY_FIRST_LOGO:
                     print("tut")
-                    first_second_goods = sorted_by_price[:2]
-                    price_with_logo = 0
+                    first_LOGOS_goods = sorted_by_price[:len(LOGO)+1]
+                    price_with_logo = 10**10
                     result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], brand[8], 0, 0, 0, 0, 0]
-                    for good in first_second_goods:
+                    for good in first_LOGOS_goods:
                         while True:
                             try:
                                 try:
@@ -432,13 +434,15 @@ async def main(user_id, using_proxy, index):
                                 traceback.print_exc()
                                 print("Ошибка", esda)
                         
-                        if response_with_logo["priceLogo"] != LOGO:
+                        if response_with_logo["priceLogo"] not in LOGO:
                             result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], brand[8], response_with_logo["priceLogo"], *good[1:], price_with_logo]
                             print("HYI", result)
                             break
                         else:
-                            price_with_logo = good[2]
+                            price_with_logo = min(int(good[2]), price_with_logo)
                             print("TUUTUTUT", price_with_logo)
+                    if price_with_logo == 10**10:
+                        result[-1] = 0
                 else:
                     try:
                         async with httpx.AsyncClient(proxies=proxies, headers=headers, timeout=httpx.Timeout(read=timeout1, pool=timeout1, connect=timeout1, write=timeout1)) as client:
@@ -468,7 +472,7 @@ async def main(user_id, using_proxy, index):
                             price_logo = response_with_logo["priceLogo"]
 
                             data[0] = price_logo
-                            if price_logo == LOGO:
+                            if price_logo in LOGO:
                                 best_data = data
                                 break
                             await asyncio.sleep(timeout3)

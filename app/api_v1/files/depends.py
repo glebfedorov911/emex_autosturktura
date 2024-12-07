@@ -38,6 +38,9 @@ def check_same(file):
         file_upload_user = [list(map(str, row)) for row in pd.read_excel(file).values.tolist()]
         head = file_upload_user[3]
         rows_with_data = file_upload_user[4:]
+        for en, i in enumerate(rows_with_data):
+            if not (head == RIGHT_DATA and len(i) - i.count('nan') == len(RIGHT_DATA)):
+                print(en, i)
         return head == RIGHT_DATA and all([len(i) - i.count('nan') == len(RIGHT_DATA) for i in rows_with_data])
     except:
         return False

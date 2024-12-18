@@ -281,6 +281,7 @@ async def start(
         files = (
             await crud.get_last_upload_files(user_id=user_id, session=session)
         )
+        files_id = files.id
         files = files.before_parsing_filename
     except Exception as e:
         print("-="*20)
@@ -316,7 +317,7 @@ async def start(
         return JSONResponse("Неизвестный фальтр")
     else:
         await crud.set_parsing(session=session, status=True, user_id=payload.get("sub"))
-        await crud.set_filter_for_parsing_file(session=session, filter_id=filter_id, file_id=files.id)
+        await crud.set_filter_for_parsing_file(session=session, filter_id=filter_id, file_id=files_id)
         
         df = pd.read_excel(str(settings.upload.path_for_upload) + "/" + files)
 

@@ -61,16 +61,34 @@ async def download_file(file_id: int, session: AsyncSession = Depends(db_helper.
 
 @router.get("/download_file/after_parsing/{file_id}")
 async def download_file(file_id: int, session: AsyncSession = Depends(db_helper.session_depends)):
-    return await crud.create_file(session=session, file_id=file_id, filestart="ПОСЛЕ_ПАРСИНГА")
+    try:
+        return await crud.create_file(session=session, file_id=file_id, filestart="ПОСЛЕ_ПАРСИНГА")
+    except:
+        return HTTPException(
+            status_code=status.HTTP_425_TOO_EARLY,
+            detail="Файл еще не начал парситься"
+        )
 
 @router.get("/download_file/after_parsing_without_nds/{file_id}")
 async def download_file(file_id: int, session: AsyncSession = Depends(db_helper.session_depends)):
-    return await crud.create_file(session=session, file_id=file_id, filestart="ПОСЛЕ_ПАРСИНГА_БЕЗ_НДС", nds=False)
+    try:
+        return await crud.create_file(session=session, file_id=file_id, filestart="ПОСЛЕ_ПАРСИНГА_БЕЗ_НДС", nds=False)
+    except:
+        return HTTPException(
+            status_code=status.HTTP_425_TOO_EARLY,
+            detail="Файл еще не начал парситься"
+        )
 
 @router.get("/download_file/after_parsing_with_nds/{file_id}")
 async def download_file(file_id: int, session: AsyncSession = Depends(db_helper.session_depends)):
-    return await crud.create_file(session=session, file_id=file_id, filestart="ПОСЛЕ_ПАРСИНГА_C_НДС", nds=True)
-
+    try:
+        return await crud.create_file(session=session, file_id=file_id, filestart="ПОСЛЕ_ПАРСИНГА_C_НДС", nds=True)
+    except:
+        return HTTPException(
+            status_code=status.HTTP_425_TOO_EARLY,
+            detail="Файл еще не начал парситься"
+        )
+        
 @router.get("/all_files")
 async def get_files(session: AsyncSession = Depends(db_helper.session_depends), payload = Depends(get_payload)):
     return await crud.get_files_by_user_id(session=session, user_id=payload.get("sub"))

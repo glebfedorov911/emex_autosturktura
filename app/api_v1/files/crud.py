@@ -68,7 +68,7 @@ async def getDataForCreateFile(session: AsyncSession, file_id: int, nds: bool = 
 
 async def create_file(session: AsyncSession, file_id: int, filestart: str, nds: bool = None):
     filename = await get_files_by_id(session=session, file_id=file_id)
-    check_has_last_file_after_parsing(filename)
+    # check_has_last_file_after_parsing(filename)
     result_file_name = f"{filestart}_{filename.before_parsing_filename}"
     if not os.path.exists(filepath := os.path.join(settings.upload.path_for_upload, result_file_name)):
         headerFile, dataForCreatingFile = await getDataForCreateFile(session=session, file_id=file_id, nds=nds)

@@ -153,3 +153,16 @@ async def set_parsing(session: AsyncSession, status: bool, user_id: int):
 
     session.add(user)
     await session.commit()
+
+async def set_filter_for_parsing_file(session: AsyncSession, filter_id: int, file_id: int) -> None:
+    stmt = select(NewFilter).where(NewFilter.id==filter_id)
+    result: Result = await session.execute(stmt)
+    filter_name = result.scalar().title
+
+    stmt = select(File).where(File.id==file_id)
+    result: Result = await session.execute(stmt)
+    file = result.scalar()
+
+    file.new_filter_id = filter_name
+    session.add(file)
+    await session.commit()

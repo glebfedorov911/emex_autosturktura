@@ -15,7 +15,9 @@ import os
 
 
 async def create_file_in_db(session: AsyncSession, user_id: int, filename: str):
-    files = FilesCreate(user_id=user_id, before_parsing_filename=filename)
+    files = FilesCreate(user_id=user_id, before_parsing_filename=filename, filename_after_parsing=f"ПОСЛЕ_ПАРСИНГА_{filename}", 
+    filename_after_parsing_without_nds=f"ПОСЛЕ_ПАРСИНГА_БЕЗ_НДС_{filename}", 
+    filename_after_parsing_with_nds=f"ПОСЛЕ_ПАРСИНГА_С_НДС_{filename}")
     new_file = File(**files.model_dump())
     session.add(new_file)
     await session.commit()

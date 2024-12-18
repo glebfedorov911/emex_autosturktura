@@ -21,7 +21,15 @@ async def get_files(session: AsyncSession, user_id: int):
     stmt = select(File).where(File.user_id==user_id).order_by(File.date)
     result: Result = await session.execute(stmt)
     files = result.scalars().all()
-
+    for file in files:
+        if not file.filename_after_parsing:
+            file.filename_after_parsing = f"ПОСЛЕ_ПАРСИНГА_{file.before_parsing_filename}"
+            file.filename_after_parsing_without_nds = f"ПОСЛЕ_ПАРСИНГА_БЕЗ_НДС_{file.before_parsing_filename}"
+            file.filename_after_parsing_with_nds = f"ПОСЛЕ_ПАРСИНГА_С_НДС_{file.before_parsing_filename}"
+            session.add(file)
+    await session.commit()
+    result: Result = await session.execute(stmt)
+    files = result.scalars().all()
     return files
 
 def zero_files(files):

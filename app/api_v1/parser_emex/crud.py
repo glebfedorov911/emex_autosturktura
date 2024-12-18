@@ -101,9 +101,9 @@ async def get_title_filter(session: AsyncSession, filter_id_global: int):
 async def add_final_file_to_table(user_id: int, session: AsyncSession, filter_id_global: int):
     file = await get_last_upload_files(user_id=user_id, session=session)
     file.is_after_parsing = True
-    file.filename_after_parsing_with_nds = f"ПОСЛЕ_ПАРСИНГА_С_НДС_{file.before_parsing_filename}"
-    file.filename_after_parsing_without_nds = f"ПОСЛЕ_ПАРСИНГА_БЕЗ_НДС_{file.before_parsing_filename}"
-    file.filename_after_parsing = f"ПОСЛЕ_ПАРСИНГА_{file.before_parsing_filename}"
+    # file.filename_after_parsing_with_nds = f"ПОСЛЕ_ПАРСИНГА_С_НДС_{file.before_parsing_filename}"
+    # file.filename_after_parsing_without_nds = f"ПОСЛЕ_ПАРСИНГА_БЕЗ_НДС_{file.before_parsing_filename}"
+    # file.filename_after_parsing = f"ПОСЛЕ_ПАРСИНГА_{file.before_parsing_filename}"
     file.finish_date = datetime.now()
     file.new_filter_id = await get_title_filter(session=session, filter_id_global=filter_id_global)
     await session.commit()

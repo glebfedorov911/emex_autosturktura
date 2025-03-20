@@ -104,8 +104,8 @@ async def websocket_endpoint(
                 ud["count_brands"] = 1
             await websocket.send_json(
                 {
-                    "Percent_parsing_goods": int(
-                        ud["counter_parsered"] / ud["count_brands"] * 100
+                    "Percent_parsing_goods": round(
+                        ud["counter_parsered"] / ud["count_brands"] * 100, 2
                     ),
                 }
             )

@@ -17,13 +17,14 @@ RUN . venv/bin/activate && pip install --upgrade pip
 
 # Копируем файл зависимостей в контейнер
 COPY requirements.txt .
-
+COPY entrypoint.sh .
+RUN chmod +x entrypoint.sh
 # Устанавливаем зависимости
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Копируем все файлы проекта в контейнер
 COPY . .
-
+ENTRYPOINT ["./entrypoint.sh"]
 # Указываем команду для запуска приложения
 CMD ["sh", "-c", "alembic upgrade head && playwright install-deps && playwright install && python main.py"]
 # CMD ["sh", "-c", "alembic upgrade head && python main.py"]

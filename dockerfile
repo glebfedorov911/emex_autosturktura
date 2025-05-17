@@ -23,7 +23,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Копируем все файлы проекта в контейнер
 COPY . .
-
+RUN alembic init -t async alembic
+RUN alembic revision -m "create accounts table"
+RUN alembic revision --autogenerate -m "Create products table"
 # Указываем команду для запуска приложения
 CMD ["sh", "-c", "alembic upgrade head && playwright install-deps && playwright install && python main.py"]
 # CMD ["sh", "-c", "alembic upgrade head && python main.py"]

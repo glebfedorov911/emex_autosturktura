@@ -104,7 +104,7 @@ async def websocket_endpoint(
                             result = result.scalars().all()
 
                             proxies = [
-                                f"http://{i.login}:{i.password}@{i.host}:{i.port}"
+                                f"http://{i.login}:{i.password}@{i.address}:{i.port}"
                                 for i in result]
 
                             user_data[payload.get("sub")]["events"][i].clear()
@@ -261,7 +261,7 @@ async def websocket_status_endpoint(
                             result = result.scalars().all()
 
                             proxies = [
-                                f"http://{i.login}:{i.password}@{i.host}:{i.port}"
+                                f"http://{i.login}:{i.password}@{i.address}:{i.port}"
                                 for i in result]
 
                             user_data[payload.get("sub")]["events"][index].clear()
@@ -362,7 +362,7 @@ async def start(
             result = result.scalars().all()
 
             proxies = [
-                f"http://{i.login}:{i.password}@{i.host}:{i.port}"
+                f"http://{i.login}:{i.password}@{i.address}:{i.port}"
             for i in result]
 
             if (

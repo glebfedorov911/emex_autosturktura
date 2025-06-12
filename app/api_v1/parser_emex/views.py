@@ -373,7 +373,9 @@ async def get_all_available_country_zone(payload = Depends(get_payload)):
             "Authorization": f"Bearer {settings.proxy.BRIGHT_DATA_TOKEN}",
         }
         r = requests.get("https://api.brightdata.com/countrieslist", headers=headers)
-        return json.loads(r.content)["zone_type"]["DC_shared"]["country_codes"]
+        return {
+            "countries": json.loads(r.content)["zone_type"]["DC_shared"]["country_codes"]
+        }
     except Exception as e:
         print(e)
         return str(e)

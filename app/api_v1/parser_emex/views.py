@@ -393,7 +393,6 @@ async def create_new_zones(countries: ProxyCountriesCreateSchemas, payload = Dep
             "Authorization": f"Bearer {settings.proxy.BRIGHT_DATA_TOKEN}",
         }
         json_data = {
-            {
                 "zone": {
                     "name": f"{country}_zone",
                     "type": "datacenter"
@@ -408,7 +407,7 @@ async def create_new_zones(countries: ProxyCountriesCreateSchemas, payload = Dep
                     "country": f"{country}"
                 }
             }
-        }
+
         r = requests.post("https://api.brightdata.com/zone", json=json_data, headers=headers)
         login = f'brd-customer-hl_38726487-zone-{country}_zone'
         password = json.loads(r.content)["zone"]["password"][0]

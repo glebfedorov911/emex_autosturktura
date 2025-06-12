@@ -291,7 +291,7 @@ async def websocket_status_endpoint(
 @router.get("/start/{filter_id}")
 async def start(
     filter_id: int,
-    proxies_id,
+    proxies_id = [2, 3],
     using_proxy: str = "MANGO",
     payload = Depends(get_payload),
     session: AsyncSession = Depends(db_helper.session_depends),

@@ -1,5 +1,9 @@
 from fastapi import HTTPException, status
 
+from sqlalchemy import select
+from sqlalchemy.engine import Result
+from app.core.models.proxy_bright_data import ProxyBrightData
+
 import asyncio
 import json
 import time
@@ -48,7 +52,7 @@ async def rezerv_copy(filepath: str, data: dict):
         json_data = json.dumps(data, ensure_ascii=False, indent=4)
         await f.write(json_data)
 
-async def main(user_id, using_proxy, index):
+async def main(user_id, using_proxy, index, proxies2):
     global user_data, user_locks
     user_locks[user_id] = threading.Lock()
 
@@ -129,10 +133,10 @@ async def main(user_id, using_proxy, index):
                 timeout2 = 5
                 timeout3 = 0.2
             elif using_proxy == "BRIGHTDATA":
-                proxy_type = random.choice(["BRIGHTDATAPROXY1", "BRIGHTDATAPROXY2", "BRIGHTDATAPROXY3"])
+                proxy_type = random.choice(proxies2)
                 proxies = {
-                    "http://": os.getenv(proxy_type),
-                    "https://": os.getenv(proxy_type),
+                    "http://": proxy_type,
+                    "https://": proxy_type,
                 }
                 # proxies = {
                 #     "http://": os.getenv("BRIGHTDATAPROXY1"),
@@ -533,5 +537,5 @@ async def main(user_id, using_proxy, index):
                 user_data[user_id]["stop"][index] = True
             break
 
-def run(user_id, using_proxy, index):
-    asyncio.run(main(user_id, using_proxy, index))
+def run(user_id, using_proxy, index, proxies):
+    asyncio.run(main(user_id, using_proxy, index, proxies))

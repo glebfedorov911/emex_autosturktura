@@ -75,6 +75,7 @@ async def websocket_endpoint(
             "using_proxy": None,
             "start": 0,
             "skip": 0,
+            "proxies_id": []
         }
     else:
         if not "threads" in user_data[payload.get("sub")]:
@@ -88,6 +89,7 @@ async def websocket_endpoint(
                 "using_proxy": None,
                 "start": 0,
                 "skip": 0,
+                "proxies_id": []
             }
 
     await websocket.accept()
@@ -97,9 +99,17 @@ async def websocket_endpoint(
                 if user_data[payload.get("sub")]["status"] == "PARSER_RUNNING":
                     try:   
                         if (not user_data[payload.get("sub")]["threads"][i].is_alive()):
+                            stmt = select(ProxyBrightData).where(ProxyBrightData.id.in_(user_data[payload.get("sub")]["proxies_id"]))
+                            result = await session.execute(stmt)
+                            result = result.scalars().all()
+
+                            proxies = [
+                                f"http://{i.login}:{i.password}@{i.host}:{i.port}"
+                                for i in result]
+
                             user_data[payload.get("sub")]["events"][i].clear()
                             user_data[payload.get("sub")]["threads"][i] = Thread(
-                                target=run, args=(payload.get("sub"), user_data[payload.get("sub")]["using_proxy"], i)
+                                target=run, args=(payload.get("sub"), user_data[payload.get("sub")]["using_proxy"], i, proxies)
                             )
                             user_data[payload.get("sub")]["threads"][i].start()
                     except Exception as e:
@@ -146,6 +156,7 @@ async def websocket_status_endpoint(
             "using_proxy": None,
             "start": 0,
             "skip": 0,
+            "proxies_id": []
         }
     else:
         if not "threads" in user_data[payload.get("sub")]:
@@ -159,6 +170,7 @@ async def websocket_status_endpoint(
                 "using_proxy": None,
                 "start": 0,
                 "skip": 0,
+                "proxies_id": []
             }
 
     await websocket.accept()
@@ -244,9 +256,17 @@ async def websocket_status_endpoint(
                         cnt = len(ud["brands"]) if len(ud["brands"]) < count_of_threadings else count_of_threadings
                         ud["status"] = "PARSER_RUNNING"
                         for index in range(cnt):
+                            stmt = select(ProxyBrightData).where(ProxyBrightData.id.in_(user_data[payload.get("sub")]["proxies_id"]))
+                            result = await session.execute(stmt)
+                            result = result.scalars().all()
+
+                            proxies = [
+                                f"http://{i.login}:{i.password}@{i.host}:{i.port}"
+                                for i in result]
+
                             user_data[payload.get("sub")]["events"][index].clear()
                             user_data[payload.get("sub")]["threads"][index] = Thread(
-                                target=run, args=(payload.get("sub"), user_data[payload.get("sub")]["using_proxy"], index)
+                                target=run, args=(payload.get("sub"), user_data[payload.get("sub")]["using_proxy"], index, proxies)
                             )
                             user_data[payload.get("sub")]["threads"][index].start()
                 if "stop" in ud:
@@ -271,6 +291,7 @@ async def websocket_status_endpoint(
 @router.get("/start/{filter_id}")
 async def start(
     filter_id: int,
+    proxies_id,
     using_proxy: str = "MANGO",
     payload = Depends(get_payload),
     session: AsyncSession = Depends(db_helper.session_depends),
@@ -315,6 +336,7 @@ async def start(
             "using_proxy": using_proxy,
             "start": 0,
             "skip": 0,
+            "proxies_id": proxies_id
         }
     if files is None:
         user_data[payload.get("sub")]["status"] = "Данный файл уже спаршен либо не загружен"
@@ -335,13 +357,21 @@ async def start(
         user_data[user_id]["brands"] = brands
 
         for index in range(count_of_threadings):
+            stmt = select(ProxyBrightData).where(ProxyBrightData.id.in_(proxies_id))
+            result = await session.execute(stmt)
+            result = result.scalars().all()
+
+            proxies = [
+                f"http://{i.login}:{i.password}@{i.host}:{i.port}"
+            for i in result]
+
             if (
                 user_data[user_id]["threads"][index] is None
                 or not user_data[user_id]["threads"][index].is_alive()
             ):
                 user_data[user_id]["events"][index].clear()
                 user_data[user_id]["threads"][index] = Thread(
-                    target=run, args=(user_id, using_proxy, index, )
+                    target=run, args=(user_id, using_proxy, index, proxies)
                 )
                 user_data[user_id]["threads"][index].start()
                 messages.append(f"поток {index+1} запущен")

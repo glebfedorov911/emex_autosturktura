@@ -29,4 +29,6 @@ class ParserCreate(BaseModel):
     quantity1: str
     user_id: int
     file_id: int 
-    
+
+class ProxyCountriesCreateSchemas(BaseModel):
+    countries: list[str]

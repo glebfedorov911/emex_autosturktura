@@ -11,6 +11,8 @@ from fastapi import (
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import JSONResponse, FileResponse
 
+from sqlalchemy import select
+from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from threading import Thread, Event
@@ -18,12 +20,14 @@ from datetime import datetime
 
 from app.core.config import settings
 from app.core.models import db_helper
+from app.core.models.proxy_bright_data import ProxyBrightData
 from app.api_v1.auth.utils import get_payload
 from app.api_v1.utils.depends import edit_file, get_unique_filename
 
 from . import crud
 from .parser_test_requests import user_data, run
 from .depends import *
+from .schemas import ProxyCountriesCreateSchemas
 
 import asyncio
 import time
@@ -380,3 +384,52 @@ async def get_all_available_country_zone(payload = Depends(get_payload)):
         print(e)
         return str(e)
 
+@router.post("/create-new-zones")
+async def create_new_zones(countries: ProxyCountriesCreateSchemas, payload = Depends(get_payload),
+       session: AsyncSession = Depends(db_helper.session_depends),
+    ):
+    for country in countries.model_dump():
+        headers = {
+            "Authorization": f"Bearer {settings.proxy.BRIGHT_DATA_TOKEN}",
+        }
+        json_data = {
+            {
+                "zone": {
+                    "name": f"{country}_zone",
+                    "type": "datacenter"
+                },
+                "plan": {
+                    "type": "static",
+                    "domain_whitelist": "*",
+                    "ips_type": "shared",
+                    "bandwidth": "payperusage",
+                    "ip_alloc_preset": "shared_block",
+                    "ips": 0,
+                    "country": f"{country}"
+                }
+            }
+        }
+        r = requests.post("https://api.brightdata.com/zone", json=json_data, headers=headers)
+        login = f'brd-customer-hl_38726487-zone-{country}_zone'
+        password = json.loads(r.content)["zone"]["password"][0]
+        address = "brd.superproxy.io"
+        port = "33335"
+
+        data = {
+            "login": login,
+            "password": password,
+            "address": address,
+            "port": port,
+        }
+
+        proxy = ProxyBrightData(**data)
+        session.add(proxy)
+        await session.commit()
+
+@router.get("/get-all-available-proxies")
+async def get_all_available_proxies(
+        session: AsyncSession = Depends(db_helper.session_depends),
+):
+    stmt = select(ProxyBrightData)
+    result: Result = await session.execute(stmt)
+    return result.scalars().all()

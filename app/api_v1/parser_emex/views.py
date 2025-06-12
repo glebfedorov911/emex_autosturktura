@@ -410,6 +410,7 @@ async def create_new_zones(countries: ProxyCountriesCreateSchemas, payload = Dep
 
         r = requests.post("https://api.brightdata.com/zone", json=json_data, headers=headers)
         login = f'brd-customer-hl_38726487-zone-{country}_zone'
+        print("fdskkfddf", r.content)
         password = json.loads(r.content)["zone"]["password"][0]
         address = "brd.superproxy.io"
         port = "33335"

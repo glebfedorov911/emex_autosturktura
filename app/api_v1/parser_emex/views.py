@@ -388,25 +388,25 @@ async def get_all_available_country_zone(payload = Depends(get_payload)):
 async def create_new_zones(countries: ProxyCountriesCreateSchemas, payload = Depends(get_payload),
        session: AsyncSession = Depends(db_helper.session_depends),
     ):
-    for country in countries.model_dump():
+    for country in countries.model_dump()["countries"]:
         headers = {
             "Authorization": f"Bearer {settings.proxy.BRIGHT_DATA_TOKEN}",
         }
         json_data = {
-                "zone": {
-                    "name": f"{country}_zone",
-                    "type": "datacenter"
-                },
-                "plan": {
-                    "type": "static",
-                    "domain_whitelist": "*",
-                    "ips_type": "shared",
-                    "bandwidth": "payperusage",
-                    "ip_alloc_preset": "shared_block",
-                    "ips": 0,
-                    "country": f"{country}"
-                }
+            "zone": {
+                "name": f"{country}_zone",
+                "type": "datacenter"
+            },
+            "plan": {
+                "type": "static",
+                "domain_whitelist": "*",
+                "ips_type": "shared",
+                "bandwidth": "payperusage",
+                "ip_alloc_preset": "shared_block",
+                "ips": 0,
+                "country": f"{country}"
             }
+        }
 
         r = requests.post("https://api.brightdata.com/zone", json=json_data, headers=headers)
         login = f'brd-customer-hl_38726487-zone-{country}_zone'

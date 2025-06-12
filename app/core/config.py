@@ -36,7 +36,7 @@ class UploadFiles(BaseModel):
     path_for_upload: Path = BASE_DIR / "upload_file"
 
 class Docs(BaseModel):
-    docs_url: str = "/docs"
+    docs_url: str = ""
 
 class Settings(BaseSettings):
     db: DBSettings = DBSettings()

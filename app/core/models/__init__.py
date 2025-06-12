@@ -7,6 +7,7 @@ __all__ = {
     "File",
     "Parser",
     "NewFilter",
+    "ProxyBrightData"
 }
 
 from .base import Base
@@ -16,3 +17,4 @@ from .proxy import Proxy
 from .file import File
 from .parser import Parser
 from .new_filter import NewFilter
+from .proxy_bright_data import ProxyBrightData

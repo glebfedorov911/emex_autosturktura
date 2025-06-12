@@ -32,6 +32,7 @@ import os
 import pandas as pd
 import threading
 import httpx
+import requests
 
 
 # ДОПИСАТЬ СОХРАНЕНИЕ####
@@ -370,13 +371,9 @@ async def get_all_available_country_zone(payload = Depends(get_payload)):
         headers = {
             "Authorization": f"Bearer {settings.proxy.BRIGHT_DATA_TOKEN}",
         }
-        async with httpx.AsyncClient(headers=headers) as session:
-            response = await session.get("https://api.brightdata.com/countrieslist")
-            print(response.json())
-            return {
-                "countries": response.json()["zone_type"]["DC_shared"]["country_codes"]
-            }
+        r = requests.get("https://api.brightdata.com/zone/get_active_zones", headers=headers)
+        return json.loads(r.content)
     except Exception as e:
         print(e)
-        return "Неверный запрос"
+        return str(e)
 

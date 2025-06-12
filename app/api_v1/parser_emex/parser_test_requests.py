@@ -82,12 +82,12 @@ async def main(user_id, using_proxy, index, proxies2):
 
         for stop in user_data[user_id]["stop"]:
             if stop:
-                print("Остановка парсера началась!")
-                user_data[user_id]["status"] = "Парсер не запущен"
-                user_data[user_id]["excel_result"] = []
-                user_data[user_id]["counter_parsered"] = 0
-                user_data[user_id]["brands"] = []
-                user_data[user_id]["ban_list"] = []
+                # print("Остановка парсера началась!")
+                # user_data[user_id]["status"] = "Парсер не запущен"
+                # user_data[user_id]["excel_result"] = []
+                # user_data[user_id]["counter_parsered"] = 0
+                # user_data[user_id]["brands"] = []
+                # user_data[user_id]["ban_list"] = []
                 return
 
         if user_data[user_id]["all_break"]:
@@ -100,10 +100,10 @@ async def main(user_id, using_proxy, index, proxies2):
 
         with user_locks[user_id]:
             brand = user_data[user_id]["brands"].pop(0)
-        if user_locks[user_id].locked():
-            print(f"1. Поток {threading.current_thread().name} ожидает разблокировки")
-        else:
-            print(f"1. Поток {threading.current_thread().name} не блокирован")
+        # if user_locks[user_id].locked():
+            # print(f"1. Поток {threading.current_thread().name} ожидает разблокировки")
+        # else:
+            # print(f"1. Поток {threading.current_thread().name} не блокирован")
 
         url = f"https://emex.ru/api/search/search?make={create_params_for_url(brand[3])}&detailNum={brand[1]}&locationId={PICKUP_POINT}&showAll=true&longitude=37.8613&latitude=55.7434"
         
@@ -112,17 +112,17 @@ async def main(user_id, using_proxy, index, proxies2):
             print(for_log)
             if user_data[user_id]["count_brands"] == 0:
                 user_data[user_id]["count_brands"] = 1
-            print(int(user_data[user_id]["counter_parsered"] / user_data[user_id]["count_brands"] * 100))
-            print(user_data[user_id]["status"])
-            print("URL сейчас:", url)
-            print("Данных спаршено:", user_data[user_id]["counter_parsered"], "данных всего:", user_data[user_id]["count_brands"])
-            print("Обновление списка (длина):", len(user_data[user_id]["brands"]))
-            print("Потоки", threading.enumerate())
-            try:
-                print(*[f"""{i} | {user_data[user_id]["threads"][i]}: {user_data[user_id]["threads"][i].is_alive()}""" for i in range(len(user_data[user_id]["threads"])) if user_data[user_id]["threads"][i] != None]) #4: {user_data[user_id]["threads"][4].is_alive()} 5: {user_data[user_id]["threads"][5].is_alive()}""")
-            except Exception as e:
-                print("Ошибка в alive модуле", e)
-            print(f"-="*(len(for_log)//2))
+            # print(int(user_data[user_id]["counter_parsered"] / user_data[user_id]["count_brands"] * 100))
+            # print(user_data[user_id]["status"])
+            # print("URL сейчас:", url)
+            # print("Данных спаршено:", user_data[user_id]["counter_parsered"], "данных всего:", user_data[user_id]["count_brands"])
+            # print("Обновление списка (длина):", len(user_data[user_id]["brands"]))
+            # print("Потоки", threading.enumerate())
+            # try:
+            #     print(*[f"""{i} | {user_data[user_id]["threads"][i]}: {user_data[user_id]["threads"][i].is_alive()}""" for i in range(len(user_data[user_id]["threads"])) if user_data[user_id]["threads"][i] != None]) #4: {user_data[user_id]["threads"][4].is_alive()} 5: {user_data[user_id]["threads"][5].is_alive()}""")
+            # except Exception as e:
+            #     print("Ошибка в alive модуле", e)
+            # print(f"-="*(len(for_log)//2))
 
             if using_proxy == "MANGO":
                 proxies = {
@@ -134,6 +134,7 @@ async def main(user_id, using_proxy, index, proxies2):
                 timeout3 = 0.2
             elif using_proxy == "BRIGHTDATA":
                 proxy_type = random.choice(proxies2)
+                print("jfsdjsdfjsdf", proxy_type)
                 proxies = {
                     "http://": proxy_type,
                     "https://": proxy_type,
@@ -394,10 +395,10 @@ async def main(user_id, using_proxy, index, proxies2):
                     if len(result) > 13: saving_to_json["new_price"] = result[13]
                     await rezerv_copy(os.path.join(settings.upload.path_for_upload, f"{user_id}_parsing.json"), saving_to_json)
                     user_data[user_id]["counter_parsered"] += 1
-                if user_locks[user_id].locked():
-                    print(f"2. Поток {threading.current_thread().name} ожидает разблокировки")
-                else:
-                    print(f"2. Поток {threading.current_thread().name} не блокирован")
+                # if user_locks[user_id].locked():
+                    # print(f"2. Поток {threading.current_thread().name} ожидает разблокировки")
+                # else:
+                    # print(f"2. Поток {threading.current_thread().name} не блокирован")
             
             else:
                 sorted_data_by_date = quick_sort(originals, 1)
@@ -417,7 +418,7 @@ async def main(user_id, using_proxy, index, proxies2):
                         pass
                 
                 if ONLY_FIRST_LOGO:
-                    print("tut")
+                    # print("tut")
                     first_LOGOS_goods = sorted_by_price[:len(LOGO)+1]
                     price_with_logo = 10**10
                     result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], brand[8], 0, 0, 0, 0, 0]
@@ -436,15 +437,15 @@ async def main(user_id, using_proxy, index, proxies2):
                                         break
                             except httpx.TimeoutException as esda:
                                 traceback.print_exc()
-                                print("Ошибка", esda)
+                                # print("Ошибка", esda)
                         
                         if response_with_logo["priceLogo"] not in LOGO:
                             result = [brand[0], brand[1], brand[2], brand[3], brand[4], brand[5], brand[6], brand[7], brand[8], response_with_logo["priceLogo"], *good[1:], price_with_logo]
-                            print("HYI", result)
+                            # print("HYI", result)
                             break
                         else:
                             price_with_logo = min(int(good[2]), price_with_logo)
-                            print("TUUTUTUT", price_with_logo)
+                            # print("TUUTUTUT", price_with_logo)
                     if price_with_logo == 10**10:
                         result[-1] = 0
                 else:
@@ -508,12 +509,12 @@ async def main(user_id, using_proxy, index, proxies2):
                     t = 5
                     user_data[user_id]["counter_parsered"] += 1
                     t = 6
-                if user_locks[user_id].locked():
-                    print(f"3. Поток {threading.current_thread().name} ожидает разблокировки")
-                else:
-                    print(f"3. Поток {threading.current_thread().name} не блокирован")
+                # if user_locks[user_id].locked():
+                    # print(f"3. Поток {threading.current_thread().name} ожидает разблокировки")
+                # else:
+                    # print(f"3. Поток {threading.current_thread().name} не блокирован")
         except Exception as e:
-            print("pupupulya")
+            # print("pupupulya")
             traceback.print_exc()
             with user_locks[user_id]:
                 user_data[user_id]["brands"].append(brand)
@@ -521,17 +522,17 @@ async def main(user_id, using_proxy, index, proxies2):
             if msg in repr(e):
                 raise ProxyException("Proxy Authentication Required")
 
-            print("-="*20)
-            print("Общее исключение\nОшибка:", e, brand, t)
-            print("-="*20)
-            if user_locks[user_id].locked():
-                print(f"4. Поток {threading.current_thread().name} ожидает разблокировки")
-            else:
-                print(f"4. Поток {threading.current_thread().name} не блокирован")
+            # print("-="*20)
+            # print("Общее исключение\nОшибка:", e, brand, t)
+            # print("-="*20)
+            # if user_locks[user_id].locked():
+            #     print(f"4. Поток {threading.current_thread().name} ожидает разблокировки")
+            # else:
+            #     print(f"4. Поток {threading.current_thread().name} не блокирован")
         except ProxyException as e:
             user_data[user_id]["status"] = "ALL_PROXIES_BANNED"
             user_data[user_id]["count_brands"] = user_data[user_id]["counter_parsered"]
-            print("Трафик кончился")
+            # print("Трафик кончился")
             for index in range(count_of_threadings):
                 user_data[user_id]["events"][index].set()
                 user_data[user_id]["stop"][index] = True

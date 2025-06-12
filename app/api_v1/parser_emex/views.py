@@ -372,9 +372,11 @@ async def get_all_available_country_zone(payload = Depends(get_payload)):
         }
         async with httpx.AsyncClient(headers=headers) as session:
             response = await session.get("https://api.brightdata.com/countrieslist")
+            print(response.json())
             return {
                 "countries": response.json()["zone_type"]["DC_shared"]["country_codes"]
             }
-    except:
+    except Exception as e:
+        print(e)
         return "Неверный запрос"
 

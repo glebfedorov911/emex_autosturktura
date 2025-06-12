@@ -31,6 +31,7 @@ import random
 import os
 import pandas as pd
 import threading
+import httpx
 
 
 # ДОПИСАТЬ СОХРАНЕНИЕ####
@@ -362,3 +363,18 @@ async def get_rezerv(payload = Depends(get_payload)):
         return FileResponse(os.path.join(settings.upload.path_for_upload, f"{payload.get('sub')}_parsing.json"), media_type='application/json', filename=f"{payload.get('sub')}_parsing.json")
     except:
         return "Нет файла"
+
+@router.get("/get-all-available-country-zone")
+async def get_all_available_country_zone(payload = Depends(get_payload)):
+    try:
+        headers = {
+            "Authorization": f"Bearer {settings.proxy.BRIGHT_DATA_TOKEN}",
+        }
+        async with httpx.AsyncClient(headers=headers) as session:
+            response = await session.get("https://api.brightdata.com/countrieslist")
+            return {
+                "countries": response.json()["zone_type"]["DC_shared"]["country_codes"]
+            }
+    except:
+        return "Неверный запрос"
+

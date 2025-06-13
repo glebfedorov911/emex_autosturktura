@@ -458,6 +458,7 @@ async def create_new_zones(countries: ProxyCountriesCreateSchemas, payload = Dep
             await session.commit()
         return {"message": "success"}
     except:
+        await session.rollback()
         return {"message": "Cannot create new zones"}
 
 @router.get("/get-all-available-proxies")

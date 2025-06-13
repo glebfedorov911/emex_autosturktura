@@ -418,43 +418,47 @@ async def get_all_available_country_zone(payload = Depends(get_payload)):
 async def create_new_zones(countries: ProxyCountriesCreateSchemas, payload = Depends(get_payload),
        session: AsyncSession = Depends(db_helper.session_depends),
     ):
-    for country in countries.model_dump()["countries"]:
-        headers = {
-            "Authorization": f"Bearer {settings.proxy.BRIGHT_DATA_TOKEN}",
-        }
-        name = f"{country}_zone_{random.randint(10000000, 100000000)}"
-        json_data = {
-            "zone": {
-                "name": name,
-                "type": "datacenter"
-            },
-            "plan": {
-                "type": "static",
-                "domain_whitelist": "*",
-                "ips_type": "shared",
-                "bandwidth": "payperusage",
-                "ip_alloc_preset": "shared_block",
-                "ips": 0,
-                "country": f"{country}"
+    try:
+        for country in countries.model_dump()["countries"]:
+            headers = {
+                "Authorization": f"Bearer {settings.proxy.BRIGHT_DATA_TOKEN}",
             }
-        }
+            name = f"{country}_zone_{random.randint(10000000, 100000000)}"
+            json_data = {
+                "zone": {
+                    "name": name,
+                    "type": "datacenter"
+                },
+                "plan": {
+                    "type": "static",
+                    "domain_whitelist": "*",
+                    "ips_type": "shared",
+                    "bandwidth": "payperusage",
+                    "ip_alloc_preset": "shared_block",
+                    "ips": 0,
+                    "country": f"{country}"
+                }
+            }
 
-        r = requests.post("https://api.brightdata.com/zone", json=json_data, headers=headers)
-        login = f'brd-customer-hl_38726487-zone-{name}'
-        password = json.loads(r.content)["zone"]["password"][0]
-        address = "brd.superproxy.io"
-        port = "33335"
+            r = requests.post("https://api.brightdata.com/zone", json=json_data, headers=headers)
+            login = f'brd-customer-hl_38726487-zone-{name}'
+            password = json.loads(r.content)["zone"]["password"][0]
+            address = "brd.superproxy.io"
+            port = "33335"
 
-        data = {
-            "login": login,
-            "password": password,
-            "address": address,
-            "port": port,
-        }
+            data = {
+                "login": login,
+                "password": password,
+                "address": address,
+                "port": port,
+            }
 
-        proxy = ProxyBrightData(**data)
-        session.add(proxy)
-        await session.commit()
+            proxy = ProxyBrightData(**data)
+            session.add(proxy)
+            await session.commit()
+        return {"message": "success"}
+    except:
+        return {"message": "Cannot create new zones"}
 
 @router.get("/get-all-available-proxies")
 async def get_all_available_proxies(

@@ -291,7 +291,7 @@ async def websocket_status_endpoint(
 @router.get("/start/{filter_id}")
 async def start(
     filter_id: int,
-    proxies_id = [2, 3],
+    proxies_id = [4, 5],
     using_proxy: str = "MANGO",
     payload = Depends(get_payload),
     session: AsyncSession = Depends(db_helper.session_depends),
@@ -422,9 +422,10 @@ async def create_new_zones(countries: ProxyCountriesCreateSchemas, payload = Dep
         headers = {
             "Authorization": f"Bearer {settings.proxy.BRIGHT_DATA_TOKEN}",
         }
+        name = f"{country}_zone_{random.randint(10000000, 100000000)}"
         json_data = {
             "zone": {
-                "name": f"{country}_zone_{random.randint(10000000, 100000000)}",
+                "name": name,
                 "type": "datacenter"
             },
             "plan": {
@@ -439,7 +440,7 @@ async def create_new_zones(countries: ProxyCountriesCreateSchemas, payload = Dep
         }
 
         r = requests.post("https://api.brightdata.com/zone", json=json_data, headers=headers)
-        login = f'brd-customer-hl_38726487-zone-{country}_zone'
+        login = f'brd-customer-hl_38726487-zone-{name}'
         password = json.loads(r.content)["zone"]["password"][0]
         address = "brd.superproxy.io"
         port = "33335"

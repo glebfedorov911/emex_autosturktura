@@ -15,4 +15,5 @@ class ProxyBrightData(Base):
     password: Mapped[str] = mapped_column()
     address: Mapped[str] = mapped_column()
     port: Mapped[str] = mapped_column()
+    name: Mapped[str] = mapped_column(nullable=True)
 

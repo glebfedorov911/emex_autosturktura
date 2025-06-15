@@ -30,5 +30,9 @@ class ParserCreate(BaseModel):
     user_id: int
     file_id: int 
 
+class Countries(BaseModel):
+    name: str
+    region: str
+
 class ProxyCountriesCreateSchemas(BaseModel):
-    countries: list[str]
+    countries: list[Countries]

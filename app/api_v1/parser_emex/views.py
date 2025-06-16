@@ -493,6 +493,8 @@ async def delete_proxy(
     stmt = select(ProxyBrightData).where(ProxyBrightData.id == id)
     result: Result = await session.execute(stmt)
     proxy = result.scalar_one_or_none()
+    print(proxy)
     if proxy:
-        session.delete(proxy)
+        await session.delete(proxy)
+        await session.commit()
     return {"message": "success"}

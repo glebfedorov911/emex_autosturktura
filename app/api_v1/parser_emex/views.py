@@ -207,10 +207,10 @@ async def websocket_status_endpoint(
                 ud["start"] = ud["skip"]
                 ud["skip"] += limit
                 print("СОХРАНЯЮ")
-                print("Данные для сохранения 1:", ud["start"], ':', ud["skip"], len(ud["excel_result"]), "ПРОЦЕНТЫ:", int(ud["counter_parsered"] / ud["count_brands"] * 100))
+                # print("Данные для сохранения 1:", ud["start"], ':', ud["skip"], len(ud["excel_result"]), "ПРОЦЕНТЫ:", int(ud["counter_parsered"] / ud["count_brands"] * 100))
                 fileData = (await crud.get_last_upload_files(user_id=payload.get("sub"), session=session))
                 await crud.saving_to_table_data(user_id=payload.get("sub"), session=session, data=ud["excel_result"][ud["start"]:ud["skip"]], file_id=fileData.id)
-                print("Данные для сохранения 2:", ud["start"], ':', ud["skip"], len(ud["excel_result"]), "ПРОЦЕНТЫ:", int(ud["counter_parsered"] / ud["count_brands"] * 100))
+                # print("Данные для сохранения 2:", ud["start"], ':', ud["skip"], len(ud["excel_result"]), "ПРОЦЕНТЫ:", int(ud["counter_parsered"] / ud["count_brands"] * 100))
             print("EXCEL_RESULT2:", len(ud["excel_result"]))
             if ud["status"] in (
                 "ALL_PROXIES_BANNED",
@@ -253,7 +253,7 @@ async def websocket_status_endpoint(
                     if int(ud["counter_parsered"] / ud["count_brands"] * 100) >= 100:
                         ud["status"] = "PARSING_COMPLETED"
                     if len(ud["brands"]) != 0:
-                        print(ud["brands"])
+                        # print(ud["brands"])
                         cnt = len(ud["brands"]) if len(ud["brands"]) < count_of_threadings else count_of_threadings
                         ud["status"] = "PARSER_RUNNING"
                         for index in range(cnt):
@@ -285,7 +285,6 @@ async def websocket_status_endpoint(
         await websocket.close()
     except Exception as e:
         print("-="*20)
-        print("sfdlkksfdklsdf")
         print(e)
 
 

@@ -402,7 +402,10 @@ async def get_rezerv(payload = Depends(get_payload)):
         return "Нет файла"
 
 @router.get("/get-all-available-country-zone")
-async def get_all_available_country_zone(payload = Depends(get_payload)):
+async def get_all_available_country_zone(
+    payload = Depends(get_payload),
+    session: AsyncSession = Depends(db_helper.session_depends),
+):
     # try:
     #     headers = {
     #         "Authorization": f"Bearer {settings.proxy.BRIGHT_DATA_TOKEN}",

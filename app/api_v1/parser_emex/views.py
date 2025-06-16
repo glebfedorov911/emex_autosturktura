@@ -124,6 +124,7 @@ async def websocket_endpoint(
                     "Percent_parsing_goods": round(
                         ud["counter_parsered"] / ud["count_brands"] * 100, 2
                     ),
+                    "count_parsered": len(ud["counter_parsered"])
                 }
             )
 

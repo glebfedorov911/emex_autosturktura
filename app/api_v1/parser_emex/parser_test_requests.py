@@ -117,11 +117,11 @@ async def main(user_id, using_proxy, index, proxies2):
             print("URL сейчас:", url)
             print("Данных спаршено:", user_data[user_id]["counter_parsered"], "данных всего:", user_data[user_id]["count_brands"])
             print("Обновление списка (длина):", len(user_data[user_id]["brands"]))
-            print("Потоки", threading.enumerate())
-            try:
-                print(*[f"""{i} | {user_data[user_id]["threads"][i]}: {user_data[user_id]["threads"][i].is_alive()}""" for i in range(len(user_data[user_id]["threads"])) if user_data[user_id]["threads"][i] != None]) #4: {user_data[user_id]["threads"][4].is_alive()} 5: {user_data[user_id]["threads"][5].is_alive()}""")
-            except Exception as e:
-                print("Ошибка в alive модуле", e)
+            # print("Потоки", threading.enumerate())
+            # try:
+            #     print(*[f"""{i} | {user_data[user_id]["threads"][i]}: {user_data[user_id]["threads"][i].is_alive()}""" for i in range(len(user_data[user_id]["threads"])) if user_data[user_id]["threads"][i] != None]) #4: {user_data[user_id]["threads"][4].is_alive()} 5: {user_data[user_id]["threads"][5].is_alive()}""")
+            # except Exception as e:
+            #     print("Ошибка в alive модуле", e)
             print(f"-="*(len(for_log)//2))
 
             if using_proxy == "MANGO":

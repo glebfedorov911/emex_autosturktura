@@ -494,5 +494,5 @@ async def delete_proxy(
     result: Result = await session.execute(stmt)
     proxy = result.scalar_one_or_none()
     if proxy:
-        session.delete(result)
+        session.delete(proxy)
     return {"message": "success"}

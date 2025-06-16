@@ -291,13 +291,14 @@ async def websocket_status_endpoint(
 @router.get("/start/{filter_id}")
 async def start(
     filter_id: int,
-    proxies_id: str = [6, 7, 8],
+    proxies_id: str = "6,7,8",
     using_proxy: str = "MANGO",
     payload = Depends(get_payload),
     session: AsyncSession = Depends(db_helper.session_depends),
 ):
     global user_data
-    
+    proxies_id = proxies_id.split(",")
+    proxies_id = [int(i) for i in proxies_id]
 
     await create_empty_json(os.path.join(settings.upload.path_for_upload, f"{payload.get('sub')}_parsing.json"))
     messages = []

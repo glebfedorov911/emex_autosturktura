@@ -453,7 +453,8 @@ async def create_new_zones(countries: ProxyCountriesCreateSchemas, payload = Dep
                     "bandwidth": "payperusage",
                     "ip_alloc_preset": "shared_block",
                     "ips": 0,
-                    "country": f"{country}"
+                    "country": f"{country}",
+                    "default_country": f"{country}"
                 }
             }
 
